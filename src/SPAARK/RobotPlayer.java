@@ -29,7 +29,7 @@ public strictfp class RobotPlayer {
             try {
                 if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-                    int index = rc.getID();
+                    int index = rng.nextInt(27 * 3);
                     while (true) {
                         MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                         if (rc.canSpawn(randomLoc)) {
@@ -46,32 +46,27 @@ public strictfp class RobotPlayer {
                         rc.pickupFlag(rc.getLocation());
                         rc.setIndicatorString("Holding a flag!");
                     }
-                    // If we are holding an enemy flag, singularly focus on moving towards
-                    // an ally spawn zone to capture it! We use the check roundNum >= SETUP_ROUNDS
-                    // to make sure setup phase has ended.
                     if (rc.hasFlag() && rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
                         MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                         MapLocation firstLoc = spawnLocs[0];
                         Direction dir = rc.getLocation().directionTo(firstLoc);
                         if (rc.canMove(dir)) rc.move(dir);
                     }
-                    // Move and attack randomly if no objective.
                     Direction dir = directions[rng.nextInt(directions.length)];
                     MapLocation nextLoc = rc.getLocation().add(dir);
-                    if (rc.canMove(dir)){
+                    if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
-                    else if (rc.canAttack(nextLoc)){
+                    else if (rc.canAttack(nextLoc)) {
                         rc.attack(nextLoc);
                         System.out.println("Take that! Damaged an enemy that was in our way!");
                     }
 
                     // Rarely attempt placing traps behind the robot.
                     MapLocation prevLoc = rc.getLocation().subtract(dir);
-                    if (rc.canBuild(TrapType.EXPLOSIVE, prevLoc) && rng.nextInt() % 37 == 1)
+                    if (rc.canBuild(TrapType.EXPLOSIVE, prevLoc) && rng.nextInt() % 37 == 1) {
                         rc.build(TrapType.EXPLOSIVE, prevLoc);
-                    // We can also move our code into different methods or classes to better organize it!
-                    updateEnemyRobots(rc);
+                    }
                 }
 
             }
@@ -85,24 +80,6 @@ public strictfp class RobotPlayer {
             }
             finally {
                 Clock.yield();
-            }
-        }
-    }
-    public static void updateEnemyRobots(RobotController rc) throws GameActionException {
-        // Sensing methods can be passed in a radius of -1 to automatically 
-        // use the largest possible value.
-        RobotInfo[] enemyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-        if (enemyRobots.length != 0){
-            rc.setIndicatorString("There are nearby enemy robots! Scary!");
-            // Save an array of locations with enemy robots in them for future use.
-            MapLocation[] enemyLocations = new MapLocation[enemyRobots.length];
-            for (int i = 0; i < enemyRobots.length; i++){
-                enemyLocations[i] = enemyRobots[i].getLocation();
-            }
-            // Let the rest of our team know how many enemy robots we see!
-            if (rc.canWriteSharedArray(0, enemyRobots.length)){
-                rc.writeSharedArray(0, enemyRobots.length);
-                int numEnemies = rc.readSharedArray(0);
             }
         }
     }

@@ -308,22 +308,39 @@ public class Motion {
             }
             Direction direction = me.directionTo(dest);
             boolean moved = false;
-            if (rc.canMove(direction) && lastDirection != direction.opposite()) {
-                rc.move(direction);
-                boolean touchingTheWallBefore = false;
-                for (Direction d : DIRECTIONS) {
-                    MapLocation translatedMapLocation = me.add(d);
-                    if (rc.onTheMap(translatedMapLocation)) {
-                        if (!rc.canMove(d)) {
-                            touchingTheWallBefore = true;
+            if (lastDirection != direction.opposite()) {
+                if (rc.canMove(direction)) {
+                    rc.move(direction);
+                    boolean touchingTheWallBefore = false;
+                    for (Direction d : DIRECTIONS) {
+                        MapLocation translatedMapLocation = me.add(d);
+                        if (rc.onTheMap(translatedMapLocation)) {
+                            if (!rc.canMove(d)) {
+                                touchingTheWallBefore = true;
+                            }
                         }
                     }
+                    lastDirection = direction;
+                    if (touchingTheWallBefore) {
+                        clockwiseRotation = !clockwiseRotation;
+                    }
+                    continue;
                 }
-                lastDirection = direction;
-                if (touchingTheWallBefore) {
-                    clockwiseRotation = !clockwiseRotation;
+                else if (rc.canFill(me.add(direction))) {
+                    int water = 0;
+                    for (Direction d : DIRECTIONS) {
+                        MapLocation translatedMapLocation = me.add(d);
+                        if (rc.onTheMap(translatedMapLocation)) {
+                            if (rc.canFill(translatedMapLocation)) {
+                                water += 1;
+                            }
+                        }
+                    }
+                    if (water >= 3) {
+                        rc.fill(me.add(direction));
+                        continue;
+                    }
                 }
-                continue;
             }
             
             for (int i = 0; i < 7; i++) {
