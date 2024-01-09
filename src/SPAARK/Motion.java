@@ -357,9 +357,10 @@ public class Motion {
                     // if (i >= 4) {
                     //     clockwiseRotation = !clockwiseRotation;
                     // }
-                    break;
+                    continue;
                 }
-            } 
+            }
+            break;
         }
         // indicatorString.append("BUG-LD=" + DIRABBREV[lastDirection.getDirectionOrderNum()] + "; BUG-CW=" + clockwiseRotation + "; ");
         // if (oldClockwiseRotation != clockwiseRotation) {
