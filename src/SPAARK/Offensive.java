@@ -4,15 +4,13 @@ import battlecode.common.*;
 
 import java.util.*;
 
-public class Setup {
+public class Offensive {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
     public static Random rng;
     
     public static void run() throws GameActionException {
-        if (rc.canPickupFlag(rc.getLocation())) {
-            rc.pickupFlag(rc.getLocation());
-        }
+        // capturing flags
     }
 }

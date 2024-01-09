@@ -22,7 +22,14 @@ public strictfp class RobotPlayer {
 
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
-        Motion.rng = new Random(rc.getID() + 2024);
+        Motion.rc = rc;
+        Motion.rng = rng;
+        Setup.rc = rc;
+        Setup.rng = rng;
+        Offensive.rc = rc;
+        Offensive.rng = rng;
+        Defensive.rc = rc;
+        Defensive.rng = rng;
         while (true) {
             turnCount += 1;
 
@@ -42,9 +49,17 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.canPickupFlag(rc.getLocation())) {
-                        rc.pickupFlag(rc.getLocation());
-                        rc.setIndicatorString("Holding a flag!");
+                    StringBuilder indicatorString = new StringBuilder();
+                    Motion.indicatorString = indicatorString;
+                    Attack.indicatorString = indicatorString;
+                    Setup.indicatorString = indicatorString;
+                    Offensive.indicatorString = indicatorString;
+                    Defensive.indicatorString = indicatorString;
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                        Setup.run();
+                    }
+                    else {
+                        Offensive.run();
                     }
                     if (rc.hasFlag() && rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
                         MapLocation[] spawnLocs = rc.getAllySpawnLocations();
@@ -67,6 +82,7 @@ public strictfp class RobotPlayer {
                     if (rc.canBuild(TrapType.EXPLOSIVE, prevLoc) && rng.nextInt() % 37 == 1) {
                         rc.build(TrapType.EXPLOSIVE, prevLoc);
                     }
+                    rc.setIndicatorString(indicatorString);
                 }
 
             }

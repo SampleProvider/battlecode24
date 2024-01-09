@@ -5,6 +5,7 @@ import battlecode.common.*;
 public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
+    
     public static RobotInfo[] friendlyRobots;
     public static RobotInfo[] opponentRobots;
     protected static void attack(StringBuilder indicatorString) throws GameActionException {
