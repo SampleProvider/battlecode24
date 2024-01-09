@@ -24,4 +24,8 @@ public class GlobalArray {
     public static int intifyLocation(MapLocation loc) {
         return (loc.y << 6) | loc.x;
     }
+    
+    public static boolean isFlagPlaced(int n) {
+        return ((n >> 13) & 0b1) == 1;
+    }
 }
