@@ -5,29 +5,45 @@ import battlecode.common.*;
 public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
-    
+
     public static RobotInfo[] friendlyRobots;
     public static RobotInfo[] opponentRobots;
-    protected static void attack(StringBuilder indicatorString) throws GameActionException {
+    protected static void attack() throws GameActionException {
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
                 RobotInfo robot = getPrioritizedOpponentRobot();
                 if (rc.canAttack(robot.getLocation())) {
                     indicatorString.append("ATK-" + robot.getLocation().toString() + "; ");
-                    while (rc.canAttack(robot.getLocation())) {
+                    while (robot != null && rc.canAttack(robot.getLocation())) {
                         rc.attack(robot.getLocation());
                     }
+                    continue;
                 }
+                else {
+                    return;
+                }
+            }
+            else {
                 return;
             }
-            else if (friendlyRobots.length > 0) {
+        }
+    }
+    protected static void heal() throws GameActionException {
+        while (rc.isActionReady()) {
+            if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot();
                 if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {
                         rc.heal(robot.getLocation());
                     }
+                    continue;
                 }
+                else {
+                    return;
+                }
+            }
+            else {
                 return;
             }
         }

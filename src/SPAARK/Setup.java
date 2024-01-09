@@ -2,7 +2,12 @@ package SPAARK;
 
 import battlecode.common.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class Setup {
     public static RobotController rc;
@@ -14,5 +19,6 @@ public class Setup {
         if (rc.canPickupFlag(rc.getLocation())) {
             rc.pickupFlag(rc.getLocation());
         }
+        Motion.moveRandomly();
     }
 }
