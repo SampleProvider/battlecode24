@@ -25,7 +25,7 @@ public class Offensive {
         if (rc.hasFlag() && rc.getRoundNum() != GameConstants.SETUP_ROUNDS) {
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation firstLoc = spawnLocs[0];
-            Motion.bugnav(firstLoc, false);
+            Motion.bugnavTowards(firstLoc, false);
             if (flagIndex == -1) {
                 for (int i = 7; i <= 9; i++) {
                     if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
@@ -43,18 +43,18 @@ public class Offensive {
             }
             for (int i = 7; i <= 9; i++) {
                 if (GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                    Motion.bugnavAround(GlobalArray.parseLocation(rc.readSharedArray(i)), 5, false);
+                    Motion.bugnavAround(GlobalArray.parseLocation(rc.readSharedArray(i)), 5, 10, false);
                     break;
                 }
             }
             FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
             if (flags.length > 0) {
-                Motion.bugnav(flags[0].getLocation(), false);
+                Motion.bugnavTowards(flags[0].getLocation(), false);
             }
             else {
                 MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                 if (hiddenFlags.length > 0) {
-                    Motion.bugnav(hiddenFlags[0], false);
+                    Motion.bugnavTowards(hiddenFlags[0], false);
                 }
                 else {
                     Motion.moveRandomly();
