@@ -356,7 +356,8 @@ public class Motion {
                 for (Direction d : DIRECTIONS) {
                     MapLocation translatedMapLocation = me.add(d);
                     if (rc.onTheMap(translatedMapLocation)) {
-                        if (rc.canFill(translatedMapLocation)) {
+                        // if (rc.canFill(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
                             water += 1;
                         }
                     }
@@ -365,6 +366,33 @@ public class Motion {
                     rc.fill(me.add(direction));
                     return true;
                 }
+            }
+        }
+        else if (rc.canMove(direction)) {
+            Direction d;
+            if (rotation == CLOCKWISE) {
+                d = direction.rotateRight();
+            }
+            else {
+                d = direction.rotateLeft();
+            }
+            if (!rc.onTheMap(me.add(d))) {
+                rc.move(direction);
+                lastDir = direction;
+                boolean touchingTheWallBefore = false;
+                for (Direction d : DIRECTIONS) {
+                    MapLocation translatedMapLocation = me.add(d);
+                    if (rc.onTheMap(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                            touchingTheWallBefore = true;
+                            break;
+                        }
+                    }
+                }
+                if (touchingTheWallBefore) {
+                    rotation = NONE;
+                }
+                return true;
             }
         }
         
