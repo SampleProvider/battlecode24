@@ -19,41 +19,52 @@ public class Offensive {
     
     public static void run() throws GameActionException {
         // capturing flags
-        if (rc.canPickupFlag(rc.getLocation())) {
-            rc.pickupFlag(rc.getLocation());
-        }
-        if (rc.hasFlag()) {
-            if (rc.getRoundNum() != GameConstants.SETUP_ROUNDS) {
-                //Run back to base
-                MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-                MapLocation bestLoc = Motion.getNearest(spawnLocs);
-                Motion.bugnavTowards(bestLoc, false);
-                rc.setIndicatorDot(bestLoc, 100, 100, 100);
-                if (flagIndex == -1) {
-                    for (int i = 7; i <= 9; i++) {
-                        if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                            flagIndex = i;
-                            break;
-                        }
+        FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+        FlagInfo nearestFlag = Motion.getNearestFlag(flags, false);
+        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation()) && flagIndex == -1) {
+            boolean valid = true;
+            for (int i = 6; i <= 8; i++) {
+                int n = rc.readSharedArray(i);
+                if (GlobalArray.hasLocation(n) && GlobalArray.parseLocation(n).equals(nearestFlag.getLocation()) && !GlobalArray.isFlagPlaced(n)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                rc.pickupFlag(nearestFlag.getLocation());
+                for (int i = 6; i <= 8; i++) {
+                    if (GlobalArray.isFlagPlaced(rc.readSharedArray(i))) {
+                        flagIndex = i;
+                        indicatorString.append("WOW PICKED UP FLAG " + i);
+                        break;
                     }
                 }
                 rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
             }
         }
+        if (flagIndex != -1 && !rc.hasFlag() && (nearestFlag == null || !nearestFlag.getLocation().equals(rc.getLocation()))) {
+            stopHoldingFlag();
+            flagIndex = -1;
+        }
+        indicatorString.append(flagIndex);
+        if (flagIndex != -1) {
+            MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+            MapLocation bestLoc = Motion.getNearest(spawnLocs);
+            rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            Motion.bug2Flag(bestLoc);
+            // rc.writeSharedArray(flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+            rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
+        }
         else {
-            if (flagIndex != -1) {
-                rc.writeSharedArray(flagIndex, 0);
-                flagIndex = -1;
-            }
-            for (int i = 7; i <= 9; i++) {
-                if (GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                    Motion.bugnavAround(GlobalArray.parseLocation(rc.readSharedArray(i)), 5, 10, false);
+            for (int i = 6; i <= 8; i++) {
+                int n = rc.readSharedArray(i);
+                if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPlaced(n)) {
+                    Motion.bugnavAround(GlobalArray.parseLocation(n), 8, 15, false);
                     break;
                 }
             }
-            FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
-            if (flags.length > 0) {
-                Motion.bugnavTowards(flags[0].getLocation(), false);
+            if (nearestFlag != null) {
+                Motion.bugnavTowards(nearestFlag.getLocation(), false);
             }
             else {
                 MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
@@ -70,8 +81,11 @@ public class Offensive {
     }
     public static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            rc.writeSharedArray(flagIndex, 0);
-            flagIndex = -1;
+            stopHoldingFlag();
         }
+    }
+    public static void stopHoldingFlag() throws GameActionException {
+        rc.writeSharedArray(flagIndex, (1 << 13) ^ rc.readSharedArray(flagIndex));
+        flagIndex = -1;
     }
 }
