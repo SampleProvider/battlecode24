@@ -36,7 +36,7 @@ public class Setup {
         else {
             MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
             if (crumbs.length > 0) {
-                Motion.bugnav(crumbs[0], true);
+                Motion.bugnavTowards(crumbs[0], true);
             }
             else {
                 Motion.moveRandomly();
