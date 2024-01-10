@@ -22,7 +22,7 @@ public class GlobalArray {
         return new MapLocation(n & 0b111111, (n >> 6) & 0b111111);
     }
     public static int intifyLocation(MapLocation loc) {
-        return (loc.y << 6) | loc.x;
+        return 0b1000000000000 | (loc.y << 6) | loc.x;
     }
     
     public static boolean isFlagPlaced(int n) {
