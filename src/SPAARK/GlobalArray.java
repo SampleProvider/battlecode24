@@ -31,4 +31,17 @@ public class GlobalArray {
     public static boolean isFlagPlaced(int n) {
         return ((n >> 13) & 0b1) == 1;
     }
+
+    public static void updateLocation(int index, MapLocation loc) throws GameActionException {
+        int n = rc.readSharedArray(index);
+        if (!hasLocation(n) || !parseLocation(n).equals(loc)) {
+            rc.writeSharedArray(index, (n & 0b1110000000000000) | intifyLocation(loc));
+        }
+    }
+
+    public static void init() throws GameActionException {
+        rc.writeSharedArray(6, 1 << 13);
+        rc.writeSharedArray(7, 1 << 13);
+        rc.writeSharedArray(8, 1 << 13);
+    }
 }

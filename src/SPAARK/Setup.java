@@ -79,6 +79,7 @@ public class Setup {
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
+                    indicatorString.append("NOT VALID");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
                     } else
@@ -98,9 +99,11 @@ public class Setup {
                 rc.dropFlag(toPlace);
                 flagIndex = -1;
             }
-            rc.setIndicatorLine(me, toPlace, 255, 255, 255);
-            indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+") ");
-            rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
+            else {
+                rc.setIndicatorLine(me, toPlace, 255, 255, 255);
+                indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+") ");
+                rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
+            }
         }
         else {
             MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);

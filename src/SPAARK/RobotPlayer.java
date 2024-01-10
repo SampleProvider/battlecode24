@@ -30,12 +30,16 @@ public strictfp class RobotPlayer {
         Motion.rc = rc;
         Motion.rng = rng;
         Attack.rc = rc;
+        GlobalArray.rc = rc;
         Setup.rc = rc;
         Setup.rng = rng;
         Offensive.rc = rc;
         Offensive.rng = rng;
         Defensive.rc = rc;
         Defensive.rng = rng;
+
+        GlobalArray.init();
+
         while (true) {
             turnCount += 1;
 
@@ -82,6 +86,7 @@ public strictfp class RobotPlayer {
             catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
+                rc.resign();
             }
             catch (Exception e) {
                 System.out.println("Exception");
