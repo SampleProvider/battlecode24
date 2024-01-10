@@ -36,6 +36,7 @@ public class Attack {
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot();
+                rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
                 if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {

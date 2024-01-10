@@ -13,6 +13,8 @@ public class GlobalArray {
      *  Stolen Flag Locations
      * Array Indices 7-9:
      *  Opponent Flag Locations
+     * Array Index 10:
+     *  0-11: Flag target location during setup
      * 
      * danger levels for flag carriers
      */
@@ -26,7 +28,6 @@ public class GlobalArray {
     public static int intifyLocation(MapLocation loc) {
         return 0b1000000000000 | (loc.y << 6) | loc.x;
     }
-    
     public static boolean isFlagPlaced(int n) {
         return ((n >> 13) & 0b1) == 1;
     }

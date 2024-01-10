@@ -41,12 +41,61 @@ public class Motion {
     protected static Direction lastDir = Direction.CENTER;
     protected static int rotation = CLOCKWISE;
 
+    protected static int getManhattanDistance(MapLocation a, MapLocation b) {
+        return Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+    }
+
+    protected static int getChebyshevDistance(MapLocation a, MapLocation b) {
+        return Math.max(Math.abs(a.x-b.x), Math.abs(a.y-b.y));
+    }
+
     protected static MapLocation getNearest(MapLocation[] a) throws GameActionException {
+        /* Get nearest MapLocation to this robot (Euclidean) */
         MapLocation me = rc.getLocation();
         MapLocation nearest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
             if (me.distanceSquaredTo(loc) < distance) {
+                nearest = loc;
+                distance = me.distanceSquaredTo(loc);
+            }
+        }
+        return nearest;
+    }
+
+    protected static MapLocation getFarthest(MapLocation[] a) throws GameActionException {
+        /* Get farthest MapLocation to this robot (Euclidean) */
+        MapLocation me = rc.getLocation();
+        MapLocation nearest = a[0];
+        int distance = me.distanceSquaredTo(a[0]);
+        for (MapLocation loc : a) {
+            if (me.distanceSquaredTo(loc) > distance) {
+                nearest = loc;
+                distance = me.distanceSquaredTo(loc);
+            }
+        }
+        return nearest;
+    }
+
+    protected static MapLocation getNearest(MapLocation[] a, MapLocation me) throws GameActionException {
+        /* Get nearest MapLocation to me (Euclidean) */
+        MapLocation nearest = a[0];
+        int distance = me.distanceSquaredTo(a[0]);
+        for (MapLocation loc : a) {
+            if (me.distanceSquaredTo(loc) < distance) {
+                nearest = loc;
+                distance = me.distanceSquaredTo(loc);
+            }
+        }
+        return nearest;
+    }
+
+    protected static MapLocation getFarthest(MapLocation[] a, MapLocation me) throws GameActionException {
+        /* Get farthest MapLocation to me (Euclidean) */
+        MapLocation nearest = a[0];
+        int distance = me.distanceSquaredTo(a[0]);
+        for (MapLocation loc : a) {
+            if (me.distanceSquaredTo(loc) > distance) {
                 nearest = loc;
                 distance = me.distanceSquaredTo(loc);
             }

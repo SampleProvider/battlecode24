@@ -22,19 +22,23 @@ public class Offensive {
         if (rc.canPickupFlag(rc.getLocation())) {
             rc.pickupFlag(rc.getLocation());
         }
-        if (rc.hasFlag() && rc.getRoundNum() != GameConstants.SETUP_ROUNDS) {
-            MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation firstLoc = spawnLocs[0];
-            Motion.bugnavTowards(firstLoc, false);
-            if (flagIndex == -1) {
-                for (int i = 7; i <= 9; i++) {
-                    if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                        flagIndex = i;
-                        break;
+        if (rc.hasFlag()) {
+            if (rc.getRoundNum() != GameConstants.SETUP_ROUNDS) {
+                //Run back to base
+                MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+                MapLocation bestLoc = Motion.getNearest(spawnLocs);
+                Motion.bugnavTowards(bestLoc, false);
+                rc.setIndicatorDot(bestLoc, 100, 100, 100);
+                if (flagIndex == -1) {
+                    for (int i = 7; i <= 9; i++) {
+                        if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
+                            flagIndex = i;
+                            break;
+                        }
                     }
                 }
+                rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
             }
-            rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
         }
         else {
             if (flagIndex != -1) {
