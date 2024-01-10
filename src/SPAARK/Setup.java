@@ -56,6 +56,7 @@ public class Setup {
                 switch (flagIndex) {
                     case 0:
                         flagOffset = new MapLocation(0, 0);
+                        break;
                     case 1:
                         for (MapLocation loc : placementLocationsOne) {
                             flagOffset = loc;
@@ -64,6 +65,7 @@ public class Setup {
                                 break;
                             }
                         }
+                        break;
                     case 2:
                         for (MapLocation loc : placementLocationsTwo) {
                             flagOffset = loc;
@@ -72,6 +74,7 @@ public class Setup {
                                 break;
                             }
                         }
+                        break;
                     default:
                 }
             }
