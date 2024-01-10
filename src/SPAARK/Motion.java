@@ -335,6 +335,20 @@ public class Motion {
         if (lastDir != direction.opposite()) {
             if (rc.canMove(direction)) {
                 rc.move(direction);
+                lastDir = direction;
+                boolean touchingTheWallBefore = false;
+                for (Direction d : DIRECTIONS) {
+                    MapLocation translatedMapLocation = me.add(d);
+                    if (rc.onTheMap(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                            touchingTheWallBefore = true;
+                            break;
+                        }
+                    }
+                }
+                if (touchingTheWallBefore) {
+                    rotation = NONE;
+                }
                 return true;
             }
             else if (rc.canFill(me.add(direction))) {
@@ -471,18 +485,19 @@ public class Motion {
         if (lastDir != direction.opposite()) {
             if (rc.canMove(direction)) {
                 rc.move(direction);
+                lastDir = direction;
                 boolean touchingTheWallBefore = false;
                 for (Direction d : DIRECTIONS) {
                     MapLocation translatedMapLocation = me.add(d);
                     if (rc.onTheMap(translatedMapLocation)) {
                         if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
                             touchingTheWallBefore = true;
+                            break;
                         }
                     }
                 }
-                lastDir = direction;
                 if (touchingTheWallBefore) {
-                    rotation *= -1;
+                    rotation = NONE;
                 }
                 return true;
             }
@@ -500,6 +515,13 @@ public class Motion {
                     rc.fill(me.add(direction));
                     return true;
                 }
+            }
+        }
+
+        if (rotation == NONE) {
+            rotation = CLOCKWISE;
+            if (rng.nextBoolean()) {
+                rotation *= -1;
             }
         }
         
