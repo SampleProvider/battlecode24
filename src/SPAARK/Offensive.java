@@ -41,17 +41,17 @@ public class Offensive {
                 rc.writeSharedArray(flagIndex, 0);
                 flagIndex = -1;
             }
+            for (int i = 7; i <= 9; i++) {
+                if (GlobalArray.hasLocation(rc.readSharedArray(i))) {
+                    Motion.bugnavAround(GlobalArray.parseLocation(rc.readSharedArray(i)), 5, false);
+                    break;
+                }
+            }
             FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
             if (flags.length > 0) {
-                Motion.bugnavAround(flags[0].getLocation(), 5, false);
+                Motion.bugnav(flags[0].getLocation(), false);
             }
             else {
-                for (int i = 7; i <= 9; i++) {
-                    if (GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                        Motion.bugnavAround(GlobalArray.parseLocation(rc.readSharedArray(i)), 5, false);
-                        break;
-                    }
-                }
                 MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                 if (hiddenFlags.length > 0) {
                     Motion.bugnav(hiddenFlags[0], false);
