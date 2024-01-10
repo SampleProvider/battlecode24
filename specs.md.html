@@ -1,0 +1,658 @@
+
+<!-- saved from url=(0070)https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=600, initial-scale=1"><style>body{max-width:680px;margin:auto;padding:20px;text-align:justify;line-height:140%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-smoothing:antialiased;color:#222;font-family:Palatino,Georgia,"Times New Roman",serif}</style><style>@media print{*{-webkit-print-color-adjust:exact;text-shadow:none !important}}body{counter-reset: h1 paragraph line item list-item}@page{margin:0;size:auto}#mdContextMenu{position:absolute;background:#383838;cursor:default;border:1px solid #999;color:#fff;padding:4px 0px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,"Helvetica Neue",sans-serif;font-size:85%;font-weight:600;border-radius:4px;box-shadow:0px 3px 10px rgba(0,0,0,35%)}#mdContextMenu div{padding:0px 20px}#mdContextMenu div:hover{background:#1659d1}.md code,.md pre{font-family:Menlo,Consolas,monospace;font-size:93%;text-align:left;line-height:140%}.md .mediumToc code,.md longToc code,.md .shortToc code,.md h1 code,.md h2 code,.md h3 code,.md h4 code,.md h5 code,.md h6 code{font-size:unset}.md div.title{font-size:26px;font-weight:800;line-height:120%;text-align:center}.md div.afterTitles{height:10px}.md div.subtitle{text-align:center}.md iframe.textinsert, .md object.textinsert,.md iframe:not(.markdeep){display:block;margin-top:10px;margin-bottom:10px;width:100%;height:75vh;border:1px solid #000;border-radius:4px;background:#f5f5f4}.md .image{display:inline-block}.md img{max-width:100%;page-break-inside:avoid}.md li{text-align:left;text-indent:0}.md pre.listing {width:100%;tab-size:4;-moz-tab-size:4;-o-tab-size:4;counter-reset:line;overflow-x:auto;resize:horizontal}.md pre.listing .linenumbers span.line:before{width:30px;margin-left:-28px;font-size:80%;text-align:right;counter-increment:line;content:counter(line);display:inline-block;padding-right:13px;margin-right:8px;color:#ccc}.md div.tilde{margin:20px 0 -10px;text-align:center}.md .imagecaption,.md .tablecaption,.md .listingcaption{display:inline-block;margin:7px 5px 12px;text-align:justify;font-style:italic}.md img.pixel{image-rendering:-moz-crisp-edges;image-rendering:pixelated}.md blockquote.fancyquote{margin:25px 0 25px;text-align:left;line-height:160%}.md blockquote.fancyquote::before{content:"“";color:#DDD;font-family:Times New Roman;font-size:45px;line-height:0;margin-right:6px;vertical-align:-0.3em}.md span.fancyquote{font-size:118%;color:#777;font-style:italic}.md span.fancyquote::after{content:"”";font-style:normal;color:#DDD;font-family:Times New Roman;font-size:45px;line-height:0;margin-left:6px;vertical-align:-0.3em}.md blockquote.fancyquote .author{width:100%;margin-top:10px;display:inline-block;text-align:right}.md small{font-size:60%}.md big{font-size:150%}.md div.title,contents,.md .tocHeader,.md h1,.md h2,.md h3,.md h4,.md h5,.md h6,.md .shortTOC,.md .mediumTOC,.nonumberh1,.nonumberh2,.nonumberh3,.nonumberh4,.nonumberh5,.nonumberh6{font-family:Verdana,Helvetica,Arial,sans-serif;margin:13.4px 0 13.4px;padding:15px 0 3px;border-top:none;clear:both}.md .tocTop {display:none}.md h1,.md h2,.md h3,.md h4,.md h5,.md h6,.md .nonumberh1,.md .nonumberh2,.md .nonumberh3,.md .nonumberh4,.md .nonumberh5,.md .nonumberh6{page-break-after:avoid;break-after:avoid}.md svg.diagram{display:block;font-family:Menlo,Consolas,monospace;font-size:93%;text-align:center;stroke-linecap:round;stroke-width:2px;page-break-inside:avoid;stroke:#000;fill:#000}.md svg.diagram .opendot{fill:#fff}.md svg.diagram .shadeddot{fill:#CCC}.md svg.diagram .dotteddot{stroke:#000;stroke-dasharray:4;fill:none}.md svg.diagram text{stroke:none}@media print{@page{margin:1in 5mm;transform: scale(150%)}}@media print{.md .pagebreak{page-break-after:always;visibility:hidden}}.md a{font-family:Georgia,Palatino,'Times New Roman'}.md h1,.md .tocHeader,.md .nonumberh1{border-bottom:3px solid;font-size:20px;font-weight:bold;}.md h1,.md .nonumberh1{counter-reset:h2 h3 h4 h5 h6}.md h2,.md .nonumberh2{counter-reset:h3 h4 h5 h6;border-bottom:2px solid #999;color:#555;font-weight:bold;font-size:18px;}.md h3,.md h4,.md h5,.md h6,.md .nonumberh3,.md .nonumberh4,.md .nonumberh5,.md .nonumberh6{font-family:Verdana,Helvetica,Arial,sans-serif;color:#555;font-size:16px;}.md h3{counter-reset:h4 h5 h6}.md h4{counter-reset:h5 h6}.md h5{counter-reset:h6}.md div.table{margin:16px 0 16px 0}.md table{border-collapse:collapse;line-height:140%;page-break-inside:avoid}.md table.table{margin:auto}.md table.calendar{width:100%;margin:auto;font-size:11px;font-family:Verdana,Helvetica,Arial,sans-serif}.md table.calendar th{font-size:16px}.md .today{background:#ECF8FA}.md .calendar .parenthesized{color:#999;font-style:italic}.md table.table th{color:#FFF;background-color:#AAA;border:1px solid #888;padding:8px 15px 8px 15px}.md table.table td{padding:5px 15px 5px 15px;border:1px solid #888}.md table.table tr:nth-child(even){background:#EEE}.md pre.tilde{border-top: 1px solid #CCC;border-bottom: 1px solid #CCC;padding: 5px 0 5px 20px;margin:0 0 0 0;background:#FCFCFC;page-break-inside:avoid}.md a.target{width:0px;height:0px;visibility:hidden;font-size:0px;display:inline-block}.md a:link, .md a:visited{color:#38A;text-decoration:none}.md a:link:hover{text-decoration:underline}.md dt{font-weight:700}.md dl>dd{margin-top:-8px; margin-bottom:8px}.md dl>table{margin:35px 0 30px}.md code{page-break-inside:avoid;} @media print{.md .listing code{white-space:pre-wrap}}.md .endnote{font-size:13px;line-height:15px;padding-left:10px;text-indent:-10px}.md .bib{padding-left:80px;text-indent:-80px;text-align:left}.markdeepFooter{font-size:9px;text-align:right;padding-top:80px;color:#999}.md .mediumTOC{float:right;font-size:12px;line-height:15px;border-left:1px solid #CCC;padding-left:15px;margin:15px 0px 15px 25px}.md .mediumTOC .level1{font-weight:600}.md .longTOC .level1{font-weight:600;display:block;padding-top:12px;margin:0 0 -20px}.md .shortTOC{text-align:center;font-weight:bold;margin-top:15px;font-size:14px}.md .admonition{position:relative;margin:1em 0;padding:.4rem 1rem;border-radius:.2rem;border-left:2.5rem solid rgba(68,138,255,.4);background-color:rgba(68,138,255,.15);}.md .admonition-title{font-weight:bold;border-bottom:solid 1px rgba(68,138,255,.4);padding-bottom:4px;margin-bottom:4px;margin-left: -1rem;padding-left:1rem;margin-right:-1rem;border-color:rgba(68,138,255,.4)}.md .admonition.tip{border-left:2.5rem solid rgba(50,255,90,.4);background-color:rgba(50,255,90,.15)}.md .admonition.tip::before{content:"\24d8";font-weight:bold;font-size:150%;position:relative;top:3px;color:rgba(26,128,46,.8);left:-2.95rem;display:block;width:0;height:0}.md .admonition.tip>.admonition-title{border-color:rgba(50,255,90,.4)}.md .admonition.warn,.md .admonition.warning{border-left:2.5rem solid rgba(255,145,0,.4);background-color:rgba(255,145,0,.15)}.md .admonition.warn::before,.md .admonition.warning::before{content:"\26A0";font-weight:bold;font-size:150%;position:relative;top:2px;color:rgba(128,73,0,.8);left:-2.95rem;display:block;width:0;height:0}.md .admonition.warn>.admonition-title,.md .admonition.warning>.admonition-title{border-color:rgba(255,145,0,.4)}.md .admonition.error{border-left: 2.5rem solid rgba(255,23,68,.4);background-color:rgba(255,23,68,.15)}.md .admonition.error>.admonition-title{border-color:rgba(255,23,68,.4)}.md .admonition.error::before{content: "\2612";font-family:"Arial";font-size:200%;position:relative;color:rgba(128,12,34,.8);top:-2px;left:-3rem;display:block;width:0;height:0}.md .admonition p:last-child{margin-bottom:0}.md li.checked,.md li.unchecked{list-style:none;overflow:visible;text-indent:-1.2em}.md li.checked:before,.md li.unchecked:before{content:"\2611";display:block;float:left;width:1em;font-size:120%}.md li.unchecked:before{content:"\2610"}</style><style>.md h1::before {
+content:counter(h1) " ";
+counter-increment: h1;margin-right:10px}
+
+.md h2::before {
+content:counter(h1) "."counter(h2) " ";
+counter-increment: h2;margin-right:10px}
+
+.md h3::before {
+content:counter(h1) "."counter(h2) "."counter(h3) " ";
+counter-increment: h3;margin-right:10px}
+
+.md h4::before {
+content:counter(h1) "."counter(h2) "."counter(h3) "."counter(h4) " ";
+counter-increment: h4;margin-right:10px}
+
+.md h5::before {
+content:counter(h1) "."counter(h2) "."counter(h3) "."counter(h4) "."counter(h5) " ";
+counter-increment: h5;margin-right:10px}
+
+.md h6::before {
+content:counter(h1) "."counter(h2) "."counter(h3) "."counter(h4) "."counter(h5) "."counter(h6) " ";
+counter-increment: h6;margin-right:10px}
+
+</style><style>.hljs{display:block;overflow-x:auto;padding:0.5em;background:#fff;color:#000;-webkit-text-size-adjust:none}.hljs-comment{color:#006a00}.hljs-keyword{color:#02E}.hljs-literal,.nginx .hljs-title{color:#aa0d91}.method,.hljs-list .hljs-title,.hljs-tag .hljs-title,.setting .hljs-value,.hljs-winutils,.tex .hljs-command,.http .hljs-title,.hljs-request,.hljs-status,.hljs-name{color:#008}.hljs-envvar,.tex .hljs-special{color:#660}.hljs-string{color:#c41a16}.hljs-tag .hljs-value,.hljs-cdata,.hljs-filter .hljs-argument,.hljs-attr_selector,.apache .hljs-cbracket,.hljs-date,.hljs-regexp{color:#080}.hljs-sub .hljs-identifier,.hljs-pi,.hljs-tag,.hljs-tag .hljs-keyword,.hljs-decorator,.ini .hljs-title,.hljs-shebang,.hljs-prompt,.hljs-hexcolor,.hljs-rule .hljs-value,.hljs-symbol,.hljs-symbol .hljs-string,.hljs-number,.css .hljs-function,.hljs-function .hljs-title,.coffeescript .hljs-attribute{color:#A0C}.hljs-function .hljs-title{font-weight:bold;color:#000}.hljs-class .hljs-title,.smalltalk .hljs-class,.hljs-type,.hljs-typename,.hljs-tag .hljs-attribute,.hljs-doctype,.hljs-class .hljs-id,.hljs-built_in,.setting,.hljs-params,.clojure .hljs-attribute{color:#5c2699}.hljs-variable{color:#3f6e74}.css .hljs-tag,.hljs-rule .hljs-property,.hljs-pseudo,.hljs-subst{color:#000}.css .hljs-class,.css .hljs-id{color:#9b703f}.hljs-value .hljs-important{color:#ff7700;font-weight:bold}.hljs-rule .hljs-keyword{color:#c5af75}.hljs-annotation,.apache .hljs-sqbracket,.nginx .hljs-built_in{color:#9b859d}.hljs-preprocessor,.hljs-preprocessor *,.hljs-pragma{color:#643820}.tex .hljs-formula{background-color:#eee;font-style:italic}.diff .hljs-header,.hljs-chunk{color:#808080;font-weight:bold}.diff .hljs-change{background-color:#bccff9}.hljs-addition{background-color:#baeeba}.hljs-deletion{background-color:#ffc8bd}.hljs-comment .hljs-doctag{font-weight:bold}.method .hljs-id{color:#000}</style><style>div.title { padding-top: 40px; } div.afterTitles { height: 15px; }</style>
+<link rel="stylesheet" href="./specs.md_files/journal.css">
+<style>
+@media (max-width: 576px) {
+  body {
+    position: absolute;
+    left: 0;
+    margin-left: 0;
+  }
+  .md .longTOC {
+    display: none;
+  }
+}
+</style>
+
+<script type="text/javascript" src="./specs.md_files/MathJax.js.download"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MathJax .MJX-monospace {font-family: monospace}
+.MathJax .MJX-sans-serif {font-family: sans-serif}
+#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax:focus, body :focus .MathJax {display: inline-table}
+.MathJax.MathJax_FullWidth {text-align: center; display: table-cell!important; width: 10000em!important}
+.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none; box-sizing: content-box}
+.MathJax nobr {white-space: nowrap!important}
+.MathJax img {display: inline!important; float: none!important}
+.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MathJax_Processed {display: none!important}
+.MathJax_test {font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow: hidden; height: 1px}
+.MathJax_test.mjx-test-display {display: table!important}
+.MathJax_test.mjx-test-inline {display: inline!important; margin-right: -1px}
+.MathJax_test.mjx-test-default {display: block!important; clear: both}
+.MathJax_ex_box {display: inline-block!important; position: absolute; overflow: hidden; min-height: 0; max-height: none; padding: 0; border: 0; margin: 0; width: 1px; height: 60ex}
+.MathJax_em_box {display: inline-block!important; position: absolute; overflow: hidden; min-height: 0; max-height: none; padding: 0; border: 0; margin: 0; width: 1px; height: 60em}
+.mjx-test-inline .MathJax_left_box {display: inline-block; width: 0; float: left}
+.mjx-test-inline .MathJax_right_box {display: inline-block; width: 0; float: right}
+.mjx-test-display .MathJax_right_box {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+@font-face {font-family: MathJax_Blank; src: url('about:blank')}
+.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head><body style="visibility: visible;" id="md" data-new-gr-c-s-check-loaded="14.1148.0" data-gr-ext-installed=""><div style="visibility: hidden; overflow: hidden; position: absolute; top: 0px; height: 1px; width: auto; padding: 0px; border: 0px; margin: 0px; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal;"><div id="MathJax_Hidden"><br></div></div><div id="MathJax_Message" style="display: none;"></div><script type="text/x-mathjax-config;executed=true">MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "AMS"} } });</script><span style="display:none"><span class="MathJax_Preview" style="color: inherit;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-1-Frame" tabindex="0" style="text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot; /&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-1" style="width: 0em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(3.857em, 1000em, 4.169em, -999.997em); top: -4.008em; left: 0em;"><span class="mrow" id="MathJax-Span-2"></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.059em; border-left: 0px solid; width: 0px; height: 0.128em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-1">\newcommand{\n}{\hat{n}}\newcommand{\thetai}{\theta_\mathrm{i}}\newcommand{\thetao}{\theta_\mathrm{o}}\newcommand{\d}[1]{\mathrm{d}#1}\newcommand{\w}{\hat{\omega}}\newcommand{\wi}{\w_\mathrm{i}}\newcommand{\wo}{\w_\mathrm{o}}\newcommand{\wh}{\w_\mathrm{h}}\newcommand{\Li}{L_\mathrm{i}}\newcommand{\Lo}{L_\mathrm{o}}\newcommand{\Le}{L_\mathrm{e}}\newcommand{\Lr}{L_\mathrm{r}}\newcommand{\Lt}{L_\mathrm{t}}\newcommand{\O}{\mathrm{O}}\newcommand{\degrees}{{^{\large\circ}}}\newcommand{\T}{\mathsf{T}}\newcommand{\mathset}[1]{\mathbb{#1}}\newcommand{\Real}{\mathset{R}}\newcommand{\Integer}{\mathset{Z}}\newcommand{\Boolean}{\mathset{B}}\newcommand{\Complex}{\mathset{C}}\newcommand{\un}[1]{\,\mathrm{#1}}</script>
+</span>
+<span class="md"><p>
+</p><div class="longTOC"><div class="tocHeader">Contents</div><p><a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#" class="tocTop">(Top)</a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#formalspecification" class="level1"><span class="tocNumber">1&nbsp; </span><strong class="asterisk">Formal specification</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#background" class="level1"><span class="tocNumber">2&nbsp; </span><strong class="asterisk">Background</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#objective" class="level1"><span class="tocNumber">3&nbsp; </span><strong class="asterisk">Objective</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#map" class="level1"><span class="tocNumber">4&nbsp; </span><strong class="asterisk">Map</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#units" class="level1"><span class="tocNumber">5&nbsp; </span><strong class="asterisk">Units</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#actions" class="level1"><span class="tocNumber">6&nbsp; </span><strong class="asterisk">Actions</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#flags" class="level1"><span class="tocNumber">7&nbsp; </span><strong class="asterisk">Flags</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#traps" class="level1"><span class="tocNumber">8&nbsp; </span><strong class="asterisk">Traps</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#globalupgrades" class="level1"><span class="tocNumber">9&nbsp; </span><strong class="asterisk">Global Upgrades</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#specializationstats" class="level1"><span class="tocNumber">10&nbsp; </span><strong class="asterisk">Specialization Stats</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#bytecodelimits" class="level1"><span class="tocNumber">11&nbsp; </span><strong class="asterisk">Bytecode limits</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities" class="level1"><span class="tocNumber">12&nbsp; </span><strong class="asterisk">Appendix: Other resources and utilities</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities/sampleplayer" class="level2"><span class="tocNumber">12.1&nbsp; </span><strong class="asterisk">Sample player</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities/debugging" class="level2"><span class="tocNumber">12.2&nbsp; </span><strong class="asterisk">Debugging</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities/monitoring" class="level2"><span class="tocNumber">12.3&nbsp; </span><strong class="asterisk">Monitoring</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities/gameactionexceptions" class="level2"><span class="tocNumber">12.4&nbsp; </span><strong class="asterisk">GameActionExceptions</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherresourcesandutilities/completedocumentation" class="level2"><span class="tocNumber">12.5&nbsp; </span><strong class="asterisk">Complete documentation</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherrestrictions" class="level1"><span class="tocNumber">13&nbsp; </span><strong class="asterisk">Appendix: Other restrictions</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherrestrictions/javalanguageusage" class="level2"><span class="tocNumber">13.1&nbsp; </span><strong class="asterisk">Java language usage</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherrestrictions/memoryusage" class="level2"><span class="tocNumber">13.2&nbsp; </span><strong class="asterisk">Memory usage</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:otherrestrictions/moreinformationonbytecodecosts" class="level2"><span class="tocNumber">13.3&nbsp; </span><strong class="asterisk">More information on bytecode costs</strong></a><br>
+<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:lingeringquestionsandclarifications" class="level1"><span class="tocNumber">14&nbsp; </span><strong class="asterisk">Appendix: Lingering questions and clarifications</strong></a><br>
+&nbsp;&nbsp;<a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#appendix:lingeringquestionsandclarifications/notes" class="level2"><span class="tocNumber">14.1&nbsp; </span>Notes</a><br>
+</p></div><a class="target" name="**formalspecification**">&nbsp;</a><a class="target" name="formalspecification">&nbsp;</a><a class="target" name="toc1">&nbsp;</a><h1><strong class="asterisk">Formal specification</strong></h1>
+<p>
+
+
+<em class="underscore">This is the formal specification of the Battlecode 2024 game.</em> Current version: <em class="asterisk">1.0.0</em> 
+
+</p><p>
+
+<strong class="asterisk">Welcome to Battlecode 2024: Breadwars.</strong>
+
+</p><p>
+
+This is a high-level overview of this year's game. It is highly recommended to read this entire document before you begin writing bots.
+
+</p><p>
+
+<em class="underscore">This document and the game it describes may be tweaked as the competition progresses. We'll try to keep changes to a minimum, but may have to make modifications to keep the game balanced. Any changes will be announced in the official Discord channel. You may find a Changelog at the bottom of this document.</em>
+
+</p>
+<a class="target" name="**background**">&nbsp;</a><a class="target" name="background">&nbsp;</a><a class="target" name="toc2">&nbsp;</a><h1><strong class="asterisk">Background</strong></h1>
+<p>
+
+
+Flowers blossom and snowfall melts. Civilization has eroded away after millenia, giving way to a beautiful oceanic world teeming with life. Hiding away on an unnamed island is a lake where a great city once stood – for thousands of years in this lake, the last remaining magical and mutant robots of the past have slowly evolved to suit their surroundings. 
+
+</p><p>
+
+But where could they be? Amongst the chatter, a pair of loud quacks ring out. Small feet splash through the water and metallic feathers fall as the robots, now two opposing flocks of avian adversaries, prepare to fight. Spring is coming, and with it, the annual avian bread battles. Scramble, scamper, swerve, and swim as you dodge your opponents to steal their bread and put your flock on top. 
+
+</p>
+<a class="target" name="**objective**">&nbsp;</a><a class="target" name="objective">&nbsp;</a><a class="target" name="toc3">&nbsp;</a><h1><strong class="asterisk">Objective</strong></h1>
+<p>
+
+
+In Battlecode: Breadwars, your goal is to capture the opponent’s flags. The first team to capture all 3 flags wins the game.
+
+</p><p>
+
+<strong class="asterisk">Setup Phase</strong>
+
+</p><p>
+
+The two teams will be separated by an impassable dam during the first <strong class="asterisk">200</strong> rounds of the game. Teams will use this period to collect resources, modify the terrain, and set up defenses for their flags. After the setup phase, the dam will collapse and allow both teams to move freely.
+
+</p><p>
+
+Each team has <strong class="asterisk">3</strong> flags. When the game starts, flags are located at the centers of each team’s three spawn zones. Any unit can pick up and place a flag at any time during the setup phase. When the setup phase ends, the new locations of the flags will become the default flag locations for the remainder of the game. If a flag is being carried, it will be automatically dropped at the robot’s location. Default flag placements must be a minimum distance of <strong class="asterisk">6</strong> units<sup><a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#endnote-1">1</a></sup> apart on the map. If two flags are less than 6 units apart at the end of the setup phase, all flags for the team will be teleported back to the spawn zones, which will become their default locations.
+
+</p><p>
+
+<strong class="asterisk">Tiebreakers</strong>
+
+</p><p>
+
+If neither team has captured all 3 flags after 2000 rounds, the game will end immediately. The following tiebreakers are applied in order to determine the winning team:
+
+</p><p>
+
+</p><ul>
+<li class="asterisk">Number of flags captured
+</li>
+<li class="asterisk">Sum of all unit levels across all skills
+</li>
+<li class="asterisk">Amount of crumbs
+</li>
+<li class="asterisk">A uniformly random team will be selected</li></ul>
+
+<p></p>
+<a class="target" name="**map**">&nbsp;</a><a class="target" name="map">&nbsp;</a><a class="target" name="toc4">&nbsp;</a><h1><strong class="asterisk">Map</strong></h1>
+<p>
+
+
+Each Battlecode game will be played on a map. The map is a discrete 2-dimensional rectangular grid of size ranging between 30×30 and 60×60 inclusive. The bottom-left corner of the map will have coordinates (0, 0); coordinates increase East (right) and North (up). Coordinates on the map are represented as MapLocation objects holding the x and y coordinates of the location.
+
+</p><p>
+
+In order to prevent maps from favoring one player over another, it is guaranteed that the world is symmetric either by rotation or reflection.
+
+</p><p>
+
+<strong class="asterisk">Spawn zones</strong>
+
+</p><p>
+
+Each team has <strong class="asterisk">3</strong> spawn zones, which are 3×3 in size and pre-placed on the map. The zones cannot be moved, destroyed, or covered with water. The centers of spawn zones for each team will be at least  <strong class="asterisk">6</strong> units apart.
+
+</p><p>
+
+<strong class="asterisk">Resources</strong>
+
+</p><p>
+
+Building, digging, and filling all require spending crumbs. Each game will start with a finite amount of crumbs scattered around the map. Either team can access the crumbs and collect them for their own use. A bot collects crumbs by simply moving onto the tile. Upon collection, the crumbs are immediately added to the team’s global resource pool. No additional crumbs will spawn on the map, but each team will passively gain <strong class="asterisk">10</strong> crumbs at the beginning of every round*<em class="asterisk">.</em>* Teams start with *<em class="asterisk">400 </em>*crumbs before collecting any crumbs from the map.
+
+</p><p>
+
+<strong class="asterisk">Passability and Visibility</strong>
+
+</p><p>
+
+Walls may be sparingly scattered around the map and will be impassable to either team’s robots. Walls will remain fixed throughout the game and cannot be destroyed. Patches of water may also be scattered around the map. These tiles are also impassable by default, but can be built over using the fill action. Water can also be created by performing the dig action.
+
+</p><p>
+
+Robots can always sense map features and other robots up to <span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-2-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;20&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-3" style="width: 1.565em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1001.3em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-4"><span class="msqrt" id="MathJax-Span-5"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.84em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-6"><span class="mn" id="MathJax-Span-7"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">2</span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">0</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.84em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.836em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>20</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-2">\sqrt{20}</script> units away, regardless of the presence of walls or water.
+
+</p>
+<a class="target" name="**units**">&nbsp;</a><a class="target" name="units">&nbsp;</a><a class="target" name="toc5">&nbsp;</a><h1><strong class="asterisk">Units</strong></h1>
+<p>
+
+
+The game is turn-based and divided into rounds. In each round, every robot gets a turn in which it gets a chance to run code and take actions. Code that a robot runs costs bytecodes, a measure of computational resources. A robot only has a predetermined amount of bytecodes available per turn, after which the robot's turn is immediately ended and computations are resumed on its next turn. If your robot has finished its turn, it should call Clock.yield() to wait for the next turn to begin.
+
+</p><p>
+
+All robots have <strong class="asterisk">1000 HP</strong> (also known as hitpoints, health, life, or such). When a robot's HP reaches zero, the robot is immediately removed from the game.
+
+</p><p>
+
+Robots are assigned unique random IDs no smaller than 10,000, except for your headquarters. 
+Robots interact with only their nearby surroundings through sensing, moving, and other actions. Each robot runs an independent copy of your code. Robots will be unable to share static variables (they will each have their own copy), because they are run in separate JVMs.
+
+</p><p>
+
+Every unit is initially identical with the same base stats and attributes. The maximum number of units for each team is <strong class="asterisk">50</strong>.
+
+</p><p>
+
+<strong class="asterisk">Spawning</strong>
+
+</p><p>
+
+At the start of the game, no units are present on the map. All units must be manually spawned in by specifying a location in one of the spawn zones.
+
+</p><p>
+
+<strong class="asterisk">Specializations</strong>
+
+</p><p>
+
+Specializations allow robots to become more powerful in specific skills. When a unit attacks, heals, or builds (including building traps, digging, and filling), it gains one experience point in that skill. When experience reaches a certain threshold, the skill is automatically upgraded to the next level. Once a unit reaches the <strong class="asterisk">fourth level</strong> of any specialization, the unit gains “mastery” in that action. This means that only this action is allowed to progress to the fifth and sixth levels of specialization, and every other action is capped at level three. Specialization stats are provided in the <a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#specializationstats">Specialization Stats</a> section.
+
+</p><p>
+
+<strong class="asterisk">Jail</strong>
+
+</p><p>
+
+Once a unit reaches health &lt;= 0, it immediately leaves the map and goes to ‘jail.’ It must wait for <strong class="asterisk">10</strong> rounds before it can be respawned at a spawn zone. The unit also receives a penalty to their highest level specialization (tiebreakers resolved from left to right as indicated in the destruction penalty table).
+
+</p><p>
+
+<strong class="asterisk">Communication</strong>
+
+</p><p>
+
+Units can only see their immediate surroundings and are independently controlled by copies of your code, making coordination very challenging. You will be unable to share any variables between them; note that even static variables will not be shared, as each unit will receive its own copy.
+
+</p><p>
+
+However, robotic voice boxes programmed with the team’s dialect allow each unit to quack to all other ducks in their language from anywhere on the map. To communicate, units can read and write from a shared array of 64 non-negative integers strictly less than 2<sup>16</sup>. Array values persist across turns; ie. they are not reset.
+
+</p>
+<a class="target" name="**actions**">&nbsp;</a><a class="target" name="actions">&nbsp;</a><a class="target" name="toc6">&nbsp;</a><h1><strong class="asterisk">Actions</strong></h1>
+<p>
+
+
+The following are all actions that a robot can perform. Robots are only allowed to perform actions when the corresponding cooldown value is <strong class="asterisk">&lt; 10</strong>. Movement has its own cooldown counter, while all other types of actions share a single cooldown counter. Both cooldown counters decrease by *<em class="asterisk">10 </em>*each turn.
+
+</p><p>
+
+<strong class="asterisk">Movement</strong>
+
+</p><p>
+
+Each unit can move by one tile in any unobstructed and unoccupied direction. Units can move in all 4 cardinal directions and diagonally. After moving, the movement cooldown counter is increased by <strong class="asterisk">+10</strong>. When carrying a flag, this cooldown cost is increased to <strong class="asterisk">+20.</strong>
+
+</p><p>
+
+<strong class="asterisk">Attacking</strong>
+
+</p><p>
+
+Robots can attack enemy robots within <strong class="asterisk">2</strong> tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of <strong class="asterisk">-150</strong> points to the enemy robot and adds <strong class="asterisk">+20</strong> to the attacking robot’s action cooldown.
+
+</p><p>
+
+<strong class="asterisk">Healing</strong>
+
+</p><p>
+
+Heals a friendly unit within <strong class="asterisk">2</strong> tiles. Healing is only allowed when the friendly unit is below max health, and can only heal the unit up to the maximum health. Healing increases health by <strong class="asterisk">+80</strong> and has a cooldown cost of <strong class="asterisk">+30</strong>.
+
+</p><p>
+
+<strong class="asterisk">Building</strong>
+
+</p><p>
+
+Uses crumbs to build a trap at a location at most <strong class="asterisk"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-3-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-8" style="width: 1.096em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1000.89em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-9"><span class="msqrt" id="MathJax-Span-10"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.42em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-11"><span class="mn" id="MathJax-Span-12"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">2</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.42em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.419em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>2</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-3">\sqrt{2}</script></strong> units away from the robot. The trap is constructed immediately. Traps cannot be built on a tile occupied by or adjacent to an enemy robot or a tile that already has a trap. The cooldown and crumb cost depend on the trap and are specified in the <a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#traps">Traps</a> section.
+
+</p><p>
+
+<strong class="asterisk">Pickup/Drop Flag</strong>
+
+</p><p>
+
+A robot can pick up or drop a flag at a location at most <strong class="asterisk"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-4-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-13" style="width: 1.096em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1000.89em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-14"><span class="msqrt" id="MathJax-Span-15"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.42em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-16"><span class="mn" id="MathJax-Span-17"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">2</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.42em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.419em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>2</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-4">\sqrt{2}</script></strong> units away. During the setup phase, robots can carry flags from their own team, but after the setup phase robots may only pick up flags from the enemy team. Flags cannot be dropped on water, walls, or the dam. More details on flag mechanics are specified in the <a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#flags">Flags</a> section. Cooldown cost is <strong class="asterisk">+10. </strong>
+
+</p><p>
+
+<strong class="asterisk">Digging</strong>
+
+</p><p>
+
+Digs at a location up to <strong class="asterisk"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-5-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-18" style="width: 1.096em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1000.89em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-19"><span class="msqrt" id="MathJax-Span-20"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.42em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-21"><span class="mn" id="MathJax-Span-22"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">2</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.42em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.419em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>2</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-5">\sqrt{2}</script></strong> units away, creating water on the tile. Robots cannot dig on water tiles, walls, spawn zones, or tiles occupied by other robots or flags. Digging on an explosive trap will activate the trap. Digging costs <strong class="asterisk">20</strong> crumbs and has a base cooldown of <strong class="asterisk">+20</strong>.
+
+</p><p>
+
+<strong class="asterisk">Filling</strong>
+
+</p><p>
+
+Fills at a location up to <strong class="asterisk"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-6-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-23" style="width: 1.096em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1000.89em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-24"><span class="msqrt" id="MathJax-Span-25"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.42em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-26"><span class="mn" id="MathJax-Span-27"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">2</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.42em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.419em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>2</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-6">\sqrt{2}</script></strong> units away, converting water to land. Filling costs <strong class="asterisk">10</strong> crumbs and has a base cooldown of <strong class="asterisk">+20</strong>. Filling also adds <strong class="asterisk">+10</strong> to the movement cooldown, which prevents filling and moving onto the filled tile in the same turn.
+
+</p>
+<a class="target" name="**flags**">&nbsp;</a><a class="target" name="flags">&nbsp;</a><a class="target" name="toc7">&nbsp;</a><h1><strong class="asterisk">Flags</strong></h1>
+<p>
+
+
+The goal of attacking is to retrieve your opponent’s flags and bring them to your side.** **To retrieve this flag, your robots must first find the opponent's flag. 
+
+</p><p>
+
+Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of <strong class="asterisk">10</strong> cells. Every <strong class="asterisk">100</strong> turns, the broadcast location is updated to a new random location within that radius.
+
+</p><p>
+
+Robots can pick up and drop flags as described in the <a href="https://releases.battlecode.org/specs/battlecode24/1.0.0/specs.md.html#actions">actions</a> section. While holding a flag, robots cannot perform any actions besides movement, and robots may carry only one flag at a time. If your robot enters a friendly spawn zone while carrying an enemy flag, your team captures the flag and it is permanently removed from the game. Flags cannot be captured by being dropped into the spawn zone.
+
+</p><p>
+
+If a robot dies while carrying a flag, the flag is immediately dropped on the ground at the robot’s location. The defenders must prevent the flag from being reacquired. If the flag remains on the ground for a base of *<em class="asterisk">4 </em>*rounds, it instantly returns to its default location as described in the Setup section.
+
+</p><p>
+
+Flags can potentially be stacked on the same tile if two units carrying flags are jailed in the same location. Both flags will maintain independent timers before they return to their original locations. When performing a pickup on that tile, the oldest dropped flag will be picked up first.
+
+</p>
+<a class="target" name="**traps**">&nbsp;</a><a class="target" name="traps">&nbsp;</a><a class="target" name="toc8">&nbsp;</a><h1><strong class="asterisk">Traps</strong></h1>
+<p>
+
+
+<strong class="asterisk">Your team can place traps to help defend your flags</strong>. No friendly traps are triggered by friendly units. No traps can be built on any tile occupied by or adjacent to an enemy robot, but the traps can be built anywhere on the map. Friendly traps can be sensed, but enemy traps are invisible.
+</p><div class="table"><table class="table"><tbody><tr><th style="text-align:left">  Name </th><th style="text-align:left"> Cost </th><th style="text-align:left"> Function </th><th style="text-align:left"> Action cooldown </th></tr>
+<tr><td style="text-align:left">  Explosive trap </td><td style="text-align:left"> 250 crumbs </td><td style="text-align:left"> Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing <strong class="asterisk">750</strong> damage to all opponent robots within a radius of <span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-7-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;13&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-28" style="width: 1.565em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1001.3em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-29"><span class="msqrt" id="MathJax-Span-30"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.84em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-31"><span class="mn" id="MathJax-Span-32"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">1</span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">3</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.84em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.836em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>13</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-7">\sqrt{13}</script> cells. When an opponent robot digs, fills, or tries to build on the trap, it explodes dealing <strong class="asterisk">500</strong> damage to all opponent robots within a radius of 9 cells. </td><td style="text-align:left"> 5 </td></tr>
+<tr><td style="text-align:left">  Water trap </td><td style="text-align:left"> 100 crumbs </td><td style="text-align:left"> Can only be built on land. Digs all non-occupied land in a radius of <span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-8-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;9&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-33" style="width: 1.096em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1000.89em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-34"><span class="msqrt" id="MathJax-Span-35"><span style="display: inline-block; position: relative; width: 0.888em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.42em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-36"><span class="mn" id="MathJax-Span-37"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">9</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.42em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.419em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>9</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-8">\sqrt{9}</script> when an opponent robot enters an adjacent tile. </td><td style="text-align:left"> 5 </td></tr>
+<tr><td style="text-align:left">  Stun trap </td><td style="text-align:left"> 100 crumbs </td><td style="text-align:left"> Can only be built on land. Stuns all enemy robots in a radius of <span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-9-Frame" tabindex="0" style="position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msqrt&gt;&lt;mn&gt;13&lt;/mn&gt;&lt;/msqrt&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-38" style="width: 1.565em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(-0.102em, 1001.3em, 1.357em, -999.997em); top: -0.987em; left: 0em;"><span class="mrow" id="MathJax-Span-39"><span class="msqrt" id="MathJax-Span-40"><span style="display: inline-block; position: relative; width: 1.305em; height: 0px;"><span style="position: absolute; clip: rect(0.992em, 1000.84em, 2.294em, -999.997em); top: -1.924em; left: 0.471em;"><span class="mrow" id="MathJax-Span-41"><span class="mn" id="MathJax-Span-42"><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">1</span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">3</span></span></span><span style="display: inline-block; width: 0px; height: 1.93em;"></span></span><span style="position: absolute; clip: rect(0.94em, 1000.84em, 1.253em, -999.997em); top: -2.029em; left: 0.471em;"><span style="display: inline-block; overflow: hidden; vertical-align: -0.049em; border-top: 1.3px solid; width: 0.836em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.044em;"></span></span><span style="position: absolute; clip: rect(3.076em, 1000.47em, 4.378em, -999.997em); top: -4.164em; left: 0em;"><span><span style="font-family: STIXGeneral, &quot;Arial Unicode MS&quot;, serif; font-size: 83%; font-style: normal; font-weight: normal;">√</span></span><span style="display: inline-block; width: 0px; height: 4.013em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 0.992em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.309em; border-left: 0px solid; width: 0px; height: 1.503em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>13</mn></msqrt></math></span></span><script type="math/tex" id="MathJax-Element-9">\sqrt{13}</script> when an opponent enters an adjacent tile, setting all of those robots’ movement and action cooldowns to <strong class="asterisk">40</strong>. </td><td style="text-align:left"> 5 </td></tr>
+</tbody></table></div>
+
+<p></p>
+<a class="target" name="**globalupgrades**">&nbsp;</a><a class="target" name="globalupgrades">&nbsp;</a><a class="target" name="toc9">&nbsp;</a><h1><strong class="asterisk">Global Upgrades</strong></h1>
+<p>
+
+
+Every <strong class="asterisk">750</strong> rounds, each team is awarded one upgrade point. These points can be spent on global upgrades that apply to all units on the team. Each upgrade has a maximum of one level and can only be activated once.
+</p><div class="table"><table class="table"><tbody><tr><th style="text-align:left">  Name </th><th style="text-align:left"> Function </th></tr>
+<tr><td style="text-align:left">  Action Upgrade - Swift Beaks </td><td style="text-align:left"> Increases per-round action cooldown reduction by <strong class="asterisk">+4</strong>. </td></tr>
+<tr><td style="text-align:left">  Healing Upgrade - Down Feathers </td><td style="text-align:left"> Increases base heal by <strong class="asterisk">+50</strong> health points. </td></tr>
+<tr><td style="text-align:left">  Capturing Upgrade - Heavy Bread </td><td style="text-align:left"> Increases the dropped flag return delay of the other team’s flag to <strong class="asterisk">12</strong> rounds. </td></tr>
+</tbody></table></div>
+
+<p></p>
+<a class="target" name="**specializationstats**">&nbsp;</a><a class="target" name="specializationstats">&nbsp;</a><a class="target" name="toc10">&nbsp;</a><h1><strong class="asterisk">Specialization Stats</strong></h1>
+<p>
+
+
+<strong class="asterisk">Level requirements (# of actions)</strong></p><div class="table"><table class="table"><tbody><tr><th style="text-align:left">  Level </th><th style="text-align:left"> Attack Exp </th><th style="text-align:left"> Build Exp </th><th style="text-align:left"> Heal Exp </th></tr>
+<tr><td style="text-align:left">  0 </td><td style="text-align:left"> 0 </td><td style="text-align:left"> 0 </td><td style="text-align:left"> 0 </td></tr>
+<tr><td style="text-align:left">  1 </td><td style="text-align:left"> 20 </td><td style="text-align:left"> 5 </td><td style="text-align:left"> 10 </td></tr>
+<tr><td style="text-align:left">  2 </td><td style="text-align:left"> 40 </td><td style="text-align:left"> 10 </td><td style="text-align:left"> 20 </td></tr>
+<tr><td style="text-align:left">  3 </td><td style="text-align:left"> 70 </td><td style="text-align:left"> 15 </td><td style="text-align:left"> 30 </td></tr>
+<tr><td style="text-align:left">  4 </td><td style="text-align:left"> 100 </td><td style="text-align:left"> 20 </td><td style="text-align:left"> 50 </td></tr>
+<tr><td style="text-align:left">  5 </td><td style="text-align:left"> 140 </td><td style="text-align:left"> 25 </td><td style="text-align:left"> 75 </td></tr>
+<tr><td style="text-align:left">  6 </td><td style="text-align:left"> 180 </td><td style="text-align:left"> 30 </td><td style="text-align:left"> 125 </td></tr>
+</tbody></table></div>
+
+<p></p><p>
+
+<strong class="asterisk">Specialization Jailed Penalty</strong></p><div class="table"><table class="table"><tbody><tr><th style="text-align:left">  Level </th><th style="text-align:left"> Attack </th><th style="text-align:left"> Build </th><th style="text-align:left"> Heal </th></tr>
+<tr><td style="text-align:left">  0 </td><td style="text-align:left"> −1 </td><td style="text-align:left"> −1 </td><td style="text-align:left"> −1 </td></tr>
+<tr><td style="text-align:left">  1 </td><td style="text-align:left"> −5 </td><td style="text-align:left"> −2 </td><td style="text-align:left"> −2 </td></tr>
+<tr><td style="text-align:left">  2 </td><td style="text-align:left"> −5 </td><td style="text-align:left"> −2 </td><td style="text-align:left"> −2 </td></tr>
+<tr><td style="text-align:left">  3 </td><td style="text-align:left"> −10 </td><td style="text-align:left"> −5 </td><td style="text-align:left"> −5 </td></tr>
+<tr><td style="text-align:left">  4 </td><td style="text-align:left"> −10 </td><td style="text-align:left"> −5 </td><td style="text-align:left"> −5 </td></tr>
+<tr><td style="text-align:left">  5 </td><td style="text-align:left"> −15 </td><td style="text-align:left"> −10 </td><td style="text-align:left"> −10 </td></tr>
+<tr><td style="text-align:left">  6 </td><td style="text-align:left"> −15 </td><td style="text-align:left"> −10 </td><td style="text-align:left"> −10 </td></tr>
+</tbody></table></div>
+
+<p></p><p>
+
+<strong class="asterisk">Specialization Effects Per Action</strong></p><div class="table"><table class="table"><tbody><tr><th style="text-align:left">  Level </th><th style="text-align:left"> Attack </th><th style="text-align:left"> Build </th><th style="text-align:left"> Heal </th></tr>
+<tr><td style="text-align:left">  0 </td><td style="text-align:left"> Base </td><td style="text-align:left"> Base </td><td style="text-align:left"> Base </td></tr>
+<tr><td style="text-align:left">  1 </td><td style="text-align:left"> −5% Cooldown Cost <br> +5% Damage </td><td style="text-align:left"> −5% Cooldown <br> −10% Cost </td><td style="text-align:left"> −5% Cooldown <br> +3% Heal </td></tr>
+<tr><td style="text-align:left">  2 </td><td style="text-align:left"> −10% Cooldown Cost <br> +10% Damage </td><td style="text-align:left"> −10% Cooldown <br> −15% Cost </td><td style="text-align:left"> −10% Cooldown <br> +5% Heal </td></tr>
+<tr><td style="text-align:left">  3 </td><td style="text-align:left"> −15% Cooldown Cost <br> +15% Damage </td><td style="text-align:left"> −15% Cooldown <br> −20% Cost </td><td style="text-align:left"> −15% Cooldown <br> +7% Heal </td></tr>
+<tr><td style="text-align:left">  4 </td><td style="text-align:left"> −20% Cooldown Cost <br> +20% Damage </td><td style="text-align:left"> −20% Cooldown <br> −30% Cost </td><td style="text-align:left"> −15% Cooldown <br> +10% Heal </td></tr>
+<tr><td style="text-align:left">  5 </td><td style="text-align:left"> −30% Cooldown Cost <br> +30% Damage </td><td style="text-align:left"> −30% Cooldown <br> −40% Cost </td><td style="text-align:left"> −15% Cooldown <br> +15% Heal </td></tr>
+<tr><td style="text-align:left">  6 </td><td style="text-align:left"> −40% Cooldown Cost <br> +50% Damage </td><td style="text-align:left"> −50% Cooldown <br> −50% Cost </td><td style="text-align:left"> −25% Cooldown <br> +25% Heal </td></tr>
+</tbody></table></div>
+
+<p></p>
+<a class="target" name="**bytecodelimits**">&nbsp;</a><a class="target" name="bytecodelimits">&nbsp;</a><a class="target" name="toc11">&nbsp;</a><h1><strong class="asterisk">Bytecode limits</strong></h1>
+<p>
+
+
+Robots are also very limited in the amount of computation they are allowed to perform per turn. Bytecodes are a convenient measure of computation in languages like Java, where one Java bytecode corresponds roughly to one basic operation such as “subtract” or “get field”, and a single line of code generally contains several bytecodes (for details see<a href="http://en.wikipedia.org/wiki/Java_bytecode"> here</a>). Because bytecodes are a feature of the compiled code itself, the same program will always compile to the same bytecodes and thus take the same amount of computation on the same inputs. This is great, because it allows us to avoid using time as a measure of computation, which leads to problems such as nondeterminism. With bytecode cutoffs, re-running the same match between the same bots produces exactly the same results - a feature you will find very useful for debugging.
+
+</p><p>
+
+Every round each robot sequentially takes its turn. If a robot attempts to exceed its bytecode limit (usually unexpectedly, if you have too big of a loop or something), its computation will be paused and then resumed at exactly that point next turn. The code will resume running just fine, but this can cause problems if, for example, you check if a tile is empty, then the robot is cut off and the others take their turns, and then you attempt to move into a now-occupied tile. Instead, use the Clock.yield() function to end a robot's turn. This will pause computation where you choose, and resume on the next line next turn.
+
+</p><p>
+
+The bytecode limit for all units is <strong class="asterisk">25,000</strong>.
+
+</p><p>
+
+Some standard functions such as the math library and sensing functions have fixed bytecode costs, available <a href="https://github.com/battlecode/battlecode24/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt">here</a>. More details on this at the end of the spec.
+
+</p>
+<a class="target" name="**appendix:otherresourcesandutilities**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities">&nbsp;</a><a class="target" name="toc12">&nbsp;</a><h1><strong class="asterisk">Appendix: Other resources and utilities</strong></h1>
+
+<a class="target" name="**sampleplayer**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities/sampleplayer">&nbsp;</a><a class="target" name="toc12.1">&nbsp;</a><h2><strong class="asterisk">Sample player</strong></h2>
+<p>
+
+
+examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what RobotPlayer files should look like.
+
+</p><p>
+
+If you are interested, you may find the full game engine implementation <a href="https://github.com/battlecode/battlecode24/tree/master/engine">here</a>. This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
+
+</p>
+<a class="target" name="**debugging**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities/debugging">&nbsp;</a><a class="target" name="toc12.2">&nbsp;</a><h2><strong class="asterisk">Debugging</strong></h2>
+<p>
+
+
+Debugging is extremely important. See the debugging tips to learn about our useful debug tools.
+
+</p>
+<a class="target" name="**monitoring**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities/monitoring">&nbsp;</a><a class="target" name="toc12.3">&nbsp;</a><h2><strong class="asterisk">Monitoring</strong></h2>
+<p>
+
+
+The Clock class provides a way to identify the current round (rc.getRoundNum()), and how many bytecodes have been executed during the current round (Clock.getBytecodeNum()).
+
+</p>
+<a class="target" name="**gameactionexceptions**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities/gameactionexceptions">&nbsp;</a><a class="target" name="toc12.4">&nbsp;</a><h2><strong class="asterisk">GameActionExceptions</strong></h2>
+<p>
+
+
+GameActionExceptions are thrown when something cannot be done. It is often the result of illegal actions such as moving onto another robot, or an unexpected round change in your code. Thus, you must write your player defensively and handle GameActionExceptions judiciously. You should also be prepared for any ability to fail and make sure that this has as little effect as possible on the control flow of your program.
+
+</p><p>
+
+Throwing any Exceptions cause a bytecode penalty of 500 bytecodes. Unhandled exceptions may paralyze your robot.
+
+</p>
+<a class="target" name="**completedocumentation**">&nbsp;</a><a class="target" name="appendix:otherresourcesandutilities/completedocumentation">&nbsp;</a><a class="target" name="toc12.5">&nbsp;</a><h2><strong class="asterisk">Complete documentation</strong></h2>
+<p>
+
+
+Every function you could possibly use to interact with the game can be found in our javadocs.
+
+</p>
+<a class="target" name="**appendix:otherrestrictions**">&nbsp;</a><a class="target" name="appendix:otherrestrictions">&nbsp;</a><a class="target" name="toc13">&nbsp;</a><h1><strong class="asterisk">Appendix: Other restrictions</strong></h1>
+
+<a class="target" name="**javalanguageusage**">&nbsp;</a><a class="target" name="appendix:otherrestrictions/javalanguageusage">&nbsp;</a><a class="target" name="toc13.1">&nbsp;</a><h2><strong class="asterisk">Java language usage</strong></h2>
+<p>
+
+
+Players may use classes from any of the packages listed in AllowedPackages.txt, except for classes listed in DisallowedPackages.txt. These files can be found <a href="https://github.com/battlecode/battlecode24/tree/engine-functional/engine/src/main/battlecode/instrumenter/bytecode/resources">here</a>.
+
+</p><p>
+
+Furthermore, the following restrictions apply:
+
+</p><p>
+
+Object.wait, Object.notify, Object.notifyAll, Class.forName, and String.intern are not allowed. java.lang.System only supports out, arraycopy, and getProperty. Furthermore, getProperty can only be used to get properties with names beginning with “bc.testing.”. java.io.PrintStream may not be used to open files.
+
+</p><p>
+
+Note that violating any of the above restrictions will cause the robots to explode when run, even if the source files compile without problems.
+
+</p>
+<a class="target" name="**memoryusage**">&nbsp;</a><a class="target" name="appendix:otherrestrictions/memoryusage">&nbsp;</a><a class="target" name="toc13.2">&nbsp;</a><h2><strong class="asterisk">Memory usage</strong></h2>
+<p>
+
+
+Robots must keep their memory usage reasonable. If a robot uses more than 8 Mb of heap space during a tournament or scrimmage match, the robot may explode.
+
+</p>
+<a class="target" name="**moreinformationonbytecodecosts**">&nbsp;</a><a class="target" name="appendix:otherrestrictions/moreinformationonbytecodecosts">&nbsp;</a><a class="target" name="toc13.3">&nbsp;</a><h2><strong class="asterisk">More information on bytecode costs</strong></h2>
+<p>
+
+
+Classes in java.util, java.math, and scala and their subpackages are bytecode counted as if they were your own code. The following functions in java.lang are also bytecode counted as if they were your own code.
+
+</p><p>
+
+<code>Math.random StrictMath.random String.matches String.replaceAll String.replaceFirst String.split</code>
+
+</p><p>
+
+The function System.arraycopy costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the<a href="https://github.com/battlecode/battlecode24/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt"> MethodCosts.txt file</a>. Methods not listed are free. The bytecode costs of battlecode.common functions are also listed in the javadoc.
+
+</p><p>
+
+Basic operations like integer comparison and array indexing cost small numbers of bytecodes each.
+
+</p><p>
+
+Bytecodes relating to the creation of arrays (specifically NEWARRAY, ANEWARRAY, and MULTIANEWARRAY; see<a href="https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings"> here</a> for reference) have an effective cost greater than a single bytecode. This is because these instructions, although they are represented as a single bytecode, can be vastly more expensive than other instructions in terms of computational cost. To remedy this, these instructions have a bytecode cost equal to the total length of the instantiated array. Note that this should have minimal impact on the typical team, and is only intended to prevent teams from repeatedly instantiating excessively large arrays.
+
+</p>
+<a class="target" name="**appendix:lingeringquestionsandclarifications**">&nbsp;</a><a class="target" name="appendix:lingeringquestionsandclarifications">&nbsp;</a><a class="target" name="toc14">&nbsp;</a><h1><strong class="asterisk">Appendix: Lingering questions and clarifications</strong></h1>
+<p>
+
+
+If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
+
+</p>
+<a class="target" name="notes">&nbsp;</a><a class="target" name="appendix:lingeringquestionsandclarifications/notes">&nbsp;</a><a class="target" name="toc14.1">&nbsp;</a><h2>Notes</h2>
+<p>
+
+
+[<sup>1</sup>]:
+    These units are in terms of actual cells (not squared units as in previous years of Battlecode).
+
+</p><p>
+
+<script>markdeepOptions={tocStyle:'long'};</script>
+<script src="./specs.md_files/markdeep.min.js.download" charset="utf-8"></script></p></span><div id="mdContextMenu" style="visibility:hidden"></div><div class="markdeepFooter"><i>formatted by <a href="https://casual-effects.com/markdeep" style="color:#999">Markdeep&nbsp;1.12&nbsp;&nbsp;</a></i><div style="display:inline-block;font-size:13px;font-family:&#39;Times New Roman&#39;,serif;vertical-align:middle;transform:translate(-3px,-1px)rotate(135deg);">✒</div></div><div style="position: absolute; width: 0px; height: 0px; overflow: hidden; padding: 0px; border: 0px; margin: 0px;"><div id="MathJax_Font_Test" style="position: absolute; visibility: hidden; top: 0px; left: 0px; width: auto; min-width: 0px; max-width: none; padding: 0px; border: 0px; margin: 0px; white-space: nowrap; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; font-size: 40px; font-weight: normal; font-style: normal; font-family: STIXSizeOneSym, monospace;"></div></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
