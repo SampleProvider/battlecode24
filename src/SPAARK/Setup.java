@@ -22,10 +22,12 @@ public class Setup {
             rc.pickupFlag(rc.getLocation());
         }
         if (rc.hasFlag()) {
-            for (int i = 0; i <= 2; i++) {
-                if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
-                    flagIndex = i;
-                    break;
+            if (flagIndex == -1) {
+                for (int i = 0; i <= 2; i++) {
+                    if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
+                        flagIndex = i;
+                        break;
+                    }
                 }
             }
             Motion.moveRandomly();

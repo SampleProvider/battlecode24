@@ -13,6 +13,8 @@ public class GlobalArray {
      *  Stolen Flag Locations
      * Array Indices 7-9:
      *  Opponent Flag Locations
+     * 
+     * danger levels for flag carriers
      */
 
     public static boolean hasLocation(int n) {
