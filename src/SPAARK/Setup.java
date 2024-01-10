@@ -14,17 +14,37 @@ public class Setup {
     public static StringBuilder indicatorString;
 
     public static Random rng;
+
+    public static int flagIndex = -1;
     
     public static void run() throws GameActionException {
         if (rc.canPickupFlag(rc.getLocation())) {
             rc.pickupFlag(rc.getLocation());
         }
-        MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
-        if (crumbs.length > 0) {
-            Motion.bug2(crumbs[0]);
+        if (rc.hasFlag()) {
+            for (int i = 0; i <= 2; i++) {
+                if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
+                    flagIndex = i;
+                    break;
+                }
+            }
+            Motion.moveRandomly();
+            rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
         }
         else {
-            Motion.moveRandomly();
+            MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
+            if (crumbs.length > 0) {
+                Motion.bugnav(crumbs[0], true);
+            }
+            else {
+                Motion.moveRandomly();
+            }
+        }
+    }
+    public static void jailed() throws GameActionException {
+        if (flagIndex != -1) {
+            rc.writeSharedArray(flagIndex, 0);
+            flagIndex = -1;
         }
     }
 }

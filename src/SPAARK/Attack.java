@@ -8,10 +8,13 @@ public class Attack {
 
     public static RobotInfo[] friendlyRobots;
     public static RobotInfo[] opponentRobots;
+
     protected static void attack() throws GameActionException {
+        opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
                 RobotInfo robot = getPrioritizedOpponentRobot();
+                rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 0, 0);
                 if (rc.canAttack(robot.getLocation())) {
                     indicatorString.append("ATK-" + robot.getLocation().toString() + "; ");
                     while (robot != null && rc.canAttack(robot.getLocation())) {
@@ -29,6 +32,7 @@ public class Attack {
         }
     }
     protected static void heal() throws GameActionException {
+        friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot();
