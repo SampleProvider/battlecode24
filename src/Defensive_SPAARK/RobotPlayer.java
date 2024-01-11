@@ -30,12 +30,16 @@ public strictfp class RobotPlayer {
         Motion.rc = rc;
         Motion.rng = rng;
         Attack.rc = rc;
+        GlobalArray.rc = rc;
         Setup.rc = rc;
         Setup.rng = rng;
         Offensive.rc = rc;
         Offensive.rng = rng;
         Defensive.rc = rc;
         Defensive.rng = rng;
+
+        GlobalArray.init();
+
         while (true) {
             turnCount += 1;
 
@@ -43,7 +47,7 @@ public strictfp class RobotPlayer {
                 if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     int index = rng.nextInt(27 * 3);
-                    while (true) {
+                    for (int i = 0; i < 27; i++) {
                         MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                         if (rc.canSpawn(randomLoc)) {
                             rc.spawn(randomLoc);
@@ -54,43 +58,41 @@ public strictfp class RobotPlayer {
                         }
                     }
                 }
+                StringBuilder indicatorString = new StringBuilder();
+                Motion.indicatorString = indicatorString;
+                Attack.indicatorString = indicatorString;
+                Setup.indicatorString = indicatorString;
+                Offensive.indicatorString = indicatorString;
+                Defensive.indicatorString = indicatorString;
+                if (!rc.isSpawned()) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                        Setup.jailed();
+                    }
+                    else {
+                        Defensive.jailed();
+                    }
+                }
                 else {
-                    StringBuilder indicatorString = new StringBuilder();
-                    Motion.indicatorString = indicatorString;
-                    Attack.indicatorString = indicatorString;
-                    Setup.indicatorString = indicatorString;
-                    Offensive.indicatorString = indicatorString;
-                    Defensive.indicatorString = indicatorString;
-                    Attack.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                    Attack.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+                    if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                        rc.buyGlobal(GlobalUpgrade.HEALING);
+                    }
+                    if (rc.getRoundNum() == 1500 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+                        rc.buyGlobal(GlobalUpgrade.ACTION);
+                    }
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
                     else {
                         Defensive.run();
                     }
-                    // Direction dir = directions[rng.nextInt(directions.length)];
-                    // MapLocation nextLoc = rc.getLocation().add(dir);
-                    // if (rc.canMove(dir)) {
-                    //     rc.move(dir);
-                    // }
-                    // else if (rc.canAttack(nextLoc)) {
-                    //     rc.attack(nextLoc);
-                    //     System.out.println("Take that! Damaged an enemy that was in our way!");
-                    // }
-
-                    // // Rarely attempt placing traps behind the robot.
-                    // MapLocation prevLoc = rc.getLocation().subtract(dir);
-                    // if (rc.canBuild(TrapType.EXPLOSIVE, prevLoc) && rng.nextInt() % 37 == 1) {
-                    //     rc.build(TrapType.EXPLOSIVE, prevLoc);
-                    // }
-                    rc.setIndicatorString(indicatorString.toString());
                 }
+                rc.setIndicatorString(indicatorString.toString());
 
             }
             catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
+                rc.resign();
             }
             catch (Exception e) {
                 System.out.println("Exception");

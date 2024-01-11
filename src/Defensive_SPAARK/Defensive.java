@@ -27,24 +27,33 @@ public class Defensive {
     };
     
     public static void run() throws GameActionException {
-        FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
-        if (flags.length > 0) {
-            Motion.bug2(flags[0].getLocation());
-        }
-        else {
-            Motion.moveRandomly();
-        }
-        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
-        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 37 == 1) {
-            rc.build(TrapType.EXPLOSIVE, buildLoc);
-        }
-        else if (rc.canBuild(TrapType.WATER, buildLoc) && rng.nextInt() % 37 == 1) {
-            rc.build(TrapType.WATER, buildLoc);
-        }
-        else if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 37 == 1) {
-            rc.build(TrapType.STUN, buildLoc);
+        for (int i = 0; i <= 2; i++) {
+            int n = rc.readSharedArray(i);
+            if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPlaced(n)) {
+                MapLocation loc = GlobalArray.parseLocation(n);
+                loc = new MapLocation(5, rc.getMapHeight() - 6);
+                Motion.bugnavAround(loc, 5, 20, false);
+                if (rc.getLocation().distanceSquaredTo(loc) < 20) {
+                    for (int j = 0; j < 8; j++) {
+                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 5 == 1) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        }
+                        // else if (rc.canBuild(TrapType.WATER, buildLoc) && rng.nextInt() % 5 == 1) {
+                        //     rc.build(TrapType.WATER, buildLoc);
+                        // }
+                        else if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 5 == 1) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        }
+                    }
+                }
+                break;
+            }
         }
         Attack.attack();
         Attack.heal();
+    }
+    public static void jailed() throws GameActionException {
+
     }
 }

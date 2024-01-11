@@ -388,7 +388,7 @@ public class Motion {
         MapLocation counterClockwiseLoc = rc.getLocation();
         Direction counterClockwiseLastDir = lastDir;
         int counterClockwiseStuck = 0;
-        search: for (int t = 0; t < 100; t++) {
+        search: for (int t = 0; t < 10; t++) {
             if (clockwiseLoc.equals(dest)) {
                 break;
             }
@@ -461,6 +461,7 @@ public class Motion {
                 direction = direction.rotateLeft().rotateLeft();
             }
         }
+        
         if (lastDir != direction.opposite()) {
             if (rc.canMove(direction)) {
                 boolean touchingTheWallBefore = false;
@@ -479,19 +480,29 @@ public class Motion {
                 return direction;
             }
             else if (rc.canFill(me.add(direction))) {
-                int water = 0;
-                for (Direction d : DIRECTIONS) {
-                    MapLocation translatedMapLocation = me.add(d);
-                    if (rc.onTheMap(translatedMapLocation)) {
-                        // if (rc.canFill(translatedMapLocation)) {
-                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
-                            water += 1;
+                int[] simulated = simulateMovement(me, dest);
+        
+                int clockwiseDist = simulated[0];
+                int counterClockwiseDist = simulated[2];
+                boolean clockwiseStuck = simulated[1] == 1;
+                boolean counterClockwiseStuck = simulated[3] == 1;
+
+                if ((clockwiseStuck || clockwiseDist > me.add(direction).distanceSquaredTo(dest)) && (counterClockwiseStuck || counterClockwiseDist > me.add(direction).distanceSquaredTo(dest))) {
+
+                    int water = 0;
+                    for (Direction d : DIRECTIONS) {
+                        MapLocation translatedMapLocation = me.add(d);
+                        if (rc.onTheMap(translatedMapLocation)) {
+                            // if (rc.canFill(translatedMapLocation)) {
+                            if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                                water += 1;
+                            }
                         }
                     }
-                }
-                if (water >= 3) {
-                    rc.fill(me.add(direction));
-                    return Direction.CENTER;
+                    if (water >= 2) {
+                        rc.fill(me.add(direction));
+                        return Direction.CENTER;
+                    }
                 }
             }
         }
@@ -522,65 +533,12 @@ public class Motion {
         }
         
         if (rotation == NONE) {
-            MapLocation clockwiseLoc = rc.getLocation();
-            Direction clockwiseLastDir = lastDir;
-            boolean clockwiseStuck = false;
-            MapLocation counterClockwiseLoc = rc.getLocation();
-            Direction counterClockwiseLastDir = lastDir;
-            boolean counterClockwiseStuck = false;
-            search: for (int t = 0; t < 100; t++) {
-                if (clockwiseLoc.equals(dest)) {
-                    break;
-                }
-                if (counterClockwiseLoc.equals(dest)) {
-                    break;
-                }
-                Direction clockwiseDir = clockwiseLoc.directionTo(dest);
-                {
-                    for (int i = 0; i < 8; i++) {
-                        MapLocation loc = clockwiseLoc.add(clockwiseDir);
-                        if (rc.onTheMap(loc)) {
-                            if (!rc.canSenseLocation(loc)) {
-                                break search;
-                            }
-                            if (clockwiseDir != clockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable()) {
-                                clockwiseLastDir = clockwiseDir;
-                                break;
-                            }
-                        }
-                        clockwiseDir = clockwiseDir.rotateRight();
-                        if (i == 7) {
-                            clockwiseStuck = true;
-                            break search;
-                        }
-                    }
-                }
-                Direction counterClockwiseDir = counterClockwiseLoc.directionTo(dest);
-                {
-                    for (int i = 0; i < 8; i++) {
-                        MapLocation loc = counterClockwiseLoc.add(counterClockwiseDir);
-                        if (rc.onTheMap(loc)) {
-                            if (!rc.canSenseLocation(loc)) {
-                                break search;
-                            }
-                            if (counterClockwiseDir != counterClockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable()) {
-                                counterClockwiseLastDir = counterClockwiseDir;
-                                break;
-                            }
-                        }
-                        counterClockwiseDir = counterClockwiseDir.rotateLeft();
-                        if (i == 7) {
-                            counterClockwiseStuck = true;
-                            break search;
-                        }
-                    }
-                }
-                clockwiseLoc = clockwiseLoc.add(clockwiseDir);
-                counterClockwiseLoc = counterClockwiseLoc.add(counterClockwiseDir);
-            }
+            int[] simulated = simulateMovement(me, dest);
     
-            int clockwiseDist = clockwiseLoc.distanceSquaredTo(dest);
-            int counterClockwiseDist = counterClockwiseLoc.distanceSquaredTo(dest);
+            int clockwiseDist = simulated[0];
+            int counterClockwiseDist = simulated[2];
+            boolean clockwiseStuck = simulated[1] == 1;
+            boolean counterClockwiseStuck = simulated[3] == 1;
             
             int tempMode = mode;
             if (mode == AROUND) {
