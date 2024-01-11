@@ -84,7 +84,7 @@ public class Setup {
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
-                    indicatorString.append("NOT VALID");
+                    indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
                     } else
@@ -106,17 +106,37 @@ public class Setup {
             }
             else {
                 rc.setIndicatorLine(me, toPlace, 255, 255, 255);
-                indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+") ");
+                indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
                 rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
             }
         }
         else {
-            MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
-            if (crumbs.length > 0) {
-                Motion.bugnavTowards(crumbs[0], 500);
+            MapInfo[] info = rc.senseNearbyMapInfos();
+            Boolean action = false;
+            for (MapInfo i : info) {
+                if (i.getCrumbs() > 0) {
+                    Motion.bugnavTowards(i.getMapLocation(), 500);
+                    indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
+                    action = true;
+                    break;
+                }
             }
-            else {
-                Motion.moveRandomly();
+            if (!action) {
+                int meetingPt = rc.readSharedArray(11);
+                if (GlobalArray.hasLocation(meetingPt)) {
+                    Motion.bugnavTowards(GlobalArray.parseLocation(meetingPt), 500);
+                    indicatorString.append("MEET("+GlobalArray.parseLocation(meetingPt).x+","+GlobalArray.parseLocation(meetingPt).y+");");
+                } else {
+                    for (MapInfo i : info) {
+                        if (!i.isPassable() && !i.isWall() && !i.isWater()) {
+                            rc.writeSharedArray(11, GlobalArray.intifyLocation(rc.getLocation()));
+                            action = true;
+                        }
+                    }
+                }
+                if (!action) {
+                    Motion.moveRandomly();
+                }
             }
         }
     }
