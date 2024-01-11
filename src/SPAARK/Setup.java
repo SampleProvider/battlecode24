@@ -53,12 +53,12 @@ public class Setup {
                     }
                 }
             }
-            if (!GlobalArray.hasLocation(rc.readSharedArray(10))) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(15))) {
                 //set flag target
                 MapLocation[] spawns = rc.getAllySpawnLocations();
                 rc.writeSharedArray(15, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
             }
-            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(10));
+            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(15));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
