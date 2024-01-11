@@ -1,4 +1,4 @@
-package Defensive_SPAARK_OLD;
+package Defensive_SPAARKJAN9;
 
 import battlecode.common.*;
 
@@ -9,13 +9,22 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class Offensive {
+public class Setup {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
     public static Random rng;
     
     public static void run() throws GameActionException {
-        // oof nothing here
+        if (rc.canPickupFlag(rc.getLocation())) {
+            rc.pickupFlag(rc.getLocation());
+        }
+        MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
+        if (crumbs.length > 0) {
+            Motion.bug2(crumbs[0]);
+        }
+        else {
+            Motion.moveRandomly();
+        }
     }
 }
