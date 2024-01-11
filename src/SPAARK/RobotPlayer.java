@@ -47,18 +47,7 @@ public strictfp class RobotPlayer {
                 if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (hiddenFlags.length > 0) {
-                        for (int i = 0; i < 27; i++) {
-                            if (!rc.canSpawn(spawnLocs[i])) {
-                                spawnLocs[i] = new MapLocation(-1000, -1000);
-                            }
-                        }
-                        MapLocation bestSpawnLoc = Motion.getNearest(spawnLocs, hiddenFlags[0]);
-                        if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                            rc.spawn(bestSpawnLoc);
-                        }
-                    }
-                    else {
+                    if (hiddenFlags.length == 0 || rc.getRoundNum() == 1) {
                         int index = rng.nextInt(27 * 3);
                         for (int i = 0; i < 27; i++) {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
@@ -69,6 +58,17 @@ public strictfp class RobotPlayer {
                             else {
                                 index++;
                             }
+                        }
+                    }
+                    else {
+                        for (int i = 0; i < 27; i++) {
+                            if (!rc.canSpawn(spawnLocs[i])) {
+                                spawnLocs[i] = new MapLocation(-1000, -1000);
+                            }
+                        }
+                        MapLocation bestSpawnLoc = Motion.getNearest(spawnLocs, hiddenFlags[0]);
+                        if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                            rc.spawn(bestSpawnLoc);
                         }
                     }
                 }
@@ -87,11 +87,11 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
-                        rc.buyGlobal(GlobalUpgrade.HEALING);
-                    }
-                    if (rc.getRoundNum() == 1500 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+                    if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
+                    }
+                    if (rc.getRoundNum() == 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                        rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
@@ -100,7 +100,6 @@ public strictfp class RobotPlayer {
                         Offensive.run();
                     }
                 }
-                indicatorString.append("ACT=" + rc.isActionReady());
                 rc.setIndicatorString(indicatorString.toString());
 
             }

@@ -60,6 +60,17 @@ public class Attack {
             if (robot == null) {
                 robot = r;
             }
+            else if (robot.hasFlag()) {
+                if (!r.hasFlag()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() > r.getHealth()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                    robot = r;
+                }
+            }
             else if (robot.getHealth() > r.getHealth()) {
                 robot = r;
             }
@@ -74,6 +85,17 @@ public class Attack {
         for (RobotInfo r : friendlyRobots) {
             if (robot == null) {
                 robot = r;
+            }
+            else if (robot.hasFlag()) {
+                if (!r.hasFlag()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() > r.getHealth()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                    robot = r;
+                }
             }
             else if (robot.getHealth() > r.getHealth()) {
                 robot = r;

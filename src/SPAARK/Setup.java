@@ -40,8 +40,14 @@ public class Setup {
         }
         if (rc.hasFlag()) {
             if (flagIndex == -1) {
+                int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
                 for (int i = 0; i <= 2; i++) {
-                    if (!GlobalArray.hasLocation(rc.readSharedArray(i))) {
+                    if (rc.readSharedArray(i) == 0) {
+                        rc.writeSharedArray(i, flagId);
+                        flagIndex = i;
+                        break;
+                    }
+                    else if (rc.readSharedArray(i) == flagId) {
                         flagIndex = i;
                         break;
                     }
@@ -50,7 +56,7 @@ public class Setup {
             if (!GlobalArray.hasLocation(rc.readSharedArray(10))) {
                 //set flag target
                 MapLocation[] spawns = rc.getAllySpawnLocations();
-                rc.writeSharedArray(10, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
+                rc.writeSharedArray(15, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
             }
             MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(10));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
@@ -102,12 +108,14 @@ public class Setup {
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
+                rc.writeSharedArray(flagIndex + 3, GlobalArray.intifyLocation(toPlace));
+                rc.writeSharedArray(flagIndex + 6, GlobalArray.intifyLocation(toPlace));
                 flagIndex = -1;
             }
             else {
                 rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-                rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
+                rc.writeSharedArray(flagIndex + 3, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
         }
         else {
@@ -122,14 +130,14 @@ public class Setup {
                 }
             }
             if (!action) {
-                int meetingPt = rc.readSharedArray(11);
+                int meetingPt = rc.readSharedArray(16);
                 if (GlobalArray.hasLocation(meetingPt)) {
                     Motion.bugnavTowards(GlobalArray.parseLocation(meetingPt), 500);
                     indicatorString.append("MEET("+GlobalArray.parseLocation(meetingPt).x+","+GlobalArray.parseLocation(meetingPt).y+");");
                 } else {
                     for (MapInfo i : info) {
                         if (!i.isPassable() && !i.isWall() && !i.isWater()) {
-                            rc.writeSharedArray(11, GlobalArray.intifyLocation(rc.getLocation()));
+                            rc.writeSharedArray(16, GlobalArray.intifyLocation(rc.getLocation()));
                             action = true;
                         }
                     }
@@ -141,9 +149,5 @@ public class Setup {
         }
     }
     public static void jailed() throws GameActionException {
-        if (flagIndex != -1) {
-            rc.writeSharedArray(flagIndex, 0);
-            flagIndex = -1;
-        }
     }
 }

@@ -790,6 +790,7 @@ public class Motion {
                     continue;
                 }
                 int weight = 0;
+                int friendlyWeight = 0;
                 for (RobotInfo robot : opponentRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     // if (rc.canSenseLocation(relativeLoc)) {
@@ -805,12 +806,13 @@ public class Motion {
                 for (RobotInfo robot : friendlyRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (rc.canSenseLocation(relativeLoc)) {
-                        weight += 1;
+                        friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
-                        weight += 1;
+                        friendlyWeight += 1;
                     }
                 }
+                weight += Math.min(friendlyWeight, 4);
                 if (direction == null) {
                     direction = d;
                     bestWeight = weight;
@@ -887,14 +889,15 @@ public class Motion {
         }
     }
     protected static void bug2Flag(MapLocation dest) throws GameActionException {
-        while (rc.isMovementReady() && rc.isActionReady()) {
+        // oh no patched
+        if (rc.isMovementReady() && rc.isActionReady()) {
             MapLocation me = rc.getLocation();
             Direction d = bug2Helper(me, dest, TOWARDS, 0, 0);
             if (d == Direction.CENTER) {
                 if (!rc.hasFlag() && rc.canPickupFlag(me)) {
                     rc.pickupFlag(me);
                 }
-                break;
+                return;
             }
             if (rc.hasFlag() && rc.canDropFlag(rc.getLocation().add(d))) {
                 rc.dropFlag(rc.getLocation().add(d));
@@ -904,6 +907,12 @@ public class Motion {
                 rc.pickupFlag(me);
             }
             lastDir = d;
+        }
+        else if (rc.isActionReady()) {
+            MapLocation me = rc.getLocation();
+            if (!rc.hasFlag() && rc.canPickupFlag(me)) {
+                rc.pickupFlag(me);
+            }
         }
     }
 }

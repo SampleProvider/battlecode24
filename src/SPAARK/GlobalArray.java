@@ -28,7 +28,7 @@ public class GlobalArray {
     public static int intifyLocation(MapLocation loc) {
         return 0b1000000000000 | (loc.y << 6) | loc.x;
     }
-    public static boolean isFlagPlaced(int n) {
+    public static boolean isFlagPickedUp(int n) {
         return ((n >> 13) & 0b1) == 1;
     }
 
@@ -38,10 +38,57 @@ public class GlobalArray {
             rc.writeSharedArray(index, (n & 0b1110000000000000) | intifyLocation(loc));
         }
     }
+    public static void writeFlag(FlagInfo flag) throws GameActionException {
+        int flagId = flag.getID();
+        if (flag.getTeam().equals(rc.getTeam())) {
+            for (int i = 0; i <= 2; i++) {
+                if (rc.readSharedArray(i) == 0) {
+                    rc.writeSharedArray(i, flagId);
+                    if (flag.isPickedUp()) {
+                        rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    else {
+                        rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    break;
+                }
+                else if (rc.readSharedArray(i) == flagId) {
+                    if (flag.isPickedUp()) {
+                        rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    else {
+                        rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    break;
+                }
+            }
+        }
+        else {
+            for (int i = 9; i <= 11; i++) {
+                if (rc.readSharedArray(i) == 0) {
+                    rc.writeSharedArray(i, flagId);
+                    if (flag.isPickedUp()) {
+                        rc.writeSharedArray(i + 3, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    else {
+                        rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    break;
+                }
+                else if (rc.readSharedArray(i) == flagId) {
+                    if (flag.isPickedUp()) {
+                        rc.writeSharedArray(i + 3, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    else {
+                        rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     public static void init() throws GameActionException {
-        rc.writeSharedArray(6, 1 << 13);
-        rc.writeSharedArray(7, 1 << 13);
-        rc.writeSharedArray(8, 1 << 13);
+
     }
 }

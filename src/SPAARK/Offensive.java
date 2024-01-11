@@ -25,67 +25,83 @@ public class Offensive {
         Direction.NORTH,
         Direction.NORTHEAST,
     };
-
     public static int flagIndex = -1;
     
     public static void run() throws GameActionException {
-        // capturing flags
+        // capturing opponentFlags
+        MapLocation me = rc.getLocation();
         Attack.attack();
         Attack.heal();
-        FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
-        FlagInfo nearestFlag = Motion.getNearestFlag(flags, false);
-        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation()) && flagIndex == -1) {
-            boolean valid = true;
-            for (int i = 6; i <= 8; i++) {
-                int n = rc.readSharedArray(i);
-                if (GlobalArray.hasLocation(n) && GlobalArray.parseLocation(n).equals(nearestFlag.getLocation()) && !GlobalArray.isFlagPlaced(n)) {
-                    valid = false;
+        FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+
+        FlagInfo nearestFlag = Motion.getNearestFlag(opponentFlags, false);
+        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation())) {
+            rc.pickupFlag(nearestFlag.getLocation());
+            int flagId = nearestFlag.getID();
+            for (int i = 9; i <= 11; i++) {
+                if (rc.readSharedArray(i) == 0) {
+                    flagIndex = i;
+                    rc.writeSharedArray(i, flagId);
+                    break;
+                }
+                else if (rc.readSharedArray(i) == flagId) {
+                    flagIndex = i;
                     break;
                 }
             }
-            if (valid) {
-                rc.pickupFlag(nearestFlag.getLocation());
-                for (int i = 6; i <= 8; i++) {
-                    if (GlobalArray.isFlagPlaced(rc.readSharedArray(i))) {
-                        flagIndex = i;
-                        indicatorString.append("WOW PICKED UP FLAG " + i);
-                        break;
-                    }
-                }
-                if (flagIndex != -1) {
-                    rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
-                }
-            }
         }
-        if (flagIndex != -1 && !rc.hasFlag() && (nearestFlag == null || !nearestFlag.getLocation().equals(rc.getLocation()))) {
-            stopHoldingFlag();
-            flagIndex = -1;
+        opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+        FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
+        for (FlagInfo flag : friendlyFlags) {
+            GlobalArray.writeFlag(flag);
         }
-        indicatorString.append(flagIndex);
+        for (FlagInfo flag : opponentFlags) {
+            GlobalArray.writeFlag(flag);
+        }
+
         if (flagIndex != -1) {
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getNearest(spawnLocs);
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
-            Motion.bug2Flag(bestLoc);
-            // rc.writeSharedArray(flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
-            rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
+            Motion.bugnavTowards(bestLoc, 1000);
+            if (!rc.hasFlag()) {
+                rc.writeSharedArray(flagIndex + 3, 0);
+                flagIndex = -1;
+            }
         }
         else {
-            MapInfo[] info = rc.senseNearbyMapInfos();
             Boolean action = false;
-            for (MapInfo i : info) {
-                if (i.getCrumbs() > 0) {
-                    Motion.bugnavTowards(i.getMapLocation(), 999);
-                    indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
-                    action = true;
-                    break;
+
+            MapLocation nearestStolenFlag = null;
+            for (int i = 6; i <= 8; i++) {
+                int n = rc.readSharedArray(i);
+                if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
+                    if (nearestStolenFlag == null || me.distanceSquaredTo(nearestStolenFlag) > me.distanceSquaredTo(GlobalArray.parseLocation(n))) {
+                        nearestStolenFlag = GlobalArray.parseLocation(n);
+                    }
+                }
+            }
+            if (nearestStolenFlag != null) {
+                Motion.bugnavTowards(nearestStolenFlag, 999);
+                action = true;
+            }
+
+            if (!action) {
+                MapInfo[] info = rc.senseNearbyMapInfos();
+                for (MapInfo i : info) {
+                    if (i.getCrumbs() > 0) {
+                        Motion.bugnavTowards(i.getMapLocation(), 999);
+                        indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
+                        action = true;
+                        break;
+                    }
                 }
             }
             if (!action) {
-                for (int i = 6; i <= 8; i++) {
+                for (int i = 12; i <= 14; i++) {
                     int n = rc.readSharedArray(i);
-                    if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPlaced(n)) {
-                        Motion.bugnavAround(GlobalArray.parseLocation(n), 8, 15, 999);
+                    if (GlobalArray.hasLocation(n) && GlobalArray.isFlagPickedUp(n)) {
+                        Motion.bugnavAround(GlobalArray.parseLocation(n), 5, 20, 999);
                         break;
                     }
                 }
@@ -128,11 +144,8 @@ public class Offensive {
     }
     public static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            stopHoldingFlag();
+            rc.writeSharedArray(flagIndex + 3, 0);
+            flagIndex = -1;
         }
-    }
-    public static void stopHoldingFlag() throws GameActionException {
-        rc.writeSharedArray(flagIndex, (1 << 13) ^ rc.readSharedArray(flagIndex));
-        flagIndex = -1;
     }
 }
