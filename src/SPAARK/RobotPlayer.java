@@ -46,15 +46,29 @@ public strictfp class RobotPlayer {
             try {
                 if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-                    int index = rng.nextInt(27 * 3);
-                    for (int i = 0; i < 27; i++) {
-                        MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
-                        if (rc.canSpawn(randomLoc)) {
-                            rc.spawn(randomLoc);
-                            break;
+                    MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                    if (hiddenFlags.length > 0) {
+                        for (int i = 0; i < 27; i++) {
+                            if (!rc.canSpawn(spawnLocs[i])) {
+                                spawnLocs[i] = new MapLocation(-1000, -1000);
+                            }
                         }
-                        else {
-                            index++;
+                        MapLocation bestSpawnLoc = Motion.getNearest(spawnLocs, hiddenFlags[0]);
+                        if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                            rc.spawn(bestSpawnLoc);
+                        }
+                    }
+                    else {
+                        int index = rng.nextInt(27 * 3);
+                        for (int i = 0; i < 27; i++) {
+                            MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
+                            if (rc.canSpawn(randomLoc)) {
+                                rc.spawn(randomLoc);
+                                break;
+                            }
+                            else {
+                                index++;
+                            }
                         }
                     }
                 }

@@ -736,10 +736,10 @@ public class Motion {
                 for (RobotInfo robot : opponentRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (rc.canSenseLocation(relativeLoc)) {
-                        weight -= 1;
+                        weight -= 4;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
-                        weight -= 1;
+                        weight -= 4;
                     }
                 }
                 for (RobotInfo robot : friendlyRobots) {
@@ -772,24 +772,24 @@ public class Motion {
         }
         indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
     }
-    protected static void bugnavTowards(MapLocation dest, boolean allowRetreat) throws GameActionException {
-        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && allowRetreat) {
+    protected static void bugnavTowards(MapLocation dest, int retreatHP) throws GameActionException {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             bug2retreat();
         }
         else {
             bug2towards(dest);
         }
     }
-    protected static void bugnavAway(MapLocation dest, boolean allowRetreat) throws GameActionException {
-        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && allowRetreat) {
+    protected static void bugnavAway(MapLocation dest, int retreatHP) throws GameActionException {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             bug2retreat();
         }
         else {
             bug2away(dest);
         }
     }
-    protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, boolean allowRetreat) throws GameActionException {
-        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && allowRetreat) {
+    protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP) throws GameActionException {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             bug2retreat();
         }
         else {

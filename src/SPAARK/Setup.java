@@ -80,7 +80,7 @@ public class Setup {
                     default:
                 }
             }
-            Motion.bugnavTowards(toPlace, false);
+            Motion.bugnavTowards(toPlace, 500);
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
@@ -113,7 +113,7 @@ public class Setup {
         else {
             MapLocation[] crumbs = rc.senseNearbyCrumbs(-1);
             if (crumbs.length > 0) {
-                Motion.bugnavTowards(crumbs[0], true);
+                Motion.bugnavTowards(crumbs[0], 500);
             }
             else {
                 Motion.moveRandomly();
