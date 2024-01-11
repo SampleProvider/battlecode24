@@ -31,9 +31,11 @@ public class Setup {
     public static MapLocation flagOffset = new MapLocation(-100, -100);
     
     public static void run() throws GameActionException {
-        if (rc.canPickupFlag(rc.getLocation())) {
+        FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+        FlagInfo nearestFlag = Motion.getNearestFlag(flags, false);
+        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation())) {
             if (!GlobalArray.hasLocation(rc.readSharedArray(0)) || !GlobalArray.hasLocation(rc.readSharedArray(1)) || !GlobalArray.hasLocation(rc.readSharedArray(2))) {
-                rc.pickupFlag(rc.getLocation());
+                rc.pickupFlag(nearestFlag.getLocation());
             }
         }
         if (rc.hasFlag()) {
