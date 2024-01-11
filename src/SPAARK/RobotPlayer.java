@@ -100,6 +100,7 @@ public strictfp class RobotPlayer {
                         Offensive.run();
                     }
                 }
+                indicatorString.append("ACT=" + rc.isActionReady());
                 rc.setIndicatorString(indicatorString.toString());
 
             }

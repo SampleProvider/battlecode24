@@ -71,43 +71,55 @@ public class Offensive {
             rc.writeSharedArray(flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
         }
         else {
-            for (int i = 6; i <= 8; i++) {
-                int n = rc.readSharedArray(i);
-                if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPlaced(n)) {
-                    Motion.bugnavAround(GlobalArray.parseLocation(n), 8, 15, 500);
+            MapInfo[] info = rc.senseNearbyMapInfos();
+            Boolean action = false;
+            for (MapInfo i : info) {
+                if (i.getCrumbs() > 0) {
+                    Motion.bugnavTowards(i.getMapLocation(), 999);
+                    indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
+                    action = true;
                     break;
                 }
             }
-            if (nearestFlag != null) {
-                Motion.bugnavTowards(nearestFlag.getLocation(), 500);
-                for (int j = 0; j < 8; j++) {
-                    MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
-                        rc.build(TrapType.EXPLOSIVE, buildLoc);
-                    }
-                    else if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                        rc.build(TrapType.STUN, buildLoc);
+            if (!action) {
+                for (int i = 6; i <= 8; i++) {
+                    int n = rc.readSharedArray(i);
+                    if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPlaced(n)) {
+                        Motion.bugnavAround(GlobalArray.parseLocation(n), 8, 15, 999);
+                        break;
                     }
                 }
-            }
-            else {
-                MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                if (hiddenFlags.length > 0) {
-                    Motion.bugnavTowards(hiddenFlags[0], 500);
-                    if (rc.getLocation().distanceSquaredTo(hiddenFlags[0]) < 100) {
-                        for (int j = 0; j < 8; j++) {
-                            MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                            if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
-                                rc.build(TrapType.EXPLOSIVE, buildLoc);
-                            }
-                            else if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                rc.build(TrapType.STUN, buildLoc);
-                            }
+                if (nearestFlag != null) {
+                    Motion.bugnavTowards(nearestFlag.getLocation(), 999);
+                    for (int j = 0; j < 8; j++) {
+                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        }
+                        else if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                            rc.build(TrapType.STUN, buildLoc);
                         }
                     }
                 }
                 else {
-                    Motion.moveRandomly();
+                    MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                    if (hiddenFlags.length > 0) {
+                        Motion.bugnavTowards(hiddenFlags[0], 999);
+                        if (rc.getLocation().distanceSquaredTo(hiddenFlags[0]) < 100) {
+                            for (int j = 0; j < 8; j++) {
+                                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
+                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
+                                }
+                                else if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                    rc.build(TrapType.STUN, buildLoc);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        Motion.moveRandomly();
+                    }
                 }
             }
         }
