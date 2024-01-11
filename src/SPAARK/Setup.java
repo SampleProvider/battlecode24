@@ -35,7 +35,7 @@ public class Setup {
         FlagInfo nearestFlag = Motion.getNearestFlag(flags, false);
         if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation())) {
             if (!GlobalArray.hasLocation(rc.readSharedArray(0)) || !GlobalArray.hasLocation(rc.readSharedArray(1)) || !GlobalArray.hasLocation(rc.readSharedArray(2))) {
-                rc.pickupFlag(nearestFlag.getLocation());
+                // rc.pickupFlag(nearestFlag.getLocation());
             }
         }
         if (rc.hasFlag()) {

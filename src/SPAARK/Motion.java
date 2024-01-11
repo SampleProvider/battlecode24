@@ -414,7 +414,7 @@ public class Motion {
                         if (!rc.canSenseLocation(loc)) {
                             break search;
                         }
-                        if (clockwiseDir != clockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable()) {
+                        if (clockwiseDir != clockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable() && rc.senseRobotAtLocation(loc) == null) {
                             clockwiseLastDir = clockwiseDir;
                             break;
                         }
@@ -434,7 +434,7 @@ public class Motion {
                         if (!rc.canSenseLocation(loc)) {
                             break search;
                         }
-                        if (counterClockwiseDir != counterClockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable()) {
+                        if (counterClockwiseDir != counterClockwiseLastDir.opposite() && rc.senseMapInfo(loc).isPassable() && rc.senseRobotAtLocation(loc) == null) {
                             counterClockwiseLastDir = counterClockwiseDir;
                             break;
                         }
@@ -784,7 +784,7 @@ public class Motion {
             Direction direction = null;
             int bestWeight = 0;
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
             for (Direction d : ALL_DIRECTIONS) {
                 if (!rc.canMove(d)) {
                     continue;
@@ -835,26 +835,29 @@ public class Motion {
         indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
     }
     protected static void bugnavTowards(MapLocation dest, int retreatHP) throws GameActionException {
-        RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
-        if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
-            bug2retreat();
+        // RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
+        // if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
+        //     bug2retreat();
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
         }
         else {
             if (rc.isMovementReady()) {
-                MapLocation me = rc.getLocation();
+                // MapLocation me = rc.getLocation();
                 Direction d = bug2towards(dest);
                 if (d == Direction.CENTER) {
                     return;
                 }
-                for (RobotInfo robot : nearbyRobots) {
-                    MapLocation relativeLoc = robot.getLocation().add(d.opposite());
-                    // if (rc.canSenseLocation(relativeLoc)) {
-                    //     weight -= 4;
-                    // }
-                    if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                        return;
-                    }
-                }
+                // for (RobotInfo robot : nearbyRobots) {
+                //     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                //     // if (rc.canSenseLocation(relativeLoc)) {
+                //     //     weight -= 4;
+                //     // }
+                //     if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                //         return;
+                //     }
+                // }
                 // if (friendlyRobots.length < 6 || rc.getHealth() <= retreatHP) {
                 // }
                 rc.move(d);
@@ -863,8 +866,9 @@ public class Motion {
         }
     }
     protected static void bugnavAway(MapLocation dest, int retreatHP) throws GameActionException {
-        if (rc.senseNearbyRobots(4, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-            bug2retreat();
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
         }
         else {
             Direction d = bug2away(dest);
@@ -876,8 +880,9 @@ public class Motion {
         }
     }
     protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP) throws GameActionException {
-        if (rc.senseNearbyRobots(4, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-            bug2retreat();
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
         }
         else {
             Direction d = bug2around(dest, minRadiusSquared, maxRadiusSquared);
@@ -913,6 +918,180 @@ public class Motion {
             if (!rc.hasFlag() && rc.canPickupFlag(me)) {
                 rc.pickupFlag(me);
             }
+        }
+    }
+
+
+    protected static void micro(MapLocation dest) throws GameActionException {
+        if (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            Direction bestDir = null;
+            int bestWeight = 0;
+            Direction bestFillDir = null;
+            int bestFillWeight = 0;
+            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+            for (Direction d : ALL_DIRECTIONS) {
+                if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
+                    continue;
+                }
+                int weight = 0;
+                if (d.equals(me.directionTo(dest))) {
+                    weight += 1;
+                }
+                int actions = rc.isActionReady() ? 1 : 0;
+                for (RobotInfo robot : opponentRobots) {
+                    MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                    if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                        if (actions == 0) {
+                            weight -= 10;
+                        }
+                        else {
+                            actions -= 1;
+                            weight += 4;
+                        }
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                        weight -= 16;
+                    }
+                }
+                int friendlyWeight = 0;
+                for (RobotInfo robot : friendlyRobots) {
+                    MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                    if (rc.canSenseLocation(relativeLoc)) {
+                        friendlyWeight += 1;
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
+                        friendlyWeight += 1;
+                    }
+                }
+                weight += Math.min(friendlyWeight, 4);
+                if (rc.canFill(me.add(d))) {
+                    if (bestFillDir == null) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                    else if (bestFillWeight < weight) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                }
+                else {
+                    if (bestDir == null) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
+                    else if (bestWeight < weight) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
+                }
+            }
+            if (bestDir != null) {
+                rc.move(bestDir);
+                lastDir = bestDir;
+            }
+            else if (bestFillDir != null) {
+                rc.fill(me.add(bestFillDir));
+            }
+        }
+    }
+
+
+    protected static void moveWithAction(Direction dir) throws GameActionException {
+        if (rc.isActionReady()) {
+            MapLocation me = rc.getLocation();
+            MapLocation newMe = rc.getLocation().add(dir);
+            
+            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            RobotInfo robot = null;
+            for (RobotInfo r : opponentRobots) {
+                if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
+                    continue;
+                }
+                if (robot == null) {
+                    robot = r;
+                }
+                else if (robot.hasFlag()) {
+                    if (!r.hasFlag()) {
+                        robot = r;
+                    }
+                    else if (robot.getHealth() > r.getHealth()) {
+                        robot = r;
+                    }
+                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                        robot = r;
+                    }
+                }
+                else if (robot.getHealth() > r.getHealth()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                    robot = r;
+                }
+            }
+
+            if (robot == null) {
+                RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+                for (RobotInfo r : friendlyRobots) {
+                    if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
+                        continue;
+                    }
+                    if (robot == null) {
+                        robot = r;
+                    }
+                    else if (robot.hasFlag()) {
+                        if (!r.hasFlag()) {
+                            robot = r;
+                        }
+                        else if (robot.getHealth() > r.getHealth()) {
+                            robot = r;
+                        }
+                        else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                            robot = r;
+                        }
+                    }
+                    else if (robot.getHealth() > r.getHealth()) {
+                        robot = r;
+                    }
+                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                        robot = r;
+                    }
+                }
+            }
+
+            if (robot != null) {
+                if (robot.getTeam().equals(rc.getTeam())) {
+                    while (rc.canHeal(robot.getLocation())) {
+                        rc.heal(robot.getLocation());
+                    }
+                }
+                else  {
+                    while (rc.canAttack(robot.getLocation())) {
+                        rc.attack(robot.getLocation());
+                    }
+                }
+            }
+
+            rc.move(dir);
+            lastDir = dir;
+
+            if (robot != null) {
+                if (robot.getTeam().equals(rc.getTeam())) {
+                    while (rc.canHeal(robot.getLocation())) {
+                        rc.heal(robot.getLocation());
+                    }
+                }
+                else  {
+                    while (rc.canAttack(robot.getLocation())) {
+                        rc.attack(robot.getLocation());
+                    }
+                }
+            }
+        }
+        else {
+            rc.move(dir);
+            lastDir = dir;
         }
     }
 }

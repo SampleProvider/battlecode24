@@ -25,6 +25,11 @@ public strictfp class RobotPlayer {
         Direction.NORTHWEST,
     };
 
+    static int mode = -1;
+
+    final static int DEFENSIVE = 0;
+    final static int OFFENSIVE = 1;
+
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
@@ -44,9 +49,18 @@ public strictfp class RobotPlayer {
             turnCount += 1;
 
             try {
-                if (!rc.isSpawned()) {
+                spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                    if (mode == DEFENSIVE || rc.getRoundNum() == 1) {
+                        for (int i = 4; i < 27; i += 9) {
+                            if (rc.canSpawn(spawnLocs[i])) {
+                                rc.spawn(spawnLocs[i]);
+                                mode = DEFENSIVE;
+                                break spawn;
+                            }
+                        }
+                    }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() == 1) {
                         int index = rng.nextInt(27 * 3);
                         for (int i = 0; i < 27; i++) {
@@ -79,7 +93,10 @@ public strictfp class RobotPlayer {
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
                 if (!rc.isSpawned()) {
-                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (mode == DEFENSIVE) {
+                        Defensive.jailed();
+                    }
+                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
                     }
                     else {
@@ -93,7 +110,10 @@ public strictfp class RobotPlayer {
                     if (rc.getRoundNum() == 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
-                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (mode == DEFENSIVE) {
+                        Defensive.run();
+                    }
+                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
                     else {

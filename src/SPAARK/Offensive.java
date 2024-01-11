@@ -30,8 +30,6 @@ public class Offensive {
     public static void run() throws GameActionException {
         // capturing opponentFlags
         MapLocation me = rc.getLocation();
-        Attack.attack();
-        Attack.heal();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
         FlagInfo nearestFlag = Motion.getNearestFlag(opponentFlags, false);
@@ -109,10 +107,7 @@ public class Offensive {
                     Motion.bugnavTowards(nearestFlag.getLocation(), 999);
                     for (int j = 0; j < 8; j++) {
                         MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
-                        else if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                        if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
                             rc.build(TrapType.STUN, buildLoc);
                         }
                     }
@@ -124,10 +119,7 @@ public class Offensive {
                         if (rc.getLocation().distanceSquaredTo(hiddenFlags[0]) < 100) {
                             for (int j = 0; j < 8; j++) {
                                 MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rng.nextInt() % 3 == 1) {
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
-                                }
-                                else if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
                                     rc.build(TrapType.STUN, buildLoc);
                                 }
                             }
