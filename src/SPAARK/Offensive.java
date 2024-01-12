@@ -129,7 +129,7 @@ public class Offensive {
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (hiddenFlags.length > 0) {
                         MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
-                        Motion.bugnavTowards(closestHiddenFlag, 999);
+                        Motion.bugnavTowards(hiddenFlags[GlobalArray.id % hiddenFlags.length], 999);
                     }
                     else {
                         Motion.moveRandomly();

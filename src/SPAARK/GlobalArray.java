@@ -6,6 +6,8 @@ public class GlobalArray {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
+    public static int id;
+
     /*
      * Array Indices 1-3:
      *  Default Flag Locations
@@ -65,6 +67,9 @@ public class GlobalArray {
                         rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
+                        if (rc.getRoundNum() < 200) {
+                            rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                        }
                         rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
@@ -74,6 +79,9 @@ public class GlobalArray {
                         rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
+                        if (rc.getRoundNum() < 200) {
+                            rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                        }
                         rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
@@ -106,6 +114,7 @@ public class GlobalArray {
     }
 
     public static void init() throws GameActionException {
-
+        id = rc.readSharedArray(63);
+        rc.writeSharedArray(63, id + 1);
     }
 }

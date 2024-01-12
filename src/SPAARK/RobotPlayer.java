@@ -46,7 +46,7 @@ public strictfp class RobotPlayer {
 
         GlobalArray.init();
 
-        if (rc.readSharedArray(0) == 0 || rc.readSharedArray(1) == 0 || rc.readSharedArray(2) == 0) {
+        if (GlobalArray.id < 12) {
             mode = DEFENSIVE;
         }
 
@@ -60,7 +60,6 @@ public strictfp class RobotPlayer {
                     if (mode == DEFENSIVE && spawnLoc.x != -1) {
                         if (rc.canSpawn(spawnLoc)) {
                             rc.spawn(spawnLoc);
-                            mode = DEFENSIVE;
                             break spawn;
                         }
                     }
@@ -107,8 +106,8 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.getRoundNum() < 20) {
-                        if (mode == DEFENSIVE && rc.senseNearbyFlags(0, rc.getTeam()).length > 0) {
+                    if (rc.getRoundNum() == 200) {
+                        if (mode == DEFENSIVE) {
                             spawnLoc = rc.getLocation();
                         }
                     }
