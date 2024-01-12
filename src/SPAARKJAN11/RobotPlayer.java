@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKJAN11;
 
 import battlecode.common.*;
 
@@ -107,10 +107,8 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.getRoundNum() < 20) {
-                        if (mode == DEFENSIVE && rc.senseNearbyFlags(0, rc.getTeam()).length > 0) {
-                            spawnLoc = rc.getLocation();
-                        }
+                    if (mode == DEFENSIVE && rc.senseNearbyFlags(0, rc.getTeam()).length > 0) {
+                        spawnLoc = rc.getLocation();
                     }
                     
                     if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {

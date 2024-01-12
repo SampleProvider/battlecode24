@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKJAN11;
 
 import battlecode.common.*;
 
@@ -75,8 +75,7 @@ public class Offensive {
                 int n = rc.readSharedArray(i);
                 if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
                     MapLocation loc = GlobalArray.parseLocation(n);
-                    rc.setIndicatorLine(rc.getLocation(), loc, 0, 255, 255);
-                    if (rc.getLocation().distanceSquaredTo(loc) <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
+                    if (rc.getLocation().distanceSquaredTo(loc) <= 4) {
                         boolean seesFlag = false;
                         for (FlagInfo flag : friendlyFlags) {
                             if (flag.isPickedUp() && flag.getID() == rc.readSharedArray(i - 6)) {

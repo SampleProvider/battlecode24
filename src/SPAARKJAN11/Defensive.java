@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKJAN11;
 
 import battlecode.common.*;
 
@@ -20,24 +20,17 @@ public class Defensive {
         Direction.SOUTH,
         Direction.SOUTHEAST,
         Direction.WEST,
-        Direction.NORTHEAST,
         Direction.EAST,
         Direction.NORTHWEST,
         Direction.NORTH,
+        Direction.NORTHEAST,
     };
     
     public static void run() throws GameActionException {
         for (int j = 0; j < 8; j++) {
             MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-            if (j % 2 == 0) {
-                if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                    rc.build(TrapType.WATER, buildLoc);
-                }
-            }
-            else {
-                if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    rc.build(TrapType.STUN, buildLoc);
-                }
+            if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                rc.build(TrapType.WATER, buildLoc);
             }
         }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -49,11 +42,9 @@ public class Defensive {
             GlobalArray.writeFlag(flag);
         }
         
-        if (rc.getRoundNum() < 20) {
-            FlagInfo closestFlag = Motion.getClosestFlag(friendlyFlags, false);
-            if (closestFlag != null) {
-                Motion.bugnavTowards(closestFlag.getLocation(), 999);
-            }
+        FlagInfo closestFlag = Motion.getClosestFlag(friendlyFlags, false);
+        if (closestFlag != null) {
+            Motion.bugnavTowards(closestFlag.getLocation(), 999);
         }
 
         Attack.attack();
