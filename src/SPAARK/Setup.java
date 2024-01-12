@@ -36,9 +36,11 @@ public class Setup {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             if (!GlobalArray.hasLocation(rc.readSharedArray(0)) || !GlobalArray.hasLocation(rc.readSharedArray(1)) || !GlobalArray.hasLocation(rc.readSharedArray(2))) {
                 // rc.pickupFlag(closestFlag.getLocation());
+                // leaving flags at start location for now
             }
         }
         if (rc.hasFlag()) {
+            //ignore this because we aren't moving flags rn
             if (flagIndex == -1) {
                 int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
                 for (int i = 0; i <= 2; i++) {
@@ -53,12 +55,12 @@ public class Setup {
                     }
                 }
             }
-            if (!GlobalArray.hasLocation(rc.readSharedArray(15))) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(18))) {
                 //set flag target
                 MapLocation[] spawns = rc.getAllySpawnLocations();
-                rc.writeSharedArray(15, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
+                rc.writeSharedArray(18, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
             }
-            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(15));
+            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(18));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
@@ -119,6 +121,7 @@ public class Setup {
             }
         }
         else {
+            //grab any crumb we see
             MapInfo[] info = rc.senseNearbyMapInfos();
             Boolean action = false;
             for (MapInfo i : info) {
@@ -129,22 +132,29 @@ public class Setup {
                     break;
                 }
             }
-            if (!action) {
-                int meetingPt = rc.readSharedArray(16);
-                if (GlobalArray.hasLocation(meetingPt)) {
-                    Motion.bugnavTowards(GlobalArray.parseLocation(meetingPt), 500);
-                    indicatorString.append("MEET("+GlobalArray.parseLocation(meetingPt).x+","+GlobalArray.parseLocation(meetingPt).y+");");
-                } else {
-                    for (MapInfo i : info) {
-                        if (!i.isPassable() && !i.isWall() && !i.isWater()) {
-                            rc.writeSharedArray(16, GlobalArray.intifyLocation(rc.getLocation()));
-                            action = true;
-                        }
+            int damLoc = rc.readSharedArray(19);
+            if (!GlobalArray.hasLocation(damLoc)) {
+                for (MapInfo i : info) {
+                    if (!i.isPassable() && !i.isWall() && !i.isWater()) {
+                        rc.writeSharedArray(19, GlobalArray.intifyLocation(i.getMapLocation()));
+                        action = true;
                     }
                 }
+            }
+            if (rc.getRoundNum() + rc.getMapHeight() + rc.getMapWidth() > 240) {
+                //Almost done with setup rounds, go and line up at the wall
                 if (!action) {
-                    Motion.moveRandomly();
+                    if (GlobalArray.hasLocation(damLoc)) {
+                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
+                        indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
+                    }
+                    if (!action) {
+
+                    }
                 }
+            } else {
+                if (!action)
+                Motion.moveRandomly();
             }
         }
     }
