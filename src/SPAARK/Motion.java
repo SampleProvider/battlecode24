@@ -958,7 +958,7 @@ public class Motion {
                 for (RobotInfo robot : opponentRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
-                        if (actions == 0) {
+                        if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
                         }
                         else {
