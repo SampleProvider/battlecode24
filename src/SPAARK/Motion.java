@@ -52,6 +52,9 @@ public class Motion {
     protected static Direction lastDir = Direction.CENTER;
     protected static int rotation = NONE;
 
+    protected static Direction lastRandomDir = Direction.CENTER;
+    protected static MapLocation lastRandomSpread;
+
     protected static int getManhattanDistance(MapLocation a, MapLocation b) {
         return Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
     }
@@ -130,42 +133,66 @@ public class Motion {
     }
 
     protected static void moveRandomly() throws GameActionException {
+        boolean stuck = true;
+        for (Direction d : DIRECTIONS) {
+            if (rc.canMove(d)) {
+                stuck = false;
+            }
+        }
+        if (stuck) {
+            return;
+        }
         while (rc.isMovementReady()) {
             Direction direction = DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
+            if (direction == lastRandomDir.opposite() && rc.canMove(direction.opposite())) {
+                direction = direction.opposite();
+            }
             if (rc.canMove(direction)) {
                 rc.move(direction);
-            }
-            boolean stuck = true;
-            for (Direction d : DIRECTIONS) {
-                if (rc.canMove(d)) {
-                    stuck = false;
-                }
-            }
-            if (stuck) {
-                break;
+                lastRandomDir = direction;
             }
         }
     }
     protected static void spreadRandomly() throws GameActionException {
-        while (rc.isMovementReady()) {
+        boolean stuck = true;
+        for (Direction d : DIRECTIONS) {
+            if (rc.canMove(d)) {
+                stuck = false;
+            }
+        }
+        if (stuck) {
+            return;
+        }
+        if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
             RobotInfo[] robotInfo = rc.senseNearbyRobots(20, rc.getTeam());
             MapLocation target = me;
             for (RobotInfo r : robotInfo) {
                 target = target.add(me.directionTo(r.getLocation()).opposite());
             }
-            Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
-            if (rc.canMove(direction)) {
-                rc.move(direction);
-            }
-            boolean stuck = true;
-            for (Direction d : DIRECTIONS) {
-                if (rc.canMove(d)) {
-                    stuck = false;
+            if (target.equals(me)) {
+                // just keep moving
+                if (rc.getRoundNum() % 3 == 0 || lastRandomSpread == null) {
+                    moveRandomly();
+                } else {
+                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
+                    if (rc.canMove(direction)) {
+                        rc.move(direction);
+                        lastRandomSpread = lastRandomSpread.add(direction);
+                        lastRandomDir = direction;
+                    } else {
+                        moveRandomly();
+                    }
                 }
-            }
-            if (stuck) {
-                break;
+            } else {
+                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+                if (rc.canMove(direction)) {
+                    rc.move(direction);
+                    lastRandomSpread = target;
+                    lastRandomDir = direction;
+                } else {
+                    moveRandomly();
+                }
             }
         }
     }
@@ -934,34 +961,6 @@ public class Motion {
             lastDir = d;
         }
     }
-    protected static void bug2Flag(MapLocation dest) throws GameActionException {
-        // oh no patched
-        if (rc.isMovementReady() && rc.isActionReady()) {
-            MapLocation me = rc.getLocation();
-            Direction d = bug2Helper(me, dest, TOWARDS, 0, 0);
-            if (d == Direction.CENTER) {
-                if (!rc.hasFlag() && rc.canPickupFlag(me)) {
-                    rc.pickupFlag(me);
-                }
-                return;
-            }
-            if (rc.hasFlag() && rc.canDropFlag(rc.getLocation().add(d))) {
-                rc.dropFlag(rc.getLocation().add(d));
-            }
-            rc.move(d);
-            if (!rc.hasFlag() && rc.canPickupFlag(me)) {
-                rc.pickupFlag(me);
-            }
-            lastDir = d;
-        }
-        else if (rc.isActionReady()) {
-            MapLocation me = rc.getLocation();
-            if (!rc.hasFlag() && rc.canPickupFlag(me)) {
-                rc.pickupFlag(me);
-            }
-        }
-    }
-
 
     protected static void micro(MapLocation dest) throws GameActionException {
         if (rc.isMovementReady()) {
@@ -1037,7 +1036,6 @@ public class Motion {
             }
         }
     }
-
 
     protected static void moveWithAction(Direction dir) throws GameActionException {
         if (rc.isActionReady()) {
