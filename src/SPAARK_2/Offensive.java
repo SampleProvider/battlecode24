@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_2;
 
 import battlecode.common.*;
 
@@ -122,13 +122,7 @@ public class Offensive {
                     Motion.bugnavTowards(closestFlag.getLocation(), 999);
                     for (int j = 0; j < 8; j++) {
                         MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                        build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
-                            for (MapInfo m : mapInfo) {
-                                if (m.getTrapType() != TrapType.NONE) {
-                                    break build;
-                                }
-                            }
+                        if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
                             rc.build(TrapType.STUN, buildLoc);
                         }
                     }
@@ -138,16 +132,10 @@ public class Offensive {
                     if (hiddenFlags.length > 0) {
                         MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
                         Motion.bugnavTowards(closestHiddenFlag, 999);
-                        if (rc.getLocation().distanceSquaredTo(closestHiddenFlag) < 400) {
+                        if (rc.getLocation().distanceSquaredTo(closestHiddenFlag) < 100) {
                             for (int j = 0; j < 8; j++) {
                                 MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
-                                    for (MapInfo m : mapInfo) {
-                                        if (m.getTrapType() != TrapType.NONE) {
-                                            break build;
-                                        }
-                                    }
+                                if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
                                     rc.build(TrapType.STUN, buildLoc);
                                 }
                             }
