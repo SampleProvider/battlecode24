@@ -48,6 +48,8 @@ public class Offensive {
                 }
             }
         }
+
+        // writing flags to global array
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -57,7 +59,9 @@ public class Offensive {
             GlobalArray.writeFlag(flag);
         }
 
+        // flagIndex: index of flag currently holding in global array
         if (flagIndex != -1) {
+            // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getClosest(spawnLocs);
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
@@ -120,43 +124,29 @@ public class Offensive {
                 }
                 if (closestFlag != null) {
                     Motion.bugnavTowards(closestFlag.getLocation(), 999);
-                    for (int j = 0; j < 8; j++) {
-                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                        build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
-                            for (MapInfo m : mapInfo) {
-                                if (m.getTrapType() != TrapType.NONE) {
-                                    break build;
-                                }
-                            }
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
                 }
                 else {
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (hiddenFlags.length > 0) {
                         MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
                         Motion.bugnavTowards(closestHiddenFlag, 999);
-                        if (rc.getLocation().distanceSquaredTo(closestHiddenFlag) < 400) {
-                            for (int j = 0; j < 8; j++) {
-                                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
-                                    for (MapInfo m : mapInfo) {
-                                        if (m.getTrapType() != TrapType.NONE) {
-                                            break build;
-                                        }
-                                    }
-                                    rc.build(TrapType.STUN, buildLoc);
-                                }
-                            }
-                        }
                     }
                     else {
                         Motion.moveRandomly();
                     }
                 }
+            }
+        }
+        for (int j = 0; j < 8; j++) {
+            MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+            build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
+                for (MapInfo m : mapInfo) {
+                    if (m.getTrapType() != TrapType.NONE) {
+                        break build;
+                    }
+                }
+                rc.build(TrapType.EXPLOSIVE, buildLoc);
             }
         }
         Attack.attack();
