@@ -146,6 +146,32 @@ public class Motion {
             }
         }
     }
+    protected static void spreadRandomly() throws GameActionException {
+        while (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            RobotInfo[] robotInfo = rc.senseNearbyRobots(20, rc.getTeam());
+            MapLocation target = me;
+            for (RobotInfo r : robotInfo) {
+                target = target.add(me.directionTo(r.getLocation()).opposite());
+            }
+            Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+            if (rc.canMove(direction)) {
+                rc.move(direction);
+            }
+            boolean stuck = true;
+            for (Direction d : DIRECTIONS) {
+                if (rc.canMove(d)) {
+                    stuck = false;
+                }
+            }
+            if (stuck) {
+                break;
+            }
+        }
+    }
+    protected static void groupRandomly() throws GameActionException {
+        // moves randomly but tries to stick to robots in small groups
+    }
     /*
     protected static void spreadRandomly(RobotController rc, MapLocation me) throws GameActionException {
         RobotInfo[] robotInfo = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam());

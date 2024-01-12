@@ -133,6 +133,7 @@ public class Offensive {
                     }
                     else {
                         Motion.moveRandomly();
+                        // Motion.groupRandomly();
                     }
                 }
             }
