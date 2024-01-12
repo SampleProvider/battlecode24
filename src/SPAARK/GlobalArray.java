@@ -19,6 +19,12 @@ public class GlobalArray {
      * danger levels for flag carriers
      */
 
+    //  public static final int ROBOT_IDS = 0;
+    //  public static final int ALLY_FLAG_IDS = 8;
+    //  public static final int ALLY_FLAG_ID_STEP = 16;
+    //  public static final int ALLY_FLAG_DEFAULT_LOCATIONS = 56;
+    //  public static final int ALLY_FLAG_DEFAULT_LOCATIONS = 56;
+
     public static boolean hasLocation(int n) {
         return (n >> 12 & 0b1) == 1;
     }
@@ -30,6 +36,17 @@ public class GlobalArray {
     }
     public static boolean isFlagPickedUp(int n) {
         return ((n >> 13) & 0b1) == 1;
+    }
+    public static void write(int index, int bits, int n) throws GameActionException {
+        for (int i = index / 16; i < (index + bits) / 16; i++) {
+            int r = rc.readSharedArray(index);
+            for (int bit = Math.max(index - i * 16, 0); bit < Math.min(index + bits - i * 16, 16); bit++) {
+                if (((r >> bit) | 1) != (n >> (i*16 + bit - index))) {
+                    r ^= (int) Math.pow(2, bit);
+                }
+            }
+            rc.writeSharedArray(index, r);
+        }
     }
 
     public static void updateLocation(int index, MapLocation loc) throws GameActionException {

@@ -35,8 +35,8 @@ public class Defensive {
                 }
             }
             else {
-                if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    rc.build(TrapType.STUN, buildLoc);
+                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                    rc.build(TrapType.EXPLOSIVE, buildLoc);
                 }
             }
         }
