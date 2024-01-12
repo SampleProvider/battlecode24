@@ -60,73 +60,73 @@ public class Motion {
         return Math.max(Math.abs(a.x-b.x), Math.abs(a.y-b.y));
     }
 
-    protected static MapLocation getNearest(MapLocation[] a) throws GameActionException {
-        /* Get nearest MapLocation to this robot (Euclidean) */
+    protected static MapLocation getClosest(MapLocation[] a) throws GameActionException {
+        /* Get closest MapLocation to this robot (Euclidean) */
         MapLocation me = rc.getLocation();
-        MapLocation nearest = a[0];
+        MapLocation closest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
             if (me.distanceSquaredTo(loc) < distance) {
-                nearest = loc;
+                closest = loc;
                 distance = me.distanceSquaredTo(loc);
             }
         }
-        return nearest;
+        return closest;
     }
-    protected static FlagInfo getNearestFlag(FlagInfo[] a, boolean pickedUp) throws GameActionException {
+    protected static FlagInfo getClosestFlag(FlagInfo[] a, boolean pickedUp) throws GameActionException {
         MapLocation me = rc.getLocation();
-        FlagInfo nearest = null;
+        FlagInfo closest = null;
         int distance = 0;
         for (FlagInfo loc : a) {
             if (loc.isPickedUp() != pickedUp) {
                 continue;
             }
-            if (nearest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
-                nearest = loc;
+            if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
+                closest = loc;
                 distance = me.distanceSquaredTo(loc.getLocation());
             }
         }
-        return nearest;
+        return closest;
     }
 
     protected static MapLocation getFarthest(MapLocation[] a) throws GameActionException {
         /* Get farthest MapLocation to this robot (Euclidean) */
         MapLocation me = rc.getLocation();
-        MapLocation nearest = a[0];
+        MapLocation closest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
             if (me.distanceSquaredTo(loc) > distance) {
-                nearest = loc;
+                closest = loc;
                 distance = me.distanceSquaredTo(loc);
             }
         }
-        return nearest;
+        return closest;
     }
 
-    protected static MapLocation getNearest(MapLocation[] a, MapLocation me) throws GameActionException {
-        /* Get nearest MapLocation to me (Euclidean) */
-        MapLocation nearest = a[0];
+    protected static MapLocation getClosest(MapLocation[] a, MapLocation me) throws GameActionException {
+        /* Get closest MapLocation to me (Euclidean) */
+        MapLocation closest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
             if (me.distanceSquaredTo(loc) < distance) {
-                nearest = loc;
+                closest = loc;
                 distance = me.distanceSquaredTo(loc);
             }
         }
-        return nearest;
+        return closest;
     }
 
     protected static MapLocation getFarthest(MapLocation[] a, MapLocation me) throws GameActionException {
         /* Get farthest MapLocation to me (Euclidean) */
-        MapLocation nearest = a[0];
+        MapLocation closest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
             if (me.distanceSquaredTo(loc) > distance) {
-                nearest = loc;
+                closest = loc;
                 distance = me.distanceSquaredTo(loc);
             }
         }
-        return nearest;
+        return closest;
     }
 
     protected static void moveRandomly() throws GameActionException {
@@ -650,6 +650,21 @@ public class Motion {
             }
             if (rc.canMove(direction) && lastDir != direction.opposite()) {
                 return direction;
+            }
+            else if (rc.canFill(me.add(direction))) {
+                int water = 0;
+                for (Direction d : DIRECTIONS) {
+                    MapLocation translatedMapLocation = me.add(d);
+                    if (rc.onTheMap(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                            water += 1;
+                        }
+                    }
+                }
+                if (water >= 3) {
+                    rc.fill(me.add(direction));
+                    return Direction.CENTER;
+                }
             }
         }
         if (rc.canMove(lastDir.opposite())) {

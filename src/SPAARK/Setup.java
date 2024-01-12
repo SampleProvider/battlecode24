@@ -32,10 +32,10 @@ public class Setup {
     
     public static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
-        FlagInfo nearestFlag = Motion.getNearestFlag(flags, false);
-        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation())) {
+        FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
+        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             if (!GlobalArray.hasLocation(rc.readSharedArray(0)) || !GlobalArray.hasLocation(rc.readSharedArray(1)) || !GlobalArray.hasLocation(rc.readSharedArray(2))) {
-                // rc.pickupFlag(nearestFlag.getLocation());
+                // rc.pickupFlag(closestFlag.getLocation());
             }
         }
         if (rc.hasFlag()) {

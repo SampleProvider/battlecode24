@@ -41,6 +41,12 @@ public class Defensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
+        
+        FlagInfo closestFlag = Motion.getClosestFlag(friendlyFlags, false);
+        if (closestFlag != null) {
+            Motion.bugnavTowards(closestFlag.getLocation(), 999);
+        }
+
         Attack.attack();
         Attack.heal();
     }

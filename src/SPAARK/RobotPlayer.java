@@ -26,6 +26,7 @@ public strictfp class RobotPlayer {
     };
 
     static int mode = -1;
+    static MapLocation spawnLoc = new MapLocation(-1, -1);
 
     final static int DEFENSIVE = 0;
     final static int OFFENSIVE = 1;
@@ -45,6 +46,10 @@ public strictfp class RobotPlayer {
 
         GlobalArray.init();
 
+        if (rc.readSharedArray(0) == 0 || rc.readSharedArray(1) == 0 || rc.readSharedArray(2) == 0) {
+            mode = DEFENSIVE;
+        }
+
         while (true) {
             turnCount += 1;
 
@@ -52,13 +57,11 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE || rc.getRoundNum() == 1) {
-                        for (int i = 4; i < 27; i += 9) {
-                            if (rc.canSpawn(spawnLocs[i])) {
-                                rc.spawn(spawnLocs[i]);
-                                mode = DEFENSIVE;
-                                break spawn;
-                            }
+                    if (mode == DEFENSIVE && spawnLoc.x != -1) {
+                        if (rc.canSpawn(spawnLoc)) {
+                            rc.spawn(spawnLoc);
+                            mode = DEFENSIVE;
+                            break spawn;
                         }
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() == 1) {
@@ -80,7 +83,7 @@ public strictfp class RobotPlayer {
                                 spawnLocs[i] = new MapLocation(-1000, -1000);
                             }
                         }
-                        MapLocation bestSpawnLoc = Motion.getNearest(spawnLocs, hiddenFlags[0]);
+                        MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, hiddenFlags[0]);
                         if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
                             rc.spawn(bestSpawnLoc);
                         }
@@ -104,6 +107,10 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
+                    if (mode == DEFENSIVE && rc.senseNearbyFlags(0, rc.getTeam()).length > 0) {
+                        spawnLoc = rc.getLocation();
+                    }
+                    
                     if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
                     }

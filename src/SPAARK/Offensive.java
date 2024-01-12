@@ -32,10 +32,10 @@ public class Offensive {
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
-        FlagInfo nearestFlag = Motion.getNearestFlag(opponentFlags, false);
-        if (nearestFlag != null && rc.canPickupFlag(nearestFlag.getLocation())) {
-            rc.pickupFlag(nearestFlag.getLocation());
-            int flagId = nearestFlag.getID();
+        FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
+        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
+            rc.pickupFlag(closestFlag.getLocation());
+            int flagId = closestFlag.getID();
             for (int i = 9; i <= 11; i++) {
                 if (rc.readSharedArray(i) == 0) {
                     flagIndex = i;
@@ -59,7 +59,7 @@ public class Offensive {
 
         if (flagIndex != -1) {
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getNearest(spawnLocs);
+            MapLocation bestLoc = Motion.getClosest(spawnLocs);
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
@@ -70,17 +70,31 @@ public class Offensive {
         else {
             Boolean action = false;
 
-            MapLocation nearestStolenFlag = null;
+            MapLocation closestStolenFlag = null;
             for (int i = 6; i <= 8; i++) {
                 int n = rc.readSharedArray(i);
                 if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
-                    if (nearestStolenFlag == null || me.distanceSquaredTo(nearestStolenFlag) > me.distanceSquaredTo(GlobalArray.parseLocation(n))) {
-                        nearestStolenFlag = GlobalArray.parseLocation(n);
+                    MapLocation loc = GlobalArray.parseLocation(n);
+                    if (rc.getLocation().distanceSquaredTo(loc) <= 4) {
+                        boolean seesFlag = false;
+                        for (FlagInfo flag : friendlyFlags) {
+                            if (flag.isPickedUp() && flag.getID() == rc.readSharedArray(i - 6)) {
+                                seesFlag = true;
+                                break;
+                            }
+                        }
+                        if (seesFlag == false) {
+                            rc.writeSharedArray(i, 0);
+                            continue;
+                        }
+                    }
+                    if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
+                        closestStolenFlag = loc;
                     }
                 }
             }
-            if (nearestStolenFlag != null) {
-                Motion.bugnavTowards(nearestStolenFlag, 999);
+            if (closestStolenFlag != null) {
+                Motion.bugnavTowards(closestStolenFlag, 999);
                 action = true;
             }
 
@@ -103,8 +117,8 @@ public class Offensive {
                         break;
                     }
                 }
-                if (nearestFlag != null) {
-                    Motion.bugnavTowards(nearestFlag.getLocation(), 999);
+                if (closestFlag != null) {
+                    Motion.bugnavTowards(closestFlag.getLocation(), 999);
                     for (int j = 0; j < 8; j++) {
                         MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
                         if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
@@ -115,8 +129,9 @@ public class Offensive {
                 else {
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (hiddenFlags.length > 0) {
-                        Motion.bugnavTowards(hiddenFlags[0], 999);
-                        if (rc.getLocation().distanceSquaredTo(hiddenFlags[0]) < 100) {
+                        MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
+                        Motion.bugnavTowards(closestHiddenFlag, 999);
+                        if (rc.getLocation().distanceSquaredTo(closestHiddenFlag) < 100) {
                             for (int j = 0; j < 8; j++) {
                                 MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
                                 if (rc.canBuild(TrapType.STUN, buildLoc) && rng.nextInt() % 10 == 1) {
