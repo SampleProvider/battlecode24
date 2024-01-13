@@ -26,7 +26,7 @@ public strictfp class RobotPlayer {
     protected final static int DEFENSIVE = 0;
     protected final static int OFFENSIVE = 1;
 
-    protected static void run(RobotController rc) throws GameActionException {
+    public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
         Motion.rng = rng;
