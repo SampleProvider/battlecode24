@@ -796,7 +796,7 @@ public class Motion {
                 }
             }
             if (bestDir != null) {
-                rc.move(bestDir);
+                moveWithAction(bestDir);
                 lastDir = bestDir;
             }
             else if (bestFillDir != null) {
