@@ -32,6 +32,7 @@ public class Scout {
 
         rc.setIndicatorDot(me, 255, 0, 255);
 
+        // try to sneak flags back (call for help?)
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
@@ -50,8 +51,8 @@ public class Scout {
                 }
             }
         }
-
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
             GlobalArray.writeFlag(flag);
@@ -61,7 +62,6 @@ public class Scout {
         }
 
         String updatedSectors = GlobalArray.updateSector();
-
 
         if (flagIndex != -1) {
             // navigate back to spawn
@@ -77,13 +77,14 @@ public class Scout {
         else {
             Boolean action = false;
 
+            // go to flag!
             if (!action) {
                 if (closestFlag != null) {
                     Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
                     action = true;
                 }
             }
-
+            // crumb stuff if not already done
             if (!action) {
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 for (MapInfo i : info) {
@@ -96,6 +97,7 @@ public class Scout {
                 }
             }
             if (!action) {
+                // go to sectors that haven't been updated recently
                 int oldTargetSector = targetSector;
                 if (updatedSectors.contains(String.valueOf(targetSector) + "A")) {
                     triedSectors = new StringBuilder();

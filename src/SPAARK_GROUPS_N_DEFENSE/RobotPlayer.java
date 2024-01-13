@@ -1,4 +1,4 @@
-package BeforeGroupsSPAARK;
+package SPAARK_GROUPS_N_DEFENSE;
 
 import battlecode.common.*;
 
@@ -43,11 +43,10 @@ public strictfp class RobotPlayer {
         Scout.rng = rng;
 
         GlobalArray.init();
-
-        if (GlobalArray.id < 3) {
+        
+        if (GlobalArray.groupId == 0) {
             mode = DEFENSIVE;
-        }
-        else if (GlobalArray.id < 8) {
+        } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
 
@@ -116,15 +115,15 @@ public strictfp class RobotPlayer {
                 }
                 else {
                     if (rc.getRoundNum() == 200) {
-                        if (mode == DEFENSIVE) {
+                        if (mode == DEFENSIVE && GlobalArray.id < 3) {
                             spawnLoc = rc.getLocation();
                         }
                     }
                     
-                    if (rc.getRoundNum() == 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+                    if (rc.getRoundNum() >= 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
                     }
-                    if (rc.getRoundNum() == 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                    if (rc.getRoundNum() >= 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
                     if (mode == DEFENSIVE) {

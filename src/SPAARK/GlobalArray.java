@@ -66,15 +66,15 @@ public class GlobalArray {
         return ((n >> 13) & 0b1) == 1;
     }
     protected static void write(int index, int bits, int n) throws GameActionException {
+        int r = rc.readSharedArray(index);
         for (int i = index / 16; i < (index + bits) / 16; i++) {
-            int r = rc.readSharedArray(index);
             for (int bit = Math.max(index - i * 16, 0); bit < Math.min(index + bits - i * 16, 16); bit++) {
                 if (((r >> bit) | 1) != (n >> (i*16 + bit - index))) {
                     r ^= (int) Math.pow(2, bit);
                 }
             }
-            rc.writeSharedArray(index, r);
         }
+        rc.writeSharedArray(index, r);
     }
 
     protected static int getNumberOfOpponentRobots(int n) {
@@ -201,24 +201,13 @@ public class GlobalArray {
         int flagId = flag.getID();
         if (flag.getTeam().equals(rc.getTeam())) {
             for (int i = 0; i <= 2; i++) {
-                if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
-                    rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
+                if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0 || rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
+                    if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
+                        rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
+                    }
                     if (flag.isPickedUp()) {
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                    }
-                    else {
-                        if (rc.getRoundNum() < 200) {
-                            rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
-                        }
-                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
-                    }
-                    break;
-                }
-                else if (rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
-                    if (flag.isPickedUp()) {
-                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                    }
-                    else {
+                    } else {
                         if (rc.getRoundNum() < 200) {
                             rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
                         }
@@ -230,21 +219,13 @@ public class GlobalArray {
         }
         else {
             for (int i = 0; i <= 2; i++) {
-                if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
-                    rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
+                if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0 || rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
+                    if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
+                        rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
+                    }
                     if (flag.isPickedUp()) {
                         rc.writeSharedArray(OPPO_FLAG_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                    }
-                    else {
-                        rc.writeSharedArray(OPPO_FLAG_LOC + i, intifyLocation(flag.getLocation()));
-                    }
-                    break;
-                }
-                else if (rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
-                    if (flag.isPickedUp()) {
-                        rc.writeSharedArray(OPPO_FLAG_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                    }
-                    else {
+                    } else {
                         rc.writeSharedArray(OPPO_FLAG_LOC + i, intifyLocation(flag.getLocation()));
                     }
                     break;
