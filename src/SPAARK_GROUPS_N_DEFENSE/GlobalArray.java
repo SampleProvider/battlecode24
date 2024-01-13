@@ -84,10 +84,16 @@ public class GlobalArray {
     }
 
     protected static int getDistance(int n) {
-        return n & 0b111111111111111;
+        return n & 0b111111111111;
     }
     protected static int setDistance(int n, int v) {
-        return (n & 0b1000000000000000) | v;
+        return (n & 0b1111000000000000) | v;
+    }
+    protected static int getGroupId(int n) {
+        return ((n >> 12) & 0b111000000000000) + 2;
+    }
+    protected static int setGroupId(int n, int v) {
+        return ((n >> 12) & 0b1000111111111111) | ((v - 2) << 10);
     }
     protected static boolean isUnassigned(int n) {
         return ((n >> 15) & 0b1) == 1;
@@ -144,7 +150,7 @@ public class GlobalArray {
         return y * SECTOR_SIZE + x;
     }
 
-    protected static final double MININUM_SENSED_TILES = 0.4;
+    protected static final double MININUM_SENSED_TILES = 0.1;
     protected static String updateSector() throws GameActionException {
         // indicatorString.append(" " + Clock.getBytecodeNum() + " ");
         MapLocation[] locs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 20);
@@ -189,7 +195,9 @@ public class GlobalArray {
                 int newOpponents = Math.min(opponents[i] * size / sectors[i], 31);
                 int n = setTimeSinceLastExplored(setNumberOfFriendlyRobots(setNumberOfOpponentRobots(rc.readSharedArray(i), newOpponents), newFriendly), 0);
                 rc.writeSharedArray(SECTOR_START + i, n);
-                updatedSectors.append(i + "A");
+                if (sectors[i] > (int) size * 0.4) {
+                    updatedSectors.append(i + "A");
+                }
             }
         }
         // indicatorString.append(" " + Clock.getBytecodeNum() + " ");
@@ -315,7 +323,7 @@ public class GlobalArray {
                 int n = rc.readSharedArray(SECTOR_START + i);
                 if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() >= 5) {
                     rc.writeSharedArray(STAGING_TARGET, intifyLocation(sectorToLocation(i)));
-                    sectorGroupsAssigned[i].append(10000 + i + "");
+                    // sectorGroupsAssigned[i].append(10000 + i + "");
                     // n = setGroupsAssigned(n, getGroupsAssigned(n) + 1);
                     // rc.writeSharedArray(i, n);
                     return;

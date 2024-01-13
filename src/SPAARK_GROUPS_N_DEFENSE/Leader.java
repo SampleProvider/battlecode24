@@ -26,30 +26,36 @@ public class Leader {
             if (rc.getRoundNum() % 2 == Math.max(1 - GlobalArray.groupId, 0)) {
                 int curr = rc.readSharedArray(GlobalArray.STAGING_CURR);
                 int best = rc.readSharedArray(GlobalArray.STAGING_BEST);
+                // System.out.println(best >> 11);
                 if (GlobalArray.isUnassigned(best)) {
                     if (GlobalArray.isUnassigned(curr)) {
-                        if (GlobalArray.getDistance(curr) < GlobalArray.getDistance(best)) {
+                        if (GlobalArray.getDistance(curr) > GlobalArray.getDistance(best)) {
                             rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                         }
                     }
                 }
+                else if (GlobalArray.isUnassigned(curr)) {
+                    rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
+                }
                 else {
-                    if (GlobalArray.getDistance(curr) < GlobalArray.getDistance(best)) {
+                    if (GlobalArray.getDistance(curr) > GlobalArray.getDistance(best)) {
                         rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                     }
                 }
-                int n = 0;
-                if (rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId) == 0) {
+                int n = GlobalArray.setGroupId(0, GlobalArray.groupId);
+                if (rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2) == 0) {
                     n = 1 << 15;
+                    rc.writeSharedArray(GlobalArray.STAGING_CURR, n);
                 }
-                n += GlobalArray.groupId << 11;
-                rc.writeSharedArray(GlobalArray.STAGING_CURR, n);
+                else {
+                    rc.writeSharedArray(GlobalArray.STAGING_CURR, 0);
+                }
             }
             else {
                 int n = rc.readSharedArray(GlobalArray.STAGING_BEST);
-                if (((n >> 11) & 0b1111) == GlobalArray.groupId) {
-                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId, rc.readSharedArray(GlobalArray.STAGING_TARGET));
-                    System.out.println(rc.readSharedArray(GlobalArray.STAGING_TARGET));
+                // System.out.println(n >> 11);
+                if (GlobalArray.getGroupId(n) == GlobalArray.groupId) {
+                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, rc.readSharedArray(GlobalArray.STAGING_TARGET));
                 }
             }
         }

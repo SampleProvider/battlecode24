@@ -164,31 +164,32 @@ public class Offensive {
 
         GlobalArray.updateSector();
         
-        int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId);
+        int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2);
         search: if (GlobalArray.hasLocation(n)) {
             MapLocation loc = GlobalArray.parseLocation(n);
-            if (GlobalArray.isGlobalArrayLoc(n)) {
-                loc = GlobalArray.parseLocation(rc.readSharedArray(n & 0b111111));
-            }
+            // if (GlobalArray.isGlobalArrayLoc(n)) {
+            //     loc = GlobalArray.parseLocation(rc.readSharedArray(n & 0b111111));
+            // }
             Motion.bugnavTowards(loc, Motion.DEFAULT_RETREAT_HP);
             rc.setIndicatorLine(rc.getLocation(), loc, 255, 255, 255);
+            indicatorString.append(GlobalArray.groupId);
         }
         else {
-            MapLocation closestStolenFlag = null;
-            for (int i = 0; i <= 2; i++) {
-                int f = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
-                // if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
-                if (GlobalArray.hasLocation(f)) {
-                    MapLocation loc = GlobalArray.parseLocation(f);
-                    if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
-                        closestStolenFlag = loc;
-                    }
-                }
-            }
-            if (closestStolenFlag != null) {
-                Motion.bugnavTowards(closestStolenFlag, Motion.DEFAULT_RETREAT_HP);
-                rc.setIndicatorLine(rc.getLocation(), closestStolenFlag, 255, 255, 255);
-            }
+            // MapLocation closestStolenFlag = null;
+            // for (int i = 0; i <= 2; i++) {
+            //     int f = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
+            //     // if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
+            //     if (GlobalArray.hasLocation(f)) {
+            //         MapLocation loc = GlobalArray.parseLocation(f);
+            //         if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
+            //             closestStolenFlag = loc;
+            //         }
+            //     }
+            // }
+            // if (closestStolenFlag != null) {
+            //     Motion.bugnavTowards(closestStolenFlag, Motion.DEFAULT_RETREAT_HP);
+            //     rc.setIndicatorLine(rc.getLocation(), closestStolenFlag, 255, 255, 255);
+            // }
         }
     }
     protected static void jailed() throws GameActionException {
