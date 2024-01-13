@@ -90,10 +90,10 @@ public class GlobalArray {
         return (n & 0b1111000000000000) | v;
     }
     protected static int getGroupId(int n) {
-        return ((n >> 12) & 0b111000000000000) + 2;
+        return ((n >> 12) & 0b111) + 2;
     }
     protected static int setGroupId(int n, int v) {
-        return ((n >> 12) & 0b1000111111111111) | ((v - 2) << 10);
+        return (n & 0b1000111111111111) | ((v - 2) << 12);
     }
     protected static boolean isUnassigned(int n) {
         return ((n >> 15) & 0b1) == 1;
@@ -321,20 +321,23 @@ public class GlobalArray {
             // if no sectors, find flags to allocate
             for (int i = 0; i < SECTOR_COUNT; i++) {
                 int n = rc.readSharedArray(SECTOR_START + i);
-                if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() >= 5) {
-                    rc.writeSharedArray(STAGING_TARGET, intifyLocation(sectorToLocation(i)));
-                    // sectorGroupsAssigned[i].append(10000 + i + "");
-                    // n = setGroupsAssigned(n, getGroupsAssigned(n) + 1);
-                    // rc.writeSharedArray(i, n);
-                    return;
-                }
                 if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() <= -5) {
                     // System.out.println(sectorGroupsAssigned[i].length());
                     // System.out.println(sectorGroupsAssigned[i].toString());
-                    // String s = sectorGroupsAssigned[i].substring(sectorGroupsAssigned[i].length() - 5);
-                    // int g = Integer.parseInt(s) - 10000;
-                    // rc.writeSharedArray(GROUP_INSTRUCTIONS + g, 0);
-                    // sectorGroupsAssigned[i].delete(sectorGroupsAssigned[i].length() - 5, sectorGroupsAssigned[i].length());
+                    String s = sectorGroupsAssigned[i].substring(sectorGroupsAssigned[i].length() - 5);
+                    int g = Integer.parseInt(s) - 10000;
+                    rc.writeSharedArray(GROUP_INSTRUCTIONS + g - 2, 0);
+                    sectorGroupsAssigned[i].delete(sectorGroupsAssigned[i].length() - 5, sectorGroupsAssigned[i].length());
+                }
+            }
+            for (int i = 0; i < SECTOR_COUNT; i++) {
+                int n = rc.readSharedArray(SECTOR_START + i);
+                if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() >= 5) {
+                    rc.writeSharedArray(STAGING_TARGET, intifyLocation(sectorToLocation(i)));
+                    rc.writeSharedArray(STAGING_BEST, 0b111111111111);
+                    // n = setGroupsAssigned(n, getGroupsAssigned(n) + 1);
+                    // rc.writeSharedArray(i, n);
+                    return;
                 }
             }
             rc.writeSharedArray(STAGING_TARGET, 0);
@@ -342,6 +345,15 @@ public class GlobalArray {
         else {
             // if there is a target:
             // if it is a sector
+            int n = rc.readSharedArray(STAGING_TARGET);
+            if (n != 0) {
+                if (isGlobalArrayLoc(n)) {
+
+                }
+                else {
+                    sectorGroupsAssigned[locationToSector(parseLocation(n))].append(10000 + getGroupId(n) + ""); 
+                }
+            }
         }
     }
 }

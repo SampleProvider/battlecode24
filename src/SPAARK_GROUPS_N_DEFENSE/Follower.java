@@ -25,7 +25,7 @@ public class Follower {
         if (rc.readSharedArray(GlobalArray.STAGING_TARGET) != 0) {
             if (rc.getRoundNum() % 2 == 0) {
                 int curr = rc.readSharedArray(GlobalArray.STAGING_CURR);
-                curr += rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.STAGING_TARGET)));
+                curr += Math.sqrt(rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.STAGING_TARGET))));
                 rc.writeSharedArray(GlobalArray.STAGING_CURR, curr);
             }
         }

@@ -29,7 +29,7 @@ public class Leader {
                 // System.out.println(best >> 11);
                 if (GlobalArray.isUnassigned(best)) {
                     if (GlobalArray.isUnassigned(curr)) {
-                        if (GlobalArray.getDistance(curr) > GlobalArray.getDistance(best)) {
+                        if (GlobalArray.getDistance(curr) < GlobalArray.getDistance(best)) {
                             rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                         }
                     }
@@ -38,23 +38,20 @@ public class Leader {
                     rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                 }
                 else {
-                    if (GlobalArray.getDistance(curr) > GlobalArray.getDistance(best)) {
+                    if (GlobalArray.getDistance(curr) < GlobalArray.getDistance(best)) {
                         rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                     }
                 }
                 int n = GlobalArray.setGroupId(0, GlobalArray.groupId);
                 if (rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2) == 0) {
-                    n = 1 << 15;
-                    rc.writeSharedArray(GlobalArray.STAGING_CURR, n);
+                    n += 1 << 15;
                 }
-                else {
-                    rc.writeSharedArray(GlobalArray.STAGING_CURR, 0);
-                }
+                rc.writeSharedArray(GlobalArray.STAGING_CURR, n);
             }
             else {
                 int n = rc.readSharedArray(GlobalArray.STAGING_BEST);
-                // System.out.println(n >> 11);
                 if (GlobalArray.getGroupId(n) == GlobalArray.groupId) {
+                    System.out.println("PICKED " + GlobalArray.groupId);
                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, rc.readSharedArray(GlobalArray.STAGING_TARGET));
                 }
             }

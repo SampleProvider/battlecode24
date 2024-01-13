@@ -94,6 +94,8 @@ public class Defensive {
             }
         }
 
+        GlobalArray.updateSector();
+
         Attack.attack();
         Attack.heal();
     }
