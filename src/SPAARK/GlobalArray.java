@@ -132,8 +132,8 @@ public class GlobalArray {
         for (int i = 0; i < GlobalArray.SECTOR_COUNT; i++) {
             int size = sectorWidth[i % GlobalArray.SECTOR_SIZE] * sectorHeight[i / GlobalArray.SECTOR_SIZE];
             if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
-                int newFriendly = friendly[i] * size / sectors[i];
-                int newOpponents = opponents[i] * size / sectors[i];
+                int newFriendly = Math.min(friendly[i] * size / sectors[i], 31);
+                int newOpponents = Math.min(opponents[i] * size / sectors[i], 31);
                 int n = setNumberOfFriendlyRobots(setNumberOfOpponentRobots(0, newOpponents), newFriendly);
                 rc.writeSharedArray(SECTOR_START + i, n);
             }
