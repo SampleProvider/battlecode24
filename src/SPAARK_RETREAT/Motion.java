@@ -1,14 +1,14 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
 public class Motion {
-    protected static RobotController rc;
-    protected static StringBuilder indicatorString;
+    public static RobotController rc;
+    public static StringBuilder indicatorString;
 
-    protected static Random rng;
+    public static Random rng;
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
         Direction.SOUTH,
@@ -48,7 +48,7 @@ public class Motion {
     protected static final int CLOCKWISE = 1;
     protected static final int COUNTER_CLOCKWISE = -1;
 
-    protected static final int DEFAULT_RETREAT_HP = 999;
+    protected static final int DEFAULT_RETREAT_HP = 1000;
 
     protected static int symmetry = 0;
     protected static Direction lastDir = Direction.CENTER;
@@ -201,6 +201,251 @@ public class Motion {
     protected static void groupRandomly() throws GameActionException {
         // moves randomly but tries to stick to robots in small groups
     }
+    /*
+    protected static void spreadRandomly(RobotController rc, MapLocation me) throws GameActionException {
+        RobotInfo[] robotInfo = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam());
+        if (robotInfo.length > 0) {
+            RobotInfo prioritizedRobotInfo = null;
+            for (RobotInfo w : robotInfo) {
+                if (w.getType() != rc.getType()) {
+                    continue;
+                }
+                if (me.distanceSquaredTo(w.getLocation()) > 9) {
+                    continue;
+                }
+                if (prioritizedRobotInfo == null) {
+                    prioritizedRobotInfo = w;
+                    continue;
+                }
+                if (me.distanceSquaredTo(prioritizedRobotInfo.getLocation()) > me.distanceSquaredTo(w.getLocation())) {
+                    prioritizedRobotInfo = w;
+                }
+            }
+            Direction direction = null;
+            if (prioritizedRobotInfo != null) {
+                direction = me.directionTo(prioritizedRobotInfo.getLocation()).opposite();
+                while (rc.isMovementReady()) {
+                    if (rc.canMove(direction)) {
+                        rc.move(direction);
+                        continue;
+                    }
+                    if (rc.canMove(direction.rotateLeft())) {
+                        rc.move(direction.rotateLeft());
+                        continue;
+                    }
+                    if (rc.canMove(direction.rotateLeft().rotateLeft())) {
+                        rc.move(direction.rotateLeft().rotateLeft());
+                        continue;
+                    }
+                    if (rc.canMove(direction.rotateRight())) {
+                        rc.move(direction.rotateRight());
+                        continue;
+                    }
+                    if (rc.canMove(direction.rotateRight().rotateRight())) {
+                        rc.move(direction.rotateRight().rotateRight());
+                        continue;
+                    }
+                    break;
+                }
+            } else {
+                moveRandomly(rc);
+            }
+        } else {
+            moveRandomly(rc);
+        }
+    }
+
+    protected static void spreadRandomly(RobotController rc, MapLocation me, MapLocation target) throws GameActionException {
+        Direction direction = me.directionTo(target).opposite();
+        while (rc.isMovementReady()) {
+            boolean moved = false;
+            int random = rng.nextInt(6);
+            if (random == 0) {
+                if (rc.canMove(direction.rotateLeft())) {
+                    rc.move(direction.rotateLeft());
+                    moved = true;
+                }
+            } else if (random == 1) {
+                if (rc.canMove(direction.rotateLeft().rotateLeft())) {
+                    rc.move(direction.rotateLeft().rotateLeft());
+                    moved = true;
+                }
+            } else if (random == 2) {
+                if (rc.canMove(direction.rotateRight())) {
+                    rc.move(direction.rotateRight());
+                    moved = true;
+                }
+            } else if (random == 3) {
+                if (rc.canMove(direction.rotateRight().rotateRight())) {
+                    rc.move(direction.rotateRight().rotateRight());
+                    moved = true;
+                }
+            } else {
+                if (rc.canMove(direction)) {
+                    rc.move(direction);
+                    moved = true;
+                }
+            }
+            if (moved == false) {
+                break;
+            }
+        }
+    }
+
+    protected static void circleAroundTarget(RobotController rc, MapLocation me, MapLocation target) throws GameActionException {
+        Direction direction = me.directionTo(target).rotateLeft();
+        if (direction.ordinal() % 2 == 1) {
+            direction = direction.rotateLeft();
+        }
+        if (rc.canMove(direction)) {
+            rc.move(direction);
+        }
+    }
+
+    protected static boolean circleAroundTarget(RobotController rc, MapLocation target, int distance, boolean rotation, boolean avoidClouds, boolean avoidWells) throws GameActionException {
+        boolean stuck = false;
+        while (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            Direction direction = me.directionTo(target);
+            robotInfo = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
+            if (me.distanceSquaredTo(target) > (int) distance * 1.25) {
+                if (rotation) {
+                    for (int i = 0; i < 2; i++) {
+                        direction = direction.rotateLeft();
+                        if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                            rc.move(direction);
+                            stuck = false;
+                            break;
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < 2; i++) {
+                        direction = direction.rotateRight();
+                        if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                            rc.move(direction);
+                            stuck = false;
+                            break;
+                        }
+                    }
+                }
+            } else if (me.distanceSquaredTo(target) < (int) distance * 0.75) {
+                direction = direction.opposite();
+                if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                    rc.move(direction);
+                    stuck = false;
+                    continue;
+                }
+                direction = direction.rotateLeft();
+                if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                    rc.move(direction);
+                    stuck = false;
+                    continue;
+                }
+                direction = direction.rotateRight().rotateRight();
+                if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                    rc.move(direction);
+                    stuck = false;
+                    continue;
+                }
+            } else {
+                if (rotation) {
+                    direction = direction.rotateLeft();
+                    for (int i = 0; i < 2; i++) {
+                        direction = direction.rotateLeft();
+                        if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                            rc.move(direction);
+                            stuck = false;
+                            break;
+                        }
+                    }
+                } else {
+                    direction = direction.rotateRight();
+                    for (int i = 0; i < 2; i++) {
+                        direction = direction.rotateRight();
+                        if (canMove(rc, direction, avoidClouds, avoidWells)) {
+                            rc.move(direction);
+                            stuck = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (me.equals(rc.getLocation())) {
+                direction = me.directionTo(target);
+                if (me.distanceSquaredTo(target) > (int) distance * 1.25) {
+                    if (rotation) {
+                        for (int i = 0; i < 2; i++) {
+                            direction = direction.rotateLeft();
+                            if (canMove(rc, direction, false, false)) {
+                                rc.move(direction);
+                                stuck = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < 2; i++) {
+                            direction = direction.rotateRight();
+                            if (canMove(rc, direction, false, false)) {
+                                rc.move(direction);
+                                stuck = false;
+                                break;
+                            }
+                        }
+                    }
+                } else if (me.distanceSquaredTo(target) < (int) distance * 0.75) {
+                    direction = direction.opposite();
+                    if (canMove(rc, direction, false, false)) {
+                        rc.move(direction);
+                        stuck = false;
+                        continue;
+                    }
+                    direction = direction.rotateLeft();
+                    if (canMove(rc, direction, false, false)) {
+                        rc.move(direction);
+                        stuck = false;
+                        continue;
+                    }
+                    direction = direction.rotateRight().rotateRight();
+                    if (canMove(rc, direction, false, false)) {
+                        rc.move(direction);
+                        stuck = false;
+                        continue;
+                    }
+                } else {
+                    if (rotation) {
+                        direction = direction.rotateLeft();
+                        for (int i = 0; i < 2; i++) {
+                            direction = direction.rotateLeft();
+                            if (canMove(rc, direction, false, false)) {
+                                rc.move(direction);
+                                stuck = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        direction = direction.rotateRight();
+                        for (int i = 0; i < 2; i++) {
+                            direction = direction.rotateRight();
+                            if (canMove(rc, direction, false, false)) {
+                                rc.move(direction);
+                                stuck = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                rotation = !rotation;
+                if (me.equals(rc.getLocation())) {
+                    if (stuck == true) {
+                        break;
+                    }
+                    stuck = true;
+                }
+            }
+        }
+        return rotation;
+    }
+    */
     
     protected static int[] simulateMovement(MapLocation me, MapLocation dest) throws GameActionException {
         MapLocation clockwiseLoc = rc.getLocation();
@@ -747,9 +992,6 @@ public class Motion {
                             actions -= 1;
                             weight += 4;
                         }
-                    }
-                    else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
-                        weight -= 5;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;

@@ -1,42 +1,36 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Setup {
-    protected static RobotController rc;
-    protected static StringBuilder indicatorString;
+    public static RobotController rc;
+    public static StringBuilder indicatorString;
 
-    protected static Random rng;
+    public static Random rng;
 
-    protected static int flagIndex = -1;
-    protected static MapLocation[] placementLocationsOne = {
+    public static int flagIndex = -1;
+    public static MapLocation[] placementLocationsOne = {
         new MapLocation(5, 5),
         new MapLocation(-5, -5),
         new MapLocation(0, 10),
         new MapLocation(0, -10),
     };
-    protected static MapLocation[] placementLocationsTwo = {
+    public static MapLocation[] placementLocationsTwo = {
         new MapLocation(-5, 5),
         new MapLocation(5, -5),
         new MapLocation(10, 0),
         new MapLocation(-10, 0),
     };
-    protected static MapLocation flagOffset = new MapLocation(-100, -100);
-
-    protected static final Direction[] DIRECTIONS = {
-        Direction.SOUTHWEST,
-        Direction.SOUTH,
-        Direction.SOUTHEAST,
-        Direction.WEST,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.NORTHWEST,
-        Direction.NORTH,
-    };
+    public static MapLocation flagOffset = new MapLocation(-100, -100);
     
-    protected static void run() throws GameActionException {
+    public static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
@@ -141,7 +135,7 @@ public class Setup {
             int damLoc = rc.readSharedArray(19);
             if (!GlobalArray.hasLocation(damLoc)) {
                 for (MapInfo i : info) {
-                    if (i.isDam()) {
+                    if (!i.isPassable() && !i.isWall() && !i.isWater()) {
                         rc.writeSharedArray(19, GlobalArray.intifyLocation(i.getMapLocation()));
                         action = true;
                     }
@@ -153,20 +147,6 @@ public class Setup {
                     if (GlobalArray.hasLocation(damLoc)) {
                         Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                         indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                        if (rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 25) {
-                            for (int j = 0; j < 8; j++) {
-                                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
-                                    for (MapInfo m : mapInfo) {
-                                        if (m.getTrapType() != TrapType.NONE) {
-                                            break build;
-                                        }
-                                    }
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
-                                }
-                            }
-                        }
                     }
                     if (!action) {
 
@@ -178,6 +158,6 @@ public class Setup {
             }
         }
     }
-    protected static void jailed() throws GameActionException {
+    public static void jailed() throws GameActionException {
     }
 }

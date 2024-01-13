@@ -1,14 +1,19 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Offensive {
-    protected static RobotController rc;
-    protected static StringBuilder indicatorString;
+    public static RobotController rc;
+    public static StringBuilder indicatorString;
 
-    protected static Random rng;
+    public static Random rng;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -20,9 +25,9 @@ public class Offensive {
         Direction.NORTH,
         Direction.NORTHEAST,
     };
-    protected static int flagIndex = -1;
+    public static int flagIndex = -1;
     
-    protected static void run() throws GameActionException {
+    public static void run() throws GameActionException {
         // capturing opponentFlags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -72,27 +77,24 @@ public class Offensive {
             MapLocation closestStolenFlag = null;
             for (int i = 6; i <= 8; i++) {
                 int n = rc.readSharedArray(i);
-                // if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
-                if (GlobalArray.hasLocation(n)) {
+                if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
                     MapLocation loc = GlobalArray.parseLocation(n);
-                    if (!loc.equals(GlobalArray.parseLocation(rc.readSharedArray(i - 3)))) {
-                        rc.setIndicatorDot(loc, 0, 255, 255);
-                        if (rc.getLocation().distanceSquaredTo(loc) <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
-                            boolean seesFlag = false;
-                            for (FlagInfo flag : friendlyFlags) {
-                                if (flag.isPickedUp() && flag.getID() == rc.readSharedArray(i - 6)) {
-                                    seesFlag = true;
-                                    break;
-                                }
-                            }
-                            if (seesFlag == false) {
-                                rc.writeSharedArray(i, 0);
-                                continue;
+                    rc.setIndicatorDot(loc, 0, 255, 255);
+                    if (rc.getLocation().distanceSquaredTo(loc) <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
+                        boolean seesFlag = false;
+                        for (FlagInfo flag : friendlyFlags) {
+                            if (flag.isPickedUp() && flag.getID() == rc.readSharedArray(i - 6)) {
+                                seesFlag = true;
+                                break;
                             }
                         }
-                        if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
-                            closestStolenFlag = loc;
+                        if (seesFlag == false) {
+                            rc.writeSharedArray(i, 0);
+                            continue;
                         }
+                    }
+                    if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
+                        closestStolenFlag = loc;
                     }
                 }
             }
@@ -127,7 +129,7 @@ public class Offensive {
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (hiddenFlags.length > 0) {
                         MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
-                        Motion.bugnavTowards(closestHiddenFlag, Motion.DEFAULT_RETREAT_HP);
+                        Motion.bugnavTowards(hiddenFlags[GlobalArray.id % hiddenFlags.length], Motion.DEFAULT_RETREAT_HP);
                     }
                     else {
                         Motion.moveRandomly();
@@ -139,7 +141,7 @@ public class Offensive {
         for (int j = 0; j < 8; j++) {
             MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
             build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
+                MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
                 for (MapInfo m : mapInfo) {
                     if (m.getTrapType() != TrapType.NONE) {
                         break build;
@@ -151,7 +153,7 @@ public class Offensive {
         Attack.attack();
         Attack.heal();
     }
-    protected static void jailed() throws GameActionException {
+    public static void jailed() throws GameActionException {
         if (flagIndex != -1) {
             rc.writeSharedArray(flagIndex + 3, 0);
             flagIndex = -1;

@@ -1,14 +1,19 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Defensive {
-    protected static RobotController rc;
-    protected static StringBuilder indicatorString;
+    public static RobotController rc;
+    public static StringBuilder indicatorString;
 
-    protected static Random rng;
+    public static Random rng;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -21,7 +26,7 @@ public class Defensive {
         Direction.NORTH,
     };
     
-    protected static void run() throws GameActionException {
+    public static void run() throws GameActionException {
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -89,23 +94,22 @@ public class Defensive {
         else {
             Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
             if (rc.getLocation().equals(targetLoc)) {
-                rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
                 for (int j = 0; j < 8; j++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                    // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                    //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                    //     break;
+                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                        rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        break;
+                    }
+                    // if (j % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
                     // }
-                    if (j % 2 == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
-                    }
-                    else {
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
+                    // else {
+                    //     // if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                    //     //     rc.build(TrapType.WATER, buildLoc);
+                    //     // }
+                    // }
                 }
             }
         }
@@ -113,7 +117,7 @@ public class Defensive {
         Attack.attack();
         Attack.heal();
     }
-    protected static void jailed() throws GameActionException {
+    public static void jailed() throws GameActionException {
 
     }
 }
