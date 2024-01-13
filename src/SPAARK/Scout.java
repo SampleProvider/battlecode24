@@ -23,6 +23,9 @@ public class Scout {
     protected static int flagIndex = -1;
     
     protected static int targetSector = -1;
+    protected static int targetTime = 0;
+
+    protected static StringBuilder triedSectors = new StringBuilder();
     
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
@@ -93,7 +96,13 @@ public class Scout {
                 }
             }
             if (!action) {
+                int oldTargetSector = targetSector;
                 if (updatedSectors.contains(String.valueOf(targetSector) + "A")) {
+                    triedSectors = new StringBuilder();
+                    targetSector = -1;
+                }
+                if (targetTime > 100) {
+                    triedSectors.append(targetSector + "A");
                     targetSector = -1;
                 }
                 if (targetSector == -1) {
@@ -103,17 +112,23 @@ public class Scout {
                     int maxTime = -1;
                     for (int i = Math.max(y - 1, 0); i <= Math.min(y + 1, 4); i++) {
                         for (int j = Math.max(x - 1, 0); j <= Math.min(x + 1, 4); j++) {
-                            if (i == y && j == x) {
+                            int sector = i * 5 + j;
+                            if (sector == oldTargetSector) {
                                 continue;
                             }
-                            int time = GlobalArray.getTimeSinceLastExplored(rc.readSharedArray(GlobalArray.SECTOR_START + i * 5 + j));
+                            if (triedSectors.toString().contains(String.valueOf(sector) + "A")) {
+                                continue;
+                            }
+                            int time = GlobalArray.getTimeSinceLastExplored(rc.readSharedArray(GlobalArray.SECTOR_START + sector));
                             if (time > maxTime) {
                                 maxTime = time;
-                                targetSector = i * 5 + j;
+                                targetSector = sector;
                             }
                         }
                     }
+                    targetTime = 0;
                 }
+                targetTime += 1;
                 rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 255, 0);
                 Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector), Motion.DEFAULT_RETREAT_HP);
             }
