@@ -145,6 +145,7 @@ public class Motion {
             return;
         }
         while (rc.isMovementReady()) {
+            // move in a random direction but minimize making useless moves back to where you came from
             Direction direction = DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
             if (direction == lastRandomDir.opposite() && rc.canMove(direction.opposite())) {
                 direction = direction.opposite();
@@ -173,8 +174,12 @@ public class Motion {
                 target = target.add(me.directionTo(r.getLocation()).opposite());
             }
             if (target.equals(me)) {
-                // just keep moving
+                // just keep moving in the same direction as before if there's no robots nearby
                 if (rc.getRoundNum() % 3 == 0 || lastRandomSpread == null) {
+                    moveRandomly(); // occasionally move randomly to avoid getting stuck
+                } else if (rng.nextInt(20) == 1) {
+                    // don't get stuck in corners
+                    lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
                     Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
