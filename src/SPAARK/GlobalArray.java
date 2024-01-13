@@ -161,51 +161,51 @@ public class GlobalArray {
         int flagId = flag.getID();
         if (flag.getTeam().equals(rc.getTeam())) {
             for (int i = 0; i <= 2; i++) {
-                if (rc.readSharedArray(i) == 0) {
-                    rc.writeSharedArray(i, flagId);
+                if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
+                    rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
                     if (flag.isPickedUp()) {
-                        rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
                         if (rc.getRoundNum() < 200) {
-                            rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                            rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                         }
-                        rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
                 }
-                else if (rc.readSharedArray(i) == flagId) {
+                else if (rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
                     if (flag.isPickedUp()) {
-                        rc.writeSharedArray(i + 6, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
                         if (rc.getRoundNum() < 200) {
-                            rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                            rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                         }
-                        rc.writeSharedArray(i + 6, GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
                 }
             }
         }
         else {
-            for (int i = 9; i <= 11; i++) {
-                if (rc.readSharedArray(i) == 0) {
-                    rc.writeSharedArray(i, flagId);
+            for (int i = 0; i <= 2; i++) {
+                if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
+                    rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
                     if (flag.isPickedUp()) {
-                        rc.writeSharedArray(i + 3, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
-                        rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
                 }
-                else if (rc.readSharedArray(i) == flagId) {
+                else if (rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
                     if (flag.isPickedUp()) {
-                        rc.writeSharedArray(i + 3, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, (1 << 13) | GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     else {
-                        rc.writeSharedArray(i + 3, GlobalArray.intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, GlobalArray.intifyLocation(flag.getLocation()));
                     }
                     break;
                 }
