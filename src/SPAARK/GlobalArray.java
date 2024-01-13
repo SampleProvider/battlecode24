@@ -68,19 +68,19 @@ public class GlobalArray {
         return (n & 0b11111);
     }
     public static int setNumberOfOpponentRobots(int n, int v) {
-        return (n | 0b1111111111100000) | v;
+        return (n & 0b1111111111100000) | v;
     }
     public static int getNumberOfFriendlyRobots(int n) {
         return ((n >> 5) & 0b11111);
     }
     public static int setNumberOfFriendlyRobots(int n, int v) {
-        return (n | 0b1111110000011111) | (v << 5);
+        return (n & 0b1111110000011111) | (v << 5);
     }
     public static int getTimeSinceLastExplored(int n) {
         return ((n >> 10) & 0b111111);
     }
     public static int setTimeSinceLastExplored(int n, int v) {
-        return (n | 0b0000001111111111) | (v << 10);
+        return (n & 0b0000001111111111) | (v << 10);
     }
 
     public static MapLocation sectorToLocation(int index) {
@@ -144,7 +144,7 @@ public class GlobalArray {
         }
         for (int i = 0; i < 25; i++) {
             int n = rc.readSharedArray(SECTOR_START + i);
-            n = setTimeSinceLastExplored(n, getTimeSinceLastExplored(n) + 1);
+            n = setTimeSinceLastExplored(n, Math.min(getTimeSinceLastExplored(n) + 1, 63));
             rc.writeSharedArray(SECTOR_START + i, n);
         }
     }
@@ -233,7 +233,7 @@ public class GlobalArray {
             sectorX[i] = sectorX[i - 1] + sectorWidth[i - 1];
         }
         sectorY = new int[5];
-        for (int i = 0; i < 5; i++) {
+        for (int i = 1; i < 5; i++) {
             sectorY[i] = sectorY[i - 1] + sectorHeight[i - 1];
         }
     }
