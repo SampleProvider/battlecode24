@@ -41,6 +41,10 @@ public strictfp class RobotPlayer {
         Defensive.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Leader.rc = rc;
+        Leader.rng = rng;
+        Follower.rc = rc;
+        Follower.rng = rng;
 
         GlobalArray.init();
         
@@ -96,8 +100,11 @@ public strictfp class RobotPlayer {
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
+                Leader.indicatorString = indicatorString;
+                Follower.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
                     GlobalArray.incrementSectorTime();
+                    GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
                     if (mode == DEFENSIVE) {
@@ -110,6 +117,10 @@ public strictfp class RobotPlayer {
                         Scout.jailed();
                     }
                     else {
+                        if (GlobalArray.groupLeader) {
+                            Leader.jailed();
+                        }
+                        Follower.jailed();
                         Offensive.jailed();
                     }
                 }
@@ -136,6 +147,10 @@ public strictfp class RobotPlayer {
                         Scout.run();
                     }
                     else {
+                        if (GlobalArray.groupLeader) {
+                            Leader.run();
+                        }
+                        Follower.run();
                         Offensive.run();
                     }
                 }

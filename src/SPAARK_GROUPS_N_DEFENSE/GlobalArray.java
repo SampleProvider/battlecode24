@@ -49,6 +49,9 @@ public class GlobalArray {
     protected static final int SECTOR_START = 20;
     protected static final int SECTOR_SIZE = 5;
     protected static final int GROUP_INSTRUCTIONS = 45;
+    protected static final int STAGING_TARGET = 53;
+    protected static final int STAGING_BEST = 54;
+    protected static final int STAGING_CURR = 55;
     protected static final int SECTOR_COUNT = SECTOR_SIZE * SECTOR_SIZE;
 
     protected static int[][] sectors;
@@ -75,6 +78,20 @@ public class GlobalArray {
             }
         }
         rc.writeSharedArray(index, r);
+    }
+
+    protected static boolean isGlobalArrayLoc(int n) {
+        return ((n >> 13) & 0b1) == 1;
+    }
+
+    protected static int getDistance(int n) {
+        return n & 0b111111111111111;
+    }
+    protected static int setDistance(int n, int v) {
+        return (n & 0b1000000000000000) | v;
+    }
+    protected static boolean isUnassigned(int n) {
+        return ((n >> 15) & 0b1) == 1;
     }
 
     protected static int getNumberOfOpponentRobots(int n) {
@@ -171,7 +188,7 @@ public class GlobalArray {
             if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
                 int newFriendly = Math.min(friendly[i] * size / sectors[i], 31);
                 int newOpponents = Math.min(opponents[i] * size / sectors[i], 31);
-                int n = setNumberOfFriendlyRobots(setNumberOfOpponentRobots(0, newOpponents), newFriendly);
+                int n = setTimeSinceLastExplored(setNumberOfFriendlyRobots(setNumberOfOpponentRobots(rc.readSharedArray(i), newOpponents), newFriendly), 0);
                 rc.writeSharedArray(SECTOR_START + i, n);
                 updatedSectors.append(i + "A");
             }
@@ -270,5 +287,47 @@ public class GlobalArray {
         // set up groups here, leaders are just the first duck in the group
         groupId = id / 5;
         groupLeader = id % 5 == 0;
+        sectorGroupsAssigned = new StringBuilder[SECTOR_COUNT];
+        for (int i = 0; i < SECTOR_COUNT; i++) {
+            sectorGroupsAssigned[i] = new StringBuilder();
+        }
+        for (int i = 0; i < 3; i++) {
+            opponentFlagGroupsAssigned[i] = new StringBuilder();
+            friendlyFlagGroupsAssigned[i] = new StringBuilder();
+        }
+    }
+
+    protected static StringBuilder[] sectorGroupsAssigned;
+    protected static StringBuilder[] opponentFlagGroupsAssigned = new StringBuilder[3];
+    protected static StringBuilder[] friendlyFlagGroupsAssigned = new StringBuilder[3];
+    protected static void allocateGroups() throws GameActionException {
+        if (rc.getRoundNum() % 2 == 0) {
+            // find stolen flags to allocate
+            // find sectors to allocate
+            // if no sectors, find flags to allocate
+            for (int i = 0; i < SECTOR_COUNT; i++) {
+                int n = rc.readSharedArray(SECTOR_START + i);
+                if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() >= 5) {
+                    rc.writeSharedArray(STAGING_TARGET, intifyLocation(sectorToLocation(i)));
+                    sectorGroupsAssigned[i].append(10000 + i + "");
+                    // n = setGroupsAssigned(n, getGroupsAssigned(n) + 1);
+                    // rc.writeSharedArray(i, n);
+                    return;
+                }
+                if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() <= -5) {
+                    // System.out.println(sectorGroupsAssigned[i].length());
+                    // System.out.println(sectorGroupsAssigned[i].toString());
+                    // String s = sectorGroupsAssigned[i].substring(sectorGroupsAssigned[i].length() - 5);
+                    // int g = Integer.parseInt(s) - 10000;
+                    // rc.writeSharedArray(GROUP_INSTRUCTIONS + g, 0);
+                    // sectorGroupsAssigned[i].delete(sectorGroupsAssigned[i].length() - 5, sectorGroupsAssigned[i].length());
+                }
+            }
+            rc.writeSharedArray(STAGING_TARGET, 0);
+        }
+        else {
+            // if there is a target:
+            // if it is a sector
+        }
     }
 }
