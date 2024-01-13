@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
@@ -96,20 +96,20 @@ public class Defensive {
             if (rc.getLocation().equals(targetLoc)) {
                 for (int j = 0; j < 8; j++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                    // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                    //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                    //     break;
+                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                        rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        break;
+                    }
+                    // if (j % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
                     // }
-                    if (j % 2 == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
-                    }
-                    else {
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
+                    // else {
+                    //     // if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                    //     //     rc.build(TrapType.WATER, buildLoc);
+                    //     // }
+                    // }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
@@ -29,17 +29,6 @@ public class Setup {
         new MapLocation(-10, 0),
     };
     public static MapLocation flagOffset = new MapLocation(-100, -100);
-
-    protected static final Direction[] DIRECTIONS = {
-        Direction.SOUTHWEST,
-        Direction.SOUTH,
-        Direction.SOUTHEAST,
-        Direction.WEST,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.NORTHWEST,
-        Direction.NORTH,
-    };
     
     public static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
@@ -158,20 +147,6 @@ public class Setup {
                     if (GlobalArray.hasLocation(damLoc)) {
                         Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                         indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                        if (rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 25) {
-                            for (int j = 0; j < 8; j++) {
-                                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
-                                    for (MapInfo m : mapInfo) {
-                                        if (m.getTrapType() != TrapType.NONE) {
-                                            break build;
-                                        }
-                                    }
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
-                                }
-                            }
-                        }
                     }
                     if (!action) {
 

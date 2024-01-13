@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_RETREAT;
 
 import battlecode.common.*;
 
@@ -48,7 +48,7 @@ public class Motion {
     protected static final int CLOCKWISE = 1;
     protected static final int COUNTER_CLOCKWISE = -1;
 
-    protected static final int DEFAULT_RETREAT_HP = 999;
+    protected static final int DEFAULT_RETREAT_HP = 1000;
 
     protected static int symmetry = 0;
     protected static Direction lastDir = Direction.CENTER;
@@ -992,9 +992,6 @@ public class Motion {
                             actions -= 1;
                             weight += 4;
                         }
-                    }
-                    else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
-                        weight -= 5;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
