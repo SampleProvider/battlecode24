@@ -154,7 +154,7 @@ public class Setup {
                 }
             } else {
                 if (!action)
-                Motion.moveRandomly();
+                Motion.spreadRandomly();
             }
         }
     }
