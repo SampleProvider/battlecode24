@@ -43,7 +43,7 @@ public class Defensive {
             } else {
                 Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
                 if (rc.getLocation().equals(targetLoc)) {
-                    rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
+                    // rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
                     for (int j = 0; j < 8; j++) {
                         MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
                         // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {

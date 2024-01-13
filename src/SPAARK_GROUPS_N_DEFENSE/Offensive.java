@@ -60,11 +60,13 @@ public class Offensive {
         if (flagIndex != -1) {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getClosest(spawnLocs);
+            MapLocation bestLoc = Motion.getSafest(spawnLocs);
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
+            rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, (1 << 12) | (GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex));
             if (!rc.hasFlag()) {
-                rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, 0);
+                rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 0);
+                rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, 0);
                 flagIndex = -1;
             }
         }
@@ -74,6 +76,10 @@ public class Offensive {
         
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
             if (target != null) {
+                if (rc.getLocation().equals(target)) {
+                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, 0);
+                    return;
+                }
                 Motion.bugnavTowards(target, Motion.DEFAULT_RETREAT_HP);
                 rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
                 indicatorString.append(GlobalArray.groupId);
@@ -221,7 +227,7 @@ public class Offensive {
     }
     protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, rc.readSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex) ^ (1 << 13));
+            rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex));
             flagIndex = -1;
         }
     }

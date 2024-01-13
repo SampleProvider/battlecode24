@@ -26,7 +26,6 @@ public class Leader {
             if (rc.getRoundNum() % 2 == Math.max(1 - GlobalArray.groupId, 0)) {
                 int curr = rc.readSharedArray(GlobalArray.STAGING_CURR);
                 int best = rc.readSharedArray(GlobalArray.STAGING_BEST);
-                // System.out.println(best >> 11);
                 if (GlobalArray.isUnassigned(best)) {
                     if (GlobalArray.isUnassigned(curr)) {
                         if (GlobalArray.getDistance(curr) < GlobalArray.getDistance(best)) {
@@ -51,7 +50,6 @@ public class Leader {
             else {
                 int n = rc.readSharedArray(GlobalArray.STAGING_BEST);
                 if (GlobalArray.getGroupId(n) == GlobalArray.groupId) {
-                    System.out.println("PICKED " + GlobalArray.groupId);
                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, rc.readSharedArray(GlobalArray.STAGING_TARGET));
                 }
             }

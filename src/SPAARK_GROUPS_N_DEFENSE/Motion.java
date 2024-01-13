@@ -134,6 +134,20 @@ public class Motion {
         return closest;
     }
 
+    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation safest = a[0];
+        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
+        for (MapLocation loc : a) {
+            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
+            if (r < robots) {
+                safest = loc;
+                robots = r;
+            }
+        }
+        return safest;
+    }
+
+
     protected static void moveRandomly() throws GameActionException {
         boolean stuck = true;
         for (Direction d : DIRECTIONS) {

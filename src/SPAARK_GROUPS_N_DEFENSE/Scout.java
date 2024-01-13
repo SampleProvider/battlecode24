@@ -64,11 +64,12 @@ public class Scout {
         if (flagIndex != -1) {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getClosest(spawnLocs);
+            MapLocation bestLoc = Motion.getSafest(spawnLocs);
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
-                rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, 0);
+                rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 0);
+                rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, 0);
                 flagIndex = -1;
             }
         }
@@ -139,7 +140,7 @@ public class Scout {
     }
     protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, 0);
+            rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex));
             flagIndex = -1;
         }
         targetSector = -1;
