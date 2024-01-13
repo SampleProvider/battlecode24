@@ -312,9 +312,17 @@ public class GlobalArray {
             sectorY[i] = sectorY[i - 1] + sectorHeight[i - 1];
         }
         sectors = new int[rc.getMapWidth()][rc.getMapHeight()];
+        int x = 0;
         for (int i = 0; i < rc.getMapWidth(); i++) {
+            if (x < 4 && i == sectorX[x + 1]) {
+                x += 1;
+            }
+            int y = 0;
             for (int j = 0; j < rc.getMapHeight(); j++) {
-                sectors[i][j] = locationToSectorInit(new MapLocation(i, j));
+                if (y < 4 && j == sectorY[y + 1]) {
+                    y += 1;
+                }
+                sectors[i][j] = y * 5 + x;
             }
         }
         // set up groups here, leaders are just the first duck in the group
