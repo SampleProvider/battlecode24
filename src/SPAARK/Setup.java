@@ -146,7 +146,7 @@ public class Setup {
             int damLoc = rc.readSharedArray(19);
             if (!GlobalArray.hasLocation(damLoc)) {
                 for (MapInfo i : info) {
-                    if (!i.isPassable() && !i.isWall() && !i.isWater()) {
+                    if (i.isDam()) {
                         rc.writeSharedArray(19, GlobalArray.intifyLocation(i.getMapLocation()));
                         action = true;
                     }
