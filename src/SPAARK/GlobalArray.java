@@ -19,6 +19,13 @@ public class GlobalArray {
      *  0-11: Flag target location during setup
      * 
      * danger levels for flag carriers
+     * 
+     * 
+     * Sectors:
+     * Number of opponent robots (64 - 6)
+     * Number of friendly robots (64 - 6)
+     * Turns since last explored (16 - 4)
+     * 
      */
 
     //  public static final int ROBOT_IDS = 0;
@@ -49,6 +56,46 @@ public class GlobalArray {
             }
             rc.writeSharedArray(index, r);
         }
+    }
+
+    public static int getNumberOfOpponentRobots(int n) {
+        return (n & 0b111111);
+    }
+    public static int setNumberOfOpponentRobots(int n, int v) {
+        return (n | 0b1111111111000000) | v;
+    }
+    public static int getNumberOfFriendlyRobots(int n) {
+        return ((n >> 6) & 0b111111);
+    }
+    public static int setNumberOfFriendlyRobots(int n, int v) {
+        return (n | 0b1111000000111111) | (v << 6);
+    }
+    public static int getTimeSinceLastExplored(int n) {
+        return ((n >> 12) & 0b1111);
+    }
+    public static int setTimeSinceLastExplored(int n, int v) {
+        return (n | 0b0000111111111111) | (v << 10);
+    }
+
+    public static MapLocation sectorToLocation(int index) {
+        int x = (index % ((rc.getMapWidth() - 1) / 10 + 1)) * 10;
+        if (rc.getMapWidth() - x < 10) {
+            x += (rc.getMapWidth() - x) / 2;
+        }
+        else {
+            x += 5;
+        }
+        int y = (index / ((rc.getMapWidth() - 1) / 10 + 1)) * 10;
+        if (rc.getMapHeight() - y < 10) {
+            y += (rc.getMapHeight() - y) / 2;
+        }
+        else {
+            y += 5;
+        }
+        return new MapLocation(x, y);
+    }
+    public static int locationToSector(MapLocation loc) {
+        return (loc.x / 10) + (loc.y / 10) * ((rc.getMapWidth() - 1) / 10 + 1);
     }
 
     public static void updateLocation(int index, MapLocation loc) throws GameActionException {
