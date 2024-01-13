@@ -75,9 +75,12 @@ public class Defensive {
                 }
             }
             if (targetFlag.x != -1) {
-                Motion.bug2around(targetFlag, 3, 6);
+                Motion.bug2around(targetFlag, 16, 36);
                 for (int i = 0; i < 4; i++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
+                    if (targetFlag.distanceSquaredTo(buildLoc) <= 2) {
+                        continue;
+                    }
                     if (i % 2 == 0) {
                         if (rc.canBuild(TrapType.WATER, buildLoc)) {
                             rc.build(TrapType.WATER, buildLoc);
