@@ -46,7 +46,7 @@ public strictfp class RobotPlayer {
 
         GlobalArray.init();
 
-        if (GlobalArray.id < 12) {
+        if (GlobalArray.id < 3) {
             mode = DEFENSIVE;
         }
 
