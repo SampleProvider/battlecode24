@@ -1,4 +1,4 @@
-package SPAARK2;
+package DifferentTrapsSPAARK;
 
 import battlecode.common.*;
 

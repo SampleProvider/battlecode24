@@ -1,4 +1,4 @@
-package SPAARK2;
+package DifferentTrapsSPAARK;
 
 import battlecode.common.*;
 
@@ -96,16 +96,16 @@ public class Defensive {
                     //     rc.build(TrapType.EXPLOSIVE, buildLoc);
                     //     break;
                     // }
-                    if (j % 2 == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
-                    }
-                    else {
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
+                    // if (j % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                    //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    //     }
+                    // }
+                    // else {
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
+                    // }
                 }
             }
         }

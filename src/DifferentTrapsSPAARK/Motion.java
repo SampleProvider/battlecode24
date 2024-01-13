@@ -1,4 +1,4 @@
-package SPAARK2;
+package DifferentTrapsSPAARK;
 
 import battlecode.common.*;
 
@@ -739,6 +739,9 @@ public class Motion {
                 }
                 int weight = 0;
                 if (d.equals(me.directionTo(dest))) {
+                    weight += 3;
+                }
+                if (d.equals(me.directionTo(dest).rotateLeft()) || d.equals(me.directionTo(dest).rotateRight())) {
                     weight += 1;
                 }
                 int actions = rc.isActionReady() ? 1 : 0;

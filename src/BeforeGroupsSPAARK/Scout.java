@@ -1,4 +1,4 @@
-package SPAARK2;
+package BeforeGroupsSPAARK;
 
 import battlecode.common.*;
 
@@ -77,6 +77,7 @@ public class Scout {
             if (!action) {
                 if (closestFlag != null) {
                     Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
+                    action = true;
                 }
             }
 
