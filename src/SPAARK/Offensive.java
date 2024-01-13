@@ -22,7 +22,7 @@ public class Offensive {
     };
     protected static int flagIndex = -1;
     
-    protected static void run() throws GameActionException {
+    protected static int run() throws GameActionException {
         // capturing opponentFlags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -150,6 +150,7 @@ public class Offensive {
         }
         Attack.attack();
         Attack.heal();
+        return RobotPlayer.OFFENSIVE;
     }
     protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {

@@ -8,6 +8,11 @@ public class GlobalArray {
 
     protected static int id;
 
+    public static int[] sectorWidth;
+    public static int[] sectorHeight;
+    public static int[] sectorX;
+    public static int[] sectorY;
+
     /*
      * 0-2: ally flag ids
      * 3-5: ally flag default locations
@@ -32,6 +37,8 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_LOC = 15;
     protected static final int SETUP_FLAG_TARGET = 18;
     protected static final int SETUP_GATHER_LOC = 19;
+    protected static final int SECTOR_START = 20;
+
 
     protected static boolean hasLocation(int n) {
         return (n >> 12 & 0b1) == 1;
@@ -57,44 +64,89 @@ public class GlobalArray {
         }
     }
 
-    protected static int getNumberOfOpponentRobots(int n) {
-        return (n & 0b111111);
+    public static int getNumberOfOpponentRobots(int n) {
+        return (n & 0b11111);
     }
-    protected static int setNumberOfOpponentRobots(int n, int v) {
-        return (n | 0b1111111111000000) | v;
+    public static int setNumberOfOpponentRobots(int n, int v) {
+        return (n | 0b1111111111100000) | v;
     }
-    protected static int getNumberOfFriendlyRobots(int n) {
-        return ((n >> 6) & 0b111111);
+    public static int getNumberOfFriendlyRobots(int n) {
+        return ((n >> 5) & 0b11111);
     }
-    protected static int setNumberOfFriendlyRobots(int n, int v) {
-        return (n | 0b1111000000111111) | (v << 6);
+    public static int setNumberOfFriendlyRobots(int n, int v) {
+        return (n | 0b1111110000011111) | (v << 5);
     }
-    protected static int getTimeSinceLastExplored(int n) {
-        return ((n >> 12) & 0b1111);
+    public static int getTimeSinceLastExplored(int n) {
+        return ((n >> 10) & 0b111111);
     }
-    protected static int setTimeSinceLastExplored(int n, int v) {
-        return (n | 0b0000111111111111) | (v << 10);
+    public static int setTimeSinceLastExplored(int n, int v) {
+        return (n | 0b0000001111111111) | (v << 10);
     }
 
-    protected static MapLocation sectorToLocation(int index) {
-        int x = (index % ((rc.getMapWidth() - 1) / 10 + 1)) * 10;
-        if (rc.getMapWidth() - x < 10) {
-            x += (rc.getMapWidth() - x) / 2;
-        }
-        else {
-            x += 5;
-        }
-        int y = (index / ((rc.getMapWidth() - 1) / 10 + 1)) * 10;
-        if (rc.getMapHeight() - y < 10) {
-            y += (rc.getMapHeight() - y) / 2;
-        }
-        else {
-            y += 5;
-        }
+    public static MapLocation sectorToLocation(int index) {
+        int x = sectorX[index % 5] + sectorWidth[index % 5] / 2;
+        int y = sectorY[index / 5] + sectorHeight[index / 5] / 2;
         return new MapLocation(x, y);
     }
-    protected static int locationToSector(MapLocation loc) {
-        return (loc.x / 10) + (loc.y / 10) * ((rc.getMapWidth() - 1) / 10 + 1);
+    public static int locationToSector(MapLocation loc) {
+        int x = 4;
+        for (int i = 0; i < 5; i++) {
+            if (sectorX[i] > loc.x) {
+                x = i - 1;
+                break;
+            }
+        }
+        int y = 4;
+        for (int i = 0; i < 5; i++) {
+            if (sectorY[i] > loc.y) {
+                y = i - 1;
+                break;
+            }
+        }
+        return y * 5 + x;
+    }
+
+    public static double MININUM_SENSED_TILES = 0.5;
+    public static void updateSector() throws GameActionException {
+        MapLocation[] locs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 20);
+        int[] sectors = new int[25];
+        int[] friendly = new int[25];
+        int[] opponents = new int[25];
+
+        for (MapLocation loc : locs) {
+            int sector = locationToSector(loc);
+            sectors[sector] += 1;
+            if (rc.canSenseRobotAtLocation(loc)) {
+                RobotInfo robot = rc.senseRobotAtLocation(loc);
+                if (robot.getTeam() == rc.getTeam()) {
+                    friendly[sector] += 1;
+                }
+                else {
+                    opponents[sector] += 1;
+                }
+            }
+        }
+
+        for (int i = 0; i < 25; i++) {
+            int size = sectorWidth[i % 5] * sectorHeight[i / 5];
+            if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
+                int newFriendly = friendly[i] * size / sectors[i];
+                int newOpponents = opponents[i] * size / sectors[i];
+                int n = setNumberOfFriendlyRobots(setNumberOfOpponentRobots(0, newOpponents), newFriendly);
+                rc.writeSharedArray(SECTOR_START + i, n);
+            }
+        }
+    }
+
+    public static void incrementSectorTime() throws GameActionException {
+        if (rc.getRoundNum() % 4 != 0) {
+            return;
+        }
+        for (int i = 0; i < 25; i++) {
+            int n = rc.readSharedArray(SECTOR_START + i);
+            n = setTimeSinceLastExplored(n, getTimeSinceLastExplored(n) + 1);
+            rc.writeSharedArray(SECTOR_START + i, n);
+        }
     }
 
     protected static void updateLocation(int index, MapLocation loc) throws GameActionException {
@@ -162,5 +214,27 @@ public class GlobalArray {
     protected static void init() throws GameActionException {
         id = rc.readSharedArray(63);
         rc.writeSharedArray(63, id + 1);
+        sectorWidth = new int[5];
+        for (int i = 0; i < 5; i++) {
+            sectorWidth[i] = rc.getMapWidth() / 5;
+            if (rc.getMapWidth() % 5 >= i) {
+                sectorWidth[i] += 1;
+            }
+        }
+        sectorHeight = new int[5];
+        for (int i = 0; i < 5; i++) {
+            sectorHeight[i] = rc.getMapHeight() / 5;
+            if (rc.getMapHeight() % 5 >= i) {
+                sectorHeight[i] += 1;
+            }
+        }
+        sectorX = new int[5];
+        for (int i = 1; i < 5; i++) {
+            sectorX[i] = sectorX[i - 1] + sectorWidth[i - 1];
+        }
+        sectorY = new int[5];
+        for (int i = 0; i < 5; i++) {
+            sectorY[i] = sectorY[i - 1] + sectorHeight[i - 1];
+        }
     }
 }
