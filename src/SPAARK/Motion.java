@@ -272,14 +272,22 @@ public class Motion {
     }
     
     protected static Direction bug2Helper(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
-        if (me.equals(dest)) {
-            return Direction.CENTER;
-        }
         Direction direction = me.directionTo(dest);
-        if (mode == AWAY) {
+        if (mode == TOWARDS) {
+            if (direction == Direction.CENTER) {
+                return direction;
+            }
+        }
+        else if (mode == AWAY) {
+            if (direction == Direction.CENTER) {
+                direction = Direction.EAST;
+            }
             direction = direction.opposite();
         }
         else if (mode == AROUND) {
+            if (direction == Direction.CENTER) {
+                direction = Direction.EAST;
+            }
             if (me.distanceSquaredTo(dest) < minRadiusSquared) {
                 direction = direction.opposite();
             }
