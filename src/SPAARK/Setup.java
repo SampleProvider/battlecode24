@@ -40,7 +40,7 @@ public class Setup {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            if (!GlobalArray.hasLocation(rc.readSharedArray(0)) || !GlobalArray.hasLocation(rc.readSharedArray(1)) || !GlobalArray.hasLocation(rc.readSharedArray(2))) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 1)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 2))) {
                 // rc.pickupFlag(closestFlag.getLocation());
                 // leaving flags at start location for now
             }
@@ -50,23 +50,23 @@ public class Setup {
             if (flagIndex == -1) {
                 int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
                 for (int i = 0; i <= 2; i++) {
-                    if (rc.readSharedArray(i) == 0) {
+                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(i, flagId);
                         flagIndex = i;
                         break;
                     }
-                    else if (rc.readSharedArray(i) == flagId) {
+                    else if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == flagId) {
                         flagIndex = i;
                         break;
                     }
                 }
             }
-            if (!GlobalArray.hasLocation(rc.readSharedArray(18))) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET))) {
                 //set flag target
                 MapLocation[] spawns = rc.getAllySpawnLocations();
-                rc.writeSharedArray(18, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
+                rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
             }
-            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(18));
+            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
@@ -116,14 +116,14 @@ public class Setup {
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
-                rc.writeSharedArray(flagIndex + 3, GlobalArray.intifyLocation(toPlace));
-                rc.writeSharedArray(flagIndex + 6, GlobalArray.intifyLocation(toPlace));
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
                 flagIndex = -1;
             }
             else {
                 rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-                rc.writeSharedArray(flagIndex + 3, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
         }
         else {
@@ -138,11 +138,11 @@ public class Setup {
                     break;
                 }
             }
-            int damLoc = rc.readSharedArray(19);
+            int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
             if (!GlobalArray.hasLocation(damLoc)) {
                 for (MapInfo i : info) {
                     if (i.isDam()) {
-                        rc.writeSharedArray(19, GlobalArray.intifyLocation(i.getMapLocation()));
+                        rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()));
                         action = true;
                     }
                 }

@@ -36,49 +36,49 @@ public class Defensive {
         MapLocation targetLoc = new MapLocation(0, 0);
         switch (GlobalArray.id) {
             case 0:
-                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(3));
+                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC));
                 break;
             case 1:
-                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(4));
+                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 1));
                 break;
             case 2:
-                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(5));
+                targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 2));
                 break;
             // case 0:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(3)).add(Direction.NORTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC)).add(Direction.NORTHEAST);
             //     break;
             // case 1:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(3)).add(Direction.NORTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC)).add(Direction.NORTHWEST);
             //     break;
             // case 2:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(3)).add(Direction.SOUTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC)).add(Direction.SOUTHEAST);
             //     break;
             // case 3:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(3)).add(Direction.SOUTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC)).add(Direction.SOUTHWEST);
             //     break;
             // case 4:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(4)).add(Direction.NORTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 1)).add(Direction.NORTHEAST);
             //     break;
             // case 5:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(4)).add(Direction.NORTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 1)).add(Direction.NORTHWEST);
             //     break;
             // case 6:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(4)).add(Direction.SOUTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 1)).add(Direction.SOUTHEAST);
             //     break;
             // case 7:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(4)).add(Direction.SOUTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 1)).add(Direction.SOUTHWEST);
             //     break;
             // case 8:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(5)).add(Direction.NORTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 2)).add(Direction.NORTHEAST);
             //     break;
             // case 9:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(5)).add(Direction.NORTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 2)).add(Direction.NORTHWEST);
             //     break;
             // case 10:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(5)).add(Direction.SOUTHEAST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 2)).add(Direction.SOUTHEAST);
             //     break;
             // case 11:
-            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(5)).add(Direction.SOUTHWEST);
+            //     targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + 2)).add(Direction.SOUTHWEST);
             //     break;
         }
         

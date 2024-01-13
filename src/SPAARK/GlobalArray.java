@@ -24,18 +24,12 @@ public class GlobalArray {
      * Number of friendly robots (64 - 6)
      * Turns since last explored (16 - 4)
      */
-    protected static final int ALLY_FLAG_ID_START = 0;
-    protected static final int ALLY_FLAG_ID_END = 2;
-    protected static final int ALLY_FLAG_DEF_LOC_START = 3;
-    protected static final int ALLY_FLAG_DEF_LOC_END = 5;
-    protected static final int ALLY_FLAG_CUR_LOC_START = 6;
-    protected static final int ALLY_FLAG_CUR_LOC_END = 8;
-    protected static final int ALLY_FLAG_INFO_START = 9;
-    protected static final int ALLY_FLAG_INFO_END = 11;
-    protected static final int OPPO_FLAG_ID_START = 12;
-    protected static final int OPPO_FLAG_ID_END = 14;
-    protected static final int OPPO_FLAG_LOC_START = 15;
-    protected static final int OPPO_FLAG_LOC_END = 17;
+    protected static final int ALLY_FLAG_ID = 0;
+    protected static final int ALLY_FLAG_DEF_LOC = 3;
+    protected static final int ALLY_FLAG_CUR_LOC = 6;
+    protected static final int ALLY_FLAG_INFO = 9;
+    protected static final int OPPO_FLAG_ID = 12;
+    protected static final int OPPO_FLAG_LOC = 15;
     protected static final int SETUP_FLAG_TARGET = 18;
     protected static final int SETUP_GATHER_LOC = 19;
 

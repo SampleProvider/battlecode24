@@ -31,7 +31,7 @@ public class Offensive {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             rc.pickupFlag(closestFlag.getLocation());
             int flagId = closestFlag.getID();
-            for (int i = 9; i <= 11; i++) {
+            for (int i = GlobalArray.ALLY_FLAG_INFO + 2; i >= GlobalArray.ALLY_FLAG_INFO; i--) {
                 if (rc.readSharedArray(i) == 0) {
                     flagIndex = i;
                     rc.writeSharedArray(i, flagId);
@@ -62,7 +62,7 @@ public class Offensive {
             rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
-                rc.writeSharedArray(flagIndex + 3, 0);
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, 0);
                 flagIndex = -1;
             }
         }
@@ -70,12 +70,12 @@ public class Offensive {
             Boolean action = false;
 
             MapLocation closestStolenFlag = null;
-            for (int i = 6; i <= 8; i++) {
-                int n = rc.readSharedArray(i);
+            for (int i = 0; i <= 2; i++) {
+                int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
                 // if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
                 if (GlobalArray.hasLocation(n)) {
                     MapLocation loc = GlobalArray.parseLocation(n);
-                    if (!loc.equals(GlobalArray.parseLocation(rc.readSharedArray(i - 3)))) {
+                    if (!loc.equals(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i)))) {
                         rc.setIndicatorDot(loc, 0, 255, 255);
                         if (rc.getLocation().distanceSquaredTo(loc) <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
                             boolean seesFlag = false;
@@ -86,7 +86,7 @@ public class Offensive {
                                 }
                             }
                             if (seesFlag == false) {
-                                rc.writeSharedArray(i, 0);
+                                rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i, 0);
                                 continue;
                             }
                         }
@@ -113,8 +113,8 @@ public class Offensive {
                 }
             }
             if (!action) {
-                for (int i = 12; i <= 14; i++) {
-                    int n = rc.readSharedArray(i);
+                for (int i = 0; i <= 2; i++) {
+                    int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i);
                     if (GlobalArray.hasLocation(n) && GlobalArray.isFlagPickedUp(n)) {
                         Motion.bugnavAround(GlobalArray.parseLocation(n), 5, 20, Motion.DEFAULT_RETREAT_HP);
                         break;
@@ -153,7 +153,7 @@ public class Offensive {
     }
     protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            rc.writeSharedArray(flagIndex + 3, 0);
+            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, 0);
             flagIndex = -1;
         }
     }
