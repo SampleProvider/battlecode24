@@ -50,6 +50,9 @@ public strictfp class RobotPlayer {
             turnCount += 1;
 
             try {
+                if (GlobalArray.id == 0) {
+                    GlobalArray.incrementSectorTime();
+                }
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
