@@ -8,10 +8,10 @@ public class GlobalArray {
 
     protected static int id;
 
-    public static int[] sectorWidth;
-    public static int[] sectorHeight;
-    public static int[] sectorX;
-    public static int[] sectorY;
+    protected static int[] sectorWidth;
+    protected static int[] sectorHeight;
+    protected static int[] sectorX;
+    protected static int[] sectorY;
 
     /*
      * 0-2: ally flag ids
@@ -22,6 +22,7 @@ public class GlobalArray {
      * 15-17: opponent flag locations
      * 18: Flag target (setup only)
      * 19: Gathering point (setup only)
+     * 20-44: Sectors
      * 63: global id counter (first round only, can overwrite later)
      * 
      * Sectors:
@@ -38,7 +39,8 @@ public class GlobalArray {
     protected static final int SETUP_FLAG_TARGET = 18;
     protected static final int SETUP_GATHER_LOC = 19;
     protected static final int SECTOR_START = 20;
-
+    protected static final int SECTOR_SIZE = 5;
+    protected static final int SECTOR_COUNT = GlobalArray.SECTOR_SIZE * GlobalArray.SECTOR_SIZE;
 
     protected static boolean hasLocation(int n) {
         return (n >> 12 & 0b1) == 1;
@@ -64,54 +66,54 @@ public class GlobalArray {
         }
     }
 
-    public static int getNumberOfOpponentRobots(int n) {
+    protected static int getNumberOfOpponentRobots(int n) {
         return (n & 0b11111);
     }
-    public static int setNumberOfOpponentRobots(int n, int v) {
+    protected static int setNumberOfOpponentRobots(int n, int v) {
         return (n | 0b1111111111100000) | v;
     }
-    public static int getNumberOfFriendlyRobots(int n) {
+    protected static int getNumberOfFriendlyRobots(int n) {
         return ((n >> 5) & 0b11111);
     }
-    public static int setNumberOfFriendlyRobots(int n, int v) {
+    protected static int setNumberOfFriendlyRobots(int n, int v) {
         return (n | 0b1111110000011111) | (v << 5);
     }
-    public static int getTimeSinceLastExplored(int n) {
+    protected static int getTimeSinceLastExplored(int n) {
         return ((n >> 10) & 0b111111);
     }
-    public static int setTimeSinceLastExplored(int n, int v) {
+    protected static int setTimeSinceLastExplored(int n, int v) {
         return (n | 0b0000001111111111) | (v << 10);
     }
 
-    public static MapLocation sectorToLocation(int index) {
-        int x = sectorX[index % 5] + sectorWidth[index % 5] / 2;
-        int y = sectorY[index / 5] + sectorHeight[index / 5] / 2;
+    protected static MapLocation sectorToLocation(int index) {
+        int x = sectorX[index % GlobalArray.SECTOR_SIZE] + sectorWidth[index % GlobalArray.SECTOR_SIZE] / 2;
+        int y = sectorY[index / GlobalArray.SECTOR_SIZE] + sectorHeight[index / GlobalArray.SECTOR_SIZE] / 2;
         return new MapLocation(x, y);
     }
-    public static int locationToSector(MapLocation loc) {
+    protected static int locationToSector(MapLocation loc) {
         int x = 4;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < GlobalArray.SECTOR_SIZE; i++) {
             if (sectorX[i] > loc.x) {
                 x = i - 1;
                 break;
             }
         }
         int y = 4;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < GlobalArray.SECTOR_SIZE; i++) {
             if (sectorY[i] > loc.y) {
                 y = i - 1;
                 break;
             }
         }
-        return y * 5 + x;
+        return y * GlobalArray.SECTOR_SIZE + x;
     }
 
-    public static double MININUM_SENSED_TILES = 0.5;
-    public static void updateSector() throws GameActionException {
+    protected static double MININUM_SENSED_TILES = 0.5;
+    protected static void updateSector() throws GameActionException {
         MapLocation[] locs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 20);
-        int[] sectors = new int[25];
-        int[] friendly = new int[25];
-        int[] opponents = new int[25];
+        int[] sectors = new int[GlobalArray.SECTOR_COUNT];
+        int[] friendly = new int[GlobalArray.SECTOR_COUNT];
+        int[] opponents = new int[GlobalArray.SECTOR_COUNT];
 
         for (MapLocation loc : locs) {
             int sector = locationToSector(loc);
@@ -127,8 +129,8 @@ public class GlobalArray {
             }
         }
 
-        for (int i = 0; i < 25; i++) {
-            int size = sectorWidth[i % 5] * sectorHeight[i / 5];
+        for (int i = 0; i < GlobalArray.SECTOR_COUNT; i++) {
+            int size = sectorWidth[i % GlobalArray.SECTOR_SIZE] * sectorHeight[i / GlobalArray.SECTOR_SIZE];
             if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
                 int newFriendly = friendly[i] * size / sectors[i];
                 int newOpponents = opponents[i] * size / sectors[i];
@@ -138,11 +140,11 @@ public class GlobalArray {
         }
     }
 
-    public static void incrementSectorTime() throws GameActionException {
+    protected static void incrementSectorTime() throws GameActionException {
         if (rc.getRoundNum() % 4 != 0) {
             return;
         }
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < GlobalArray.SECTOR_COUNT; i++) {
             int n = rc.readSharedArray(SECTOR_START + i);
             n = setTimeSinceLastExplored(n, getTimeSinceLastExplored(n) + 1);
             rc.writeSharedArray(SECTOR_START + i, n);
@@ -214,26 +216,26 @@ public class GlobalArray {
     protected static void init() throws GameActionException {
         id = rc.readSharedArray(63);
         rc.writeSharedArray(63, id + 1);
-        sectorWidth = new int[5];
-        for (int i = 0; i < 5; i++) {
-            sectorWidth[i] = rc.getMapWidth() / 5;
-            if (rc.getMapWidth() % 5 >= i) {
+        sectorWidth = new int[GlobalArray.SECTOR_SIZE];
+        for (int i = 0; i < GlobalArray.SECTOR_SIZE; i++) {
+            sectorWidth[i] = rc.getMapWidth() / GlobalArray.SECTOR_SIZE;
+            if (rc.getMapWidth() % GlobalArray.SECTOR_SIZE >= i) {
                 sectorWidth[i] += 1;
             }
         }
-        sectorHeight = new int[5];
-        for (int i = 0; i < 5; i++) {
-            sectorHeight[i] = rc.getMapHeight() / 5;
-            if (rc.getMapHeight() % 5 >= i) {
+        sectorHeight = new int[GlobalArray.SECTOR_SIZE];
+        for (int i = 0; i < GlobalArray.SECTOR_SIZE; i++) {
+            sectorHeight[i] = rc.getMapHeight() / GlobalArray.SECTOR_SIZE;
+            if (rc.getMapHeight() % GlobalArray.SECTOR_SIZE >= i) {
                 sectorHeight[i] += 1;
             }
         }
-        sectorX = new int[5];
-        for (int i = 1; i < 5; i++) {
+        sectorX = new int[GlobalArray.SECTOR_SIZE];
+        for (int i = 1; i < GlobalArray.SECTOR_SIZE; i++) {
             sectorX[i] = sectorX[i - 1] + sectorWidth[i - 1];
         }
-        sectorY = new int[5];
-        for (int i = 0; i < 5; i++) {
+        sectorY = new int[GlobalArray.SECTOR_SIZE];
+        for (int i = 0; i < GlobalArray.SECTOR_SIZE; i++) {
             sectorY[i] = sectorY[i - 1] + sectorHeight[i - 1];
         }
     }
