@@ -43,6 +43,8 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_LOC_END = 17;
     protected static final int SETUP_FLAG_TARGET = 18;
     protected static final int SETUP_GATHER_LOC = 19;
+    protected static final int SECTOR_START = 20;
+
 
     protected static boolean hasLocation(int n) {
         return (n >> 12 & 0b1) == 1;
@@ -110,8 +112,47 @@ public class GlobalArray {
         return y * 5 + x;
     }
 
+    public static double MININUM_SENSED_TILES = 0.5;
     public static void updateSector() throws GameActionException {
         MapLocation[] locs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 20);
+        int[] sectors = new int[25];
+        int[] friendly = new int[25];
+        int[] opponents = new int[25];
+
+        for (MapLocation loc : locs) {
+            int sector = locationToSector(loc)
+            sectors[sector] += 1;
+            if (rc.canSenseRobotAtLocation(loc)) {
+                RobotInfo robot = rc.senseRobotAtLocation(loc);
+                if (robot.getTeam() == rc.getTeam()) {
+                    friendly[sector] += 1;
+                }
+                else {
+                    opponents[sector] += 1;
+                }
+            }
+        }
+
+        for (int i = 0; i < 25; i++) {
+            int size = sectorWidth[i % 5] * sectorHeight[i / 5];
+            if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
+                int newFriendly = friendly[i] * size / sectors[i];
+                int newOpponents = opponents[i] * size / sectors[i];
+                int n = setNumberOfFriendlyRobots(setNumberOfOpponentRobots(0, newOpponents), newFriendly);
+                rc.writeSharedArray(SECTOR_START + i, n);
+            }
+        }
+    }
+
+    public static void incrementSectorTime() throws GameActionException {
+        if (rc.getRoundNum() % 4 != 0) {
+            return;
+        }
+        for (int i = 0; i < 25; i++) {
+            int n = rc.readSharedArray(SECTOR_START + i);
+            n = setTimeSinceLastExplored(n, getTimeSinceLastExplored(n) + 1);
+            rc.writeSharedArray(SECTOR_START + i, n);
+        }
     }
 
     protected static void updateLocation(int index, MapLocation loc) throws GameActionException {
