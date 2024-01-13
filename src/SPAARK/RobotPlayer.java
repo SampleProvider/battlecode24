@@ -25,6 +25,7 @@ public strictfp class RobotPlayer {
 
     protected final static int DEFENSIVE = 0;
     protected final static int OFFENSIVE = 1;
+    protected final static int SCOUT = 2;
 
     protected static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
@@ -114,13 +115,13 @@ public strictfp class RobotPlayer {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
                     if (mode == DEFENSIVE) {
-                        Defensive.run();
+                        mode = Defensive.run();
                     }
                     else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
                     else {
-                        Offensive.run();
+                        mode = Offensive.run();
                     }
                 }
                 rc.setIndicatorString(indicatorString.toString());

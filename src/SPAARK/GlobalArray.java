@@ -120,7 +120,7 @@ public class GlobalArray {
         int[] opponents = new int[25];
 
         for (MapLocation loc : locs) {
-            int sector = locationToSector(loc)
+            int sector = locationToSector(loc);
             sectors[sector] += 1;
             if (rc.canSenseRobotAtLocation(loc)) {
                 RobotInfo robot = rc.senseRobotAtLocation(loc);

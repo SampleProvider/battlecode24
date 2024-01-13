@@ -21,7 +21,7 @@ public class Defensive {
         Direction.NORTH,
     };
     
-    protected static void run() throws GameActionException {
+    protected static int run() throws GameActionException {
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -31,7 +31,7 @@ public class Defensive {
             GlobalArray.writeFlag(flag);
         }
         if (rc.getRoundNum() == 1) {
-            return;
+            return RobotPlayer.DEFENSIVE;
         }
         MapLocation targetLoc = new MapLocation(0, 0);
         switch (GlobalArray.id) {
@@ -112,6 +112,7 @@ public class Defensive {
 
         Attack.attack();
         Attack.heal();
+        return RobotPlayer.DEFENSIVE;
     }
     protected static void jailed() throws GameActionException {
 
