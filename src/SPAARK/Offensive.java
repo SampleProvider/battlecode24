@@ -2,18 +2,13 @@ package SPAARK;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public class Offensive {
-    public static RobotController rc;
-    public static StringBuilder indicatorString;
+    protected static RobotController rc;
+    protected static StringBuilder indicatorString;
 
-    public static Random rng;
+    protected static Random rng;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -25,9 +20,9 @@ public class Offensive {
         Direction.NORTH,
         Direction.NORTHEAST,
     };
-    public static int flagIndex = -1;
+    protected static int flagIndex = -1;
     
-    public static void run() throws GameActionException {
+    protected static void run() throws GameActionException {
         // capturing opponentFlags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -156,7 +151,7 @@ public class Offensive {
         Attack.attack();
         Attack.heal();
     }
-    public static void jailed() throws GameActionException {
+    protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {
             rc.writeSharedArray(flagIndex + 3, 0);
             flagIndex = -1;
