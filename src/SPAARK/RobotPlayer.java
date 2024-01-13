@@ -2,19 +2,14 @@ package SPAARK;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public strictfp class RobotPlayer {
-    static int turnCount = 0;
+    protected static int turnCount = 0;
 
-    static Random rng;
+    protected static Random rng;
 
-    static Direction[] directions = {
+    protected static Direction[] directions = {
         Direction.NORTH,
         Direction.NORTHEAST,
         Direction.EAST,
@@ -25,13 +20,13 @@ public strictfp class RobotPlayer {
         Direction.NORTHWEST,
     };
 
-    static int mode = -1;
-    static MapLocation spawnLoc = new MapLocation(-1, -1);
+    protected static int mode = -1;
+    protected static MapLocation spawnLoc = new MapLocation(-1, -1);
 
-    final static int DEFENSIVE = 0;
-    final static int OFFENSIVE = 1;
+    protected final static int DEFENSIVE = 0;
+    protected final static int OFFENSIVE = 1;
 
-    public static void run(RobotController rc) throws GameActionException {
+    protected static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
         Motion.rng = rng;

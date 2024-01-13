@@ -2,35 +2,30 @@ package SPAARK;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public class Setup {
-    public static RobotController rc;
-    public static StringBuilder indicatorString;
+    protected static RobotController rc;
+    protected static StringBuilder indicatorString;
 
-    public static Random rng;
+    protected static Random rng;
 
-    public static int flagIndex = -1;
-    public static MapLocation[] placementLocationsOne = {
+    protected static int flagIndex = -1;
+    protected static MapLocation[] placementLocationsOne = {
         new MapLocation(5, 5),
         new MapLocation(-5, -5),
         new MapLocation(0, 10),
         new MapLocation(0, -10),
     };
-    public static MapLocation[] placementLocationsTwo = {
+    protected static MapLocation[] placementLocationsTwo = {
         new MapLocation(-5, 5),
         new MapLocation(5, -5),
         new MapLocation(10, 0),
         new MapLocation(-10, 0),
     };
-    public static MapLocation flagOffset = new MapLocation(-100, -100);
+    protected static MapLocation flagOffset = new MapLocation(-100, -100);
     
-    public static void run() throws GameActionException {
+    protected static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
@@ -158,6 +153,6 @@ public class Setup {
             }
         }
     }
-    public static void jailed() throws GameActionException {
+    protected static void jailed() throws GameActionException {
     }
 }
