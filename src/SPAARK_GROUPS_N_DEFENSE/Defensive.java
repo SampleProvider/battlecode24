@@ -64,14 +64,31 @@ public class Defensive {
                 }
             }
         } else {
-            // // spam traps around other flags
-            // if (targetFlag.x == -1 || rng.nextInt(30) == 1) {
-            //     int flag = 0;
-            //     for (int i = 0; i < 10 && !GlobalArray.hasLocation(flag); i++) {
-            //         flag = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + rng.nextInt(3));
-            //     }
-                
-            // }
+            // spam traps around other flags
+            if (targetFlag.x == -1 || rng.nextInt(30) == 1) {
+                int flag = 0;
+                for (int i = 0; i < 10 && !GlobalArray.hasLocation(flag); i++) {
+                    flag = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + rng.nextInt(3));
+                }
+                if (GlobalArray.hasLocation(flag)){
+                    targetFlag = GlobalArray.parseLocation(flag);
+                }
+            }
+            if (targetFlag.x != -1) {
+                Motion.bug2around(targetFlag, 3, 6);
+                for (int i = 0; i < 4; i++) {
+                    MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
+                    if (i % 2 == 0) {
+                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                            rc.build(TrapType.WATER, buildLoc);
+                        }
+                    } else {
+                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        }
+                    }
+                }
+            }
         }
 
         Attack.attack();
