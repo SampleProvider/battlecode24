@@ -580,6 +580,35 @@ public class Motion {
         double d = Math.sqrt(p1.distanceSquaredTo(p2));
         return n / d;
     }
+    protected static boolean touchingTheWallLast = false;
+    protected static void getBestRotation() throws GameActionException {
+        
+        if (rotation == NONE) {
+            MapLocation me = rc.getLocation();
+            int[] simulated = simulateMovement(me, bugnavDest);
+    
+            int clockwiseDist = simulated[0];
+            int counterClockwiseDist = simulated[2];
+            boolean clockwiseStuck = simulated[1] == 1;
+            boolean counterClockwiseStuck = simulated[3] == 1;
+            
+            if (clockwiseStuck) {
+                rotation = COUNTER_CLOCKWISE;
+            }
+            else if (counterClockwiseStuck) {
+                rotation = CLOCKWISE;
+            }
+            else {
+                if (clockwiseDist < counterClockwiseDist) {
+                    rotation = CLOCKWISE;
+                }
+                else {
+                    rotation = COUNTER_CLOCKWISE;
+                }
+            }
+            rc.setIndicatorString(clockwiseDist + " " + counterClockwiseDist);
+        }
+    }
     protected static Direction bug2towards(MapLocation dest) throws GameActionException {
         MapLocation me = rc.getLocation();
 
@@ -597,12 +626,15 @@ public class Motion {
 
         boolean touchingTheWall = false;
         for (Direction d : DIRECTIONS) {
-            if (!rc.canMove(d)) {
+            if (!rc.onTheMap(me.add(d)) || !rc.senseMapInfo(me.add(d)).isPassable()) {
                 touchingTheWall = true;
                 break;
             }
         }
-        if (distanceToLine(bugnavDest, bugnavStart, me) <= 1 || !touchingTheWall) {
+
+        Direction dir;
+        if (distanceToLine(bugnavDest, bugnavStart, me) <= 0.5 || !touchingTheWallLast) {
+            touchingTheWallLast = touchingTheWall;
             if (rc.canMove(direction)) {
                 return direction;
             }
@@ -614,41 +646,45 @@ public class Motion {
                 if (lastDir == Direction.CENTER) {
                     lastDir = direction;
                 }
-                // Direction dir = lastDir.opposite().rotateLeft();
-                Direction dir = lastDir;
-                for (int i = 0; i < 8; i++) {
-                    if (rc.onTheMap(me.add(dir)) && rc.senseMapInfo(me.add(dir)).isPassable()) {
-                        break;
-                    }
-                    else {
-                        dir = dir.rotateLeft();
-                    }
-                }
-                if (!rc.canMove(dir)) {
-                    dir = Direction.CENTER;
-                }
-                return dir;
+                getBestRotation();
+                dir = lastDir;
             }
         }
         else {
+            touchingTheWallLast = touchingTheWall;
             if (lastDir == Direction.CENTER) {
                 lastDir = direction;
             }
-            Direction dir = lastDir.opposite().rotateLeft().rotateLeft();
-            for (int i = 0; i < 8; i++) {
-                if (rc.onTheMap(me.add(dir)) && rc.senseMapInfo(me.add(dir)).isPassable()) {
-                    break;
+            dir = lastDir.opposite();
+            if (rotation == CLOCKWISE) {
+                dir = dir.rotateRight().rotateRight();
+            }
+            else {
+                dir = dir.rotateLeft().rotateLeft();
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            if (rc.onTheMap(me.add(dir)) && (rc.senseMapInfo(me.add(dir)).isPassable() || rc.senseMapInfo(me.add(dir)).isWater())) {
+                break;
+            }
+            else {
+                if (rotation == CLOCKWISE) {
+                    dir = dir.rotateRight();
                 }
                 else {
                     dir = dir.rotateLeft();
                 }
             }
-            if (!rc.canMove(dir)) {
-                dir = Direction.CENTER;
-            }
-            rc.setIndicatorString(lastDir.toString());
-            return dir;
         }
+        indicatorString.append(lastDir.toString() + " 1");
+        if (rc.canFill(me.add(dir))) {
+            rc.fill(me.add(dir));
+            return Direction.CENTER;
+        }
+        if (!rc.canMove(dir)) {
+            dir = Direction.CENTER;
+        }
+        return dir;
     }
     protected static Direction bug2away(MapLocation dest) throws GameActionException {
         while (rc.isMovementReady()) {
