@@ -41,8 +41,15 @@ public class Leader {
                         rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                     }
                 }
+                int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2);
+                if (GlobalArray.isGlobalArrayLoc(instruction)) {
+                    int i = instruction & 0b111111;
+                    if (i >= GlobalArray.OPPO_FLAG_CUR_LOC && i <= GlobalArray.OPPO_FLAG_CUR_LOC + 2) {
+                        return;
+                    }
+                }
                 int n = GlobalArray.setGroupId(0, GlobalArray.groupId);
-                if (rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2) == 0) {
+                if (instruction == 0) {
                     n += 1 << 15;
                 }
                 rc.writeSharedArray(GlobalArray.STAGING_CURR, n);

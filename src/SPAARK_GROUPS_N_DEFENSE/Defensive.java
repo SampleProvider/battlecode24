@@ -75,7 +75,7 @@ public class Defensive {
                 }
             }
             if (targetFlag.x != -1) {
-                Motion.bug2around(targetFlag, 16, 36);
+                Motion.bugnavAround(targetFlag, 16, 36, Motion.DEFAULT_RETREAT_HP);
                 for (int i = 0; i < 4; i++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
                     if (targetFlag.distanceSquaredTo(buildLoc) <= 2) {
