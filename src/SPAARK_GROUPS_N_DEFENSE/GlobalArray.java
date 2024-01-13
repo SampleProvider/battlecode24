@@ -25,7 +25,7 @@ public class GlobalArray {
      * 18: Flag target (setup only)
      * 19: Gathering point (setup only)
      * 20-44: Sectors
-     * 45-54: Group instructions
+     * 45-52: Group instructions
      * 63: global id counter (first round only, can overwrite later)
      * 
      * Sectors:
@@ -34,8 +34,7 @@ public class GlobalArray {
      * 4: Turns since last explored
      * 
      * Groups:
-     * 12: Location
-     * 1: Offense/defense toggle
+     * 13: Location
      * 3: idk
      */
     protected static final int ALLY_FLAG_ID = 0;
@@ -232,6 +231,13 @@ public class GlobalArray {
                 }
             }
         }
+    }
+
+    protected static MapLocation groupTarget(int index) throws GameActionException {
+        return parseLocation(rc.readSharedArray(GROUP_INSTRUCTIONS + index - 2));
+    }
+    protected static int groupData(int index) throws GameActionException {
+        return rc.readSharedArray(GROUP_INSTRUCTIONS + index - 2) >> 13;
     }
 
     protected static void init() throws GameActionException {
