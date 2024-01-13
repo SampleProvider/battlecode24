@@ -138,16 +138,18 @@ public class Offensive {
                 }
             }
         }
-        for (int j = 0; j < 8; j++) {
-            MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-            build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
-                for (MapInfo m : mapInfo) {
-                    if (m.getTrapType() != TrapType.NONE) {
-                        break build;
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length >= 3) {
+            for (int j = 0; j < 8; j++) {
+                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
+                    for (MapInfo m : mapInfo) {
+                        if (m.getTrapType() != TrapType.NONE) {
+                            break build;
+                        }
                     }
+                    rc.build(TrapType.EXPLOSIVE, buildLoc);
                 }
-                rc.build(TrapType.STUN, buildLoc);
             }
         }
         Attack.attack();
