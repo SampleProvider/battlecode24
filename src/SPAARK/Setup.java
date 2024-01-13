@@ -144,6 +144,7 @@ public class Setup {
                     if (i.isDam()) {
                         rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()));
                         action = true;
+                        break;
                     }
                 }
             }
