@@ -46,6 +46,7 @@ public class Setup {
             rc.pickupFlag(closestFlag.getLocation());
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
+        GlobalArray.updateSector();
         if (rc.hasFlag()) {
             //ignore this because we aren't moving flags rn
             if (flagIndex == -1) {
@@ -77,6 +78,12 @@ public class Setup {
                     case 1:
                         for (MapLocation loc : placementLocationsOne) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x>= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -86,6 +93,12 @@ public class Setup {
                     case 2:
                         for (MapLocation loc : placementLocationsTwo) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x >= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -127,7 +140,7 @@ public class Setup {
                 flagIndex = -1;
             }
             else {
-                // rc.setIndicatorLine(me, toPlace, 255, 255, 255);
+                rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
@@ -170,7 +183,7 @@ public class Setup {
                         if (GlobalArray.hasLocation(damLoc)) {
                             Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                             indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                            // rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
+                            rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
                             action = true;
                         }
                         if (!action) {

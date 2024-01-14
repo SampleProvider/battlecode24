@@ -63,17 +63,21 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE) {
+                    defenseSpawn: if (mode == DEFENSIVE) {
                         if (GlobalArray.id < 3) {
                             if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
+                                break defenseSpawn; // labels moment
+                            }
+                            for (int i = 0; i < 27; i++) {
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
+                                }
+                            }
+                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id)));
+                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                                rc.spawn(bestSpawnLoc);
                                 break spawn;
                             }
-                            MapLocation spawnLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id));
-                            if (rc.canSpawn(spawnLoc)) {
-                                rc.spawn(spawnLoc);
-                                break spawn;
-                            }
-                            break spawn;
                         }
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
@@ -82,7 +86,7 @@ public strictfp class RobotPlayer {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                             if (rc.canSpawn(randomLoc)) {
                                 rc.spawn(randomLoc);
-                                break;
+                                break spawn;
                             }
                             else {
                                 index++;
@@ -163,7 +167,7 @@ public strictfp class RobotPlayer {
                         Offensive.run();
                     }
                 }
-                // rc.setIndicatorString(indicatorString.toString());
+                rc.setIndicatorString(indicatorString.toString());
 
             }
             catch (GameActionException e) {
