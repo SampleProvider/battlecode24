@@ -57,7 +57,7 @@ public class Offensive {
             GlobalArray.writeFlag(flag);
         }
 
-        // GlobalArray.updateSector();
+        GlobalArray.updateSector();
 
         // flagIndex: index of flag currently holding in global array
         if (flagIndex != -1) {
