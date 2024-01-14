@@ -184,7 +184,27 @@ public class Offensive {
                                 if (closestStoredFlag != null) {
                                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
                                 }
-                                Motion.moveRandomly();
+                                else {
+                                    MapLocation closestStolenFlag = null;
+                                    int closestStolenFlagIndex = -1;
+                                    for (int i = 0; i <= 2; i++) {
+                                        int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
+                                        if (GlobalArray.hasLocation(n) && GlobalArray.isFlagPickedUp(n)) {
+                                            MapLocation loc = GlobalArray.parseLocation(n);
+                                            if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
+                                                closestStolenFlag = loc;
+                                                closestStolenFlagIndex = GlobalArray.ALLY_FLAG_CUR_LOC + i;
+                                            }
+                                        }
+                                    }
+                                    if (closestStolenFlag != null) {
+                                        rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStolenFlagIndex));
+                                    }
+                                    else {
+                                        Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2), Motion.DEFAULT_RETREAT_HP);
+                                    }
+                                }
+                                // Motion.moveRandomly();
                             }
                         }
                     }

@@ -42,16 +42,16 @@ public class Defensive {
             if (rc.getLocation().equals(targetLoc) && rc.senseNearbyFlags(0, rc.getTeam()).length != 0) {
                 for (int j = 0; j < 8; j++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                    if (j % 2 == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
-                    }
-                    else {
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
+                    // if (j % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                    //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    //     }
+                    // }
+                    // else {
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
+                    // }
                 }
             }
             // }
