@@ -95,7 +95,7 @@ public class Setup {
                 }
             }
             Motion.bugnavTowards(toPlace, 500);
-            MapLocation me = rc.getLocation();
+            // MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
                     indicatorString.append("FLAGINVALID;");
