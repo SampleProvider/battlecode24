@@ -105,11 +105,14 @@ public class Offensive {
                                 Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
                                 target = target.add(me.directionTo(rc.getLocation()));
                                 turnsFindingFlagTarget = target;
-                                rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, GlobalArray.intifyLocation(target));
 
-                                if (turnsFindingFlag >= 100) {
+
+                                if (!rc.onTheMap(target) || turnsFindingFlag >= 100) {
                                     rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i, 0);
                                     target = null;
+                                }
+                                else {
+                                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, GlobalArray.intifyLocation(target));
                                 }
                             }
                         }

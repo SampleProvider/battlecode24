@@ -54,6 +54,8 @@ public strictfp class RobotPlayer {
             mode = SCOUT;
         }
 
+        Clock.yield();
+
         while (true) {
             turnCount += 1;
 

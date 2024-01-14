@@ -135,11 +135,12 @@ public class Motion {
     }
 
     protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
         MapLocation safest = a[0];
         int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
         for (MapLocation loc : a) {
             int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
-            if (r < robots) {
+            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
                 safest = loc;
                 robots = r;
             }
@@ -772,6 +773,9 @@ public class Motion {
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
                         weight -= 5;
+                        if (robot.hasFlag) {
+                            weight += 20;
+                        }
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
@@ -810,6 +814,18 @@ public class Motion {
                 }
             }
             if (bestDir != null) {
+                if (opponentRobots.length >= 5 && friendlyRobots.length >= 5) {
+                    MapLocation buildLoc = rc.getLocation().add(bestDir);
+                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                        // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
+                        // for (MapInfo m : mapInfo) {
+                        //     if (m.getTrapType() != TrapType.NONE) {
+                        //         break build;
+                        //     }
+                        // }
+                        rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    }
+                }
                 moveWithAction(bestDir);
                 lastDir = bestDir;
             }
