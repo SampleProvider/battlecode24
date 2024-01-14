@@ -46,6 +46,7 @@ public class Setup {
             rc.pickupFlag(closestFlag.getLocation());
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
+        GlobalArray.updateSector();
         if (rc.hasFlag()) {
             // move flag
             if (flagIndex == -1) {
