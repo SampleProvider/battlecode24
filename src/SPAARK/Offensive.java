@@ -26,7 +26,7 @@ public class Offensive {
     protected static MapLocation turnsFindingFlagTarget = new MapLocation(0, 0);
     
     protected static void run() throws GameActionException {
-        // capturing opponentFlags
+        // capturing opponent flags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
@@ -47,7 +47,7 @@ public class Offensive {
             }
         }
 
-        // // writing flags to global array
+        // writing flags to global array
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -74,11 +74,7 @@ public class Offensive {
             }
         }
         else {
-            Boolean action = false;
-            
-        
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
-
             if (target != null) {
                 int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(n)) {
@@ -118,7 +114,6 @@ public class Offensive {
                     }
                 }
             }
-
             
             if (target != null) {
                 if (rc.getLocation().equals(target)) {
@@ -175,93 +170,13 @@ public class Offensive {
                                 rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
                             }
                             Motion.moveRandomly();
-                            // Motion.groupRandomly();
                         }
                     }
                 }
             }
 
             indicatorString.append("GROUP:" + GlobalArray.groupId);
-
-            // // MapLocation closestStolenFlag = null;
-            // for (int i = 0; i <= 2; i++) {
-            //     int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
-            //     // if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
-            //     if (GlobalArray.hasLocation(n)) {
-            //         MapLocation loc = GlobalArray.parseLocation(n);
-            //         if (!loc.equals(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i)))) {
-            //             rc.setIndicatorDot(loc, 0, 255, 255);
-            //             if (rc.getLocation().distanceSquaredTo(loc)  <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
-            //                 boolean seesFlag = false;
-            //                 for (FlagInfo flag : friendlyFlags) {
-            //                     if (flag.isPickedUp() && flag.getID() == rc.readSharedArray(i - 6)) {
-            //                         seesFlag = true;
-            //                         break;
-            //                     }
-            //                 }
-            //                 if (seesFlag == false) {
-            //                     rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i, 0);
-            //                     continue;
-            //                 }
-            //             }
-            //             // if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
-            //             //     closestStolenFlag = loc;
-            //             // }
-            //         }
-            //     }
-            // }
-            // if (closestStolenFlag != null) {
-            //     Motion.bugnavTowards(closestStolenFlag, Motion.DEFAULT_RETREAT_HP);
-            //     action = true;
-            // }
-
-            // if (!action) {
-            //     MapInfo[] info = rc.senseNearbyMapInfos();
-            //     for (MapInfo i : info) {
-            //         if (i.getCrumbs() > 0) {
-            //             Motion.bugnavTowards(i.getMapLocation(), Motion.DEFAULT_RETREAT_HP);
-            //             indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
-            //             action = true;
-            //             break;
-            //         }
-            //     }
-            // }
-            // if (!action) {
-            //     for (int i = 0; i <= 2; i++) {
-            //         int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_LOC + i);
-            //         if (GlobalArray.hasLocation(n) && GlobalArray.isFlagPickedUp(n)) {
-            //             Motion.bugnavAround(GlobalArray.parseLocation(n), 5, 20, Motion.DEFAULT_RETREAT_HP);
-            //             break;
-            //         }
-            //     }
-            //     if (closestFlag != null) {
-            //         Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
-            //     }
-            //     else {
-            //         MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-            //         if (hiddenFlags.length > 0) {
-            //             MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
-            //             Motion.bugnavTowards(closestHiddenFlag, Motion.DEFAULT_RETREAT_HP);
-            //         }
-            //         else {
-            //             Motion.moveRandomly();
-            //             // Motion.groupRandomly();
-            //         }
-            //     }
-            // }
         }
-        // for (int j = 0; j < 8; j++) {
-        //     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-        //     build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-        //         MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
-        //         for (MapInfo m : mapInfo) {
-        //             if (m.getTrapType() != TrapType.NONE) {
-        //                 break build;
-        //             }
-        //         }
-        //         rc.build(TrapType.EXPLOSIVE, buildLoc);
-        //     }
-        // }
         
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());

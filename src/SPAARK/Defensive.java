@@ -42,11 +42,7 @@ public class Defensive {
             if (rc.getLocation().equals(targetLoc)) {
                 // rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
                 for (int j = 0; j < 8; j++) {
-                    MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                    // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                    //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                    //     break;
-                    // }
+                    // MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
                     // if (j % 2 == 0) {
                     //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
                     //         rc.build(TrapType.EXPLOSIVE, buildLoc);
