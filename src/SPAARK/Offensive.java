@@ -125,51 +125,67 @@ public class Offensive {
                 indicatorString.append(GlobalArray.groupId);
             }
             else {
-                if (closestFlag != null) {
-                    // Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
-                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestFlag.getLocation()));
-                }
-                else {
-                    int closestStoredFlagIndex = -1;
-                    MapLocation closestStoredFlag = null;
-                    for (int i = 0; i <= 2; i++) {
-                        int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
-                        int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
-                        if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
-                            MapLocation loc = GlobalArray.parseLocation(n2);
-                            if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
-                                closestStoredFlag = loc;
-                                closestStoredFlagIndex = GlobalArray.OPPO_FLAG_DEF_LOC + i;
-                            }
+                boolean action = false;
+                // crumb stuff if not already done
+                if (!action) {
+                    MapInfo[] info = rc.senseNearbyMapInfos();
+                    for (MapInfo i : info) {
+                        if (i.getCrumbs() > 0) {
+                            Motion.bugnavTowards(i.getMapLocation(), Motion.DEFAULT_RETREAT_HP);
+                            indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
+                            action = true;
+                            break;
                         }
                     }
-                    if (closestStoredFlag != null) {
-                        // rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
-                        rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestStoredFlag));
+                }
+                
+                if (!action) {
+                    if (closestFlag != null) {
+                        // Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
+                        rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestFlag.getLocation()));
                     }
                     else {
-                        MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                        if (hiddenFlags.length > 0) {
-                            MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
-                            rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestHiddenFlag));
-                            // Motion.bugnavTowards(closestHiddenFlag, Motion.DEFAULT_RETREAT_HP);
-                        }
-                        else {
-                            closestStoredFlag = null;
-                            for (int i = 0; i <= 2; i++) {
-                                int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
-                                if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
-                                    MapLocation loc = GlobalArray.parseLocation(n);
-                                    if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
-                                        closestStoredFlag = loc;
-                                        closestStoredFlagIndex = GlobalArray.OPPO_FLAG_CUR_LOC + i;
-                                    }
+                        int closestStoredFlagIndex = -1;
+                        MapLocation closestStoredFlag = null;
+                        for (int i = 0; i <= 2; i++) {
+                            int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
+                            int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
+                            if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
+                                MapLocation loc = GlobalArray.parseLocation(n2);
+                                if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
+                                    closestStoredFlag = loc;
+                                    closestStoredFlagIndex = GlobalArray.OPPO_FLAG_DEF_LOC + i;
                                 }
                             }
-                            if (closestStoredFlag != null) {
-                                rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
+                        }
+                        if (closestStoredFlag != null) {
+                            // rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
+                            rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestStoredFlag));
+                        }
+                        else {
+                            MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                            if (hiddenFlags.length > 0) {
+                                MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
+                                rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestHiddenFlag));
+                                // Motion.bugnavTowards(closestHiddenFlag, Motion.DEFAULT_RETREAT_HP);
                             }
-                            Motion.moveRandomly();
+                            else {
+                                closestStoredFlag = null;
+                                for (int i = 0; i <= 2; i++) {
+                                    int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
+                                    if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
+                                        MapLocation loc = GlobalArray.parseLocation(n);
+                                        if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
+                                            closestStoredFlag = loc;
+                                            closestStoredFlagIndex = GlobalArray.OPPO_FLAG_CUR_LOC + i;
+                                        }
+                                    }
+                                }
+                                if (closestStoredFlag != null) {
+                                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
+                                }
+                                Motion.moveRandomly();
+                            }
                         }
                     }
                 }
