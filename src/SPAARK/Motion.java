@@ -761,6 +761,7 @@ public class Motion {
                 if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                     continue;
                 }
+                // incentivize moving towards target
                 int weight = 0;
                 if (d.equals(me.directionTo(dest))) {
                     weight += 1;
@@ -783,6 +784,7 @@ public class Motion {
                 for (RobotInfo robot : opponentRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                        // attack micro - retreat when too close and move closer to attack
                         if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
                         }
@@ -802,6 +804,7 @@ public class Motion {
                             weight += 20;
                         }
                     }
+                    // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
                         if (robot.hasFlag()) {
@@ -809,6 +812,7 @@ public class Motion {
                         }
                     }
                 }
+                // maybe be closer to friendly robots
                 int friendlyWeight = 0;
                 for (RobotInfo robot : friendlyRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
@@ -820,6 +824,7 @@ public class Motion {
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);
+                // prefer not filling?
                 if (rc.canFill(me.add(d))) {
                     if (bestFillDir == null) {
                         bestFillDir = d;
@@ -841,6 +846,7 @@ public class Motion {
                     }
                 }
             }
+            // trap micro
             if (bestDir != null) {
                 if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
@@ -851,7 +857,7 @@ public class Motion {
                                 break build;
                             }
                         }
-                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() == rc.getTeam().opponent()) {
+                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getRoundNum() <= 250) {
                             rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     }
