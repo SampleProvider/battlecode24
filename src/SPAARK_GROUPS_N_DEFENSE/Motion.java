@@ -218,9 +218,6 @@ public class Motion {
             }
         }
     }
-    protected static void groupRandomly() throws GameActionException {
-        // moves randomly but tries to stick to robots in small groups
-    }
     
     protected static int[] simulateMovement(MapLocation me, MapLocation dest) throws GameActionException {
         MapLocation clockwiseLoc = rc.getLocation();
@@ -816,7 +813,7 @@ public class Motion {
             if (bestDir != null) {
                 if (opponentRobots.length >= 5 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
                         // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
                         // for (MapInfo m : mapInfo) {
                         //     if (m.getTrapType() != TrapType.NONE) {

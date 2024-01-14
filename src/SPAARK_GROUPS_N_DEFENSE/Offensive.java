@@ -26,7 +26,7 @@ public class Offensive {
     protected static MapLocation turnsFindingFlagTarget = new MapLocation(0, 0);
     
     protected static void run() throws GameActionException {
-        // capturing opponentFlags
+        // capturing opponent flags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
@@ -47,7 +47,7 @@ public class Offensive {
             }
         }
 
-        // // writing flags to global array
+        // writing flags to global array
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -74,11 +74,7 @@ public class Offensive {
             }
         }
         else {
-            Boolean action = false;
-            
-        
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
-
             if (target != null) {
                 int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2);
                 if (GlobalArray.isGlobalArrayLoc(n)) {
@@ -118,7 +114,6 @@ public class Offensive {
                     }
                 }
             }
-
             
             if (target != null) {
                 if (rc.getLocation().equals(target)) {
@@ -175,7 +170,6 @@ public class Offensive {
                                 rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, GlobalArray.intifyTarget(closestStoredFlagIndex));
                             }
                             Motion.moveRandomly();
-                            // Motion.groupRandomly();
                         }
                     }
                 }
