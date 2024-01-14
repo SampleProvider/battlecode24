@@ -23,8 +23,6 @@ public class Setup {
         new MapLocation(8, -8),
     };
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
-    protected static int turnsPlacingFlag = 0;
-    protected static MapLocation flagInit;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -45,12 +43,11 @@ public class Setup {
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
-            flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
         if (rc.hasFlag()) {
-            turnsPlacingFlag++;
+            //ignore this because we aren't moving flags rn
             if (flagIndex == -1) {
                 int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
                 for (int i = 0; i <= 2; i++) {
@@ -71,12 +68,7 @@ public class Setup {
                 rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
             }
             MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
-            MapLocation toPlace;
-            if (turnsPlacingFlag > 100) {
-                toPlace = flagInit;
-            } else {
-                toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-            }
+            MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
                     case 0:
