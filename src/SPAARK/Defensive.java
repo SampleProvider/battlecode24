@@ -39,7 +39,7 @@ public class Defensive {
             //     Motion.bugnavTowards(Attack.getPrioritizedOpponentRobot(opponentRobots).getLocation(), 0);
             // } else {
             Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
-            if (rc.getLocation().equals(targetLoc)) {
+            if (rc.getLocation().equals(targetLoc) && rc.senseNearbyFlags(0, rc.getTeam()).length != 0) {
                 for (int j = 0; j < 8; j++) {
                     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
                     if (j % 2 == 0) {
