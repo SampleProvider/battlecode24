@@ -2,12 +2,7 @@ package SPAARKJAN11;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public strictfp class RobotPlayer {
     static int turnCount = 0;

@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package SPAARKJAN14;
 
 import battlecode.common.*;
 
