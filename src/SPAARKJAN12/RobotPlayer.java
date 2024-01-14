@@ -41,10 +41,6 @@ public strictfp class RobotPlayer {
         Defensive.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
-        Leader.rc = rc;
-        Leader.rng = rng;
-        Follower.rc = rc;
-        Follower.rng = rng;
 
         GlobalArray.init();
         
@@ -54,8 +50,6 @@ public strictfp class RobotPlayer {
             mode = SCOUT;
         }
 
-        Clock.yield();
-
         while (true) {
             turnCount += 1;
 
@@ -63,16 +57,9 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE) {
-                        if (GlobalArray.id < 3) {
-                            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
-                                break spawn;
-                            }
-                            MapLocation spawnLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id));
-                            if (rc.canSpawn(spawnLoc)) {
-                                rc.spawn(spawnLoc);
-                                break spawn;
-                            }
+                    if (mode == DEFENSIVE && spawnLoc.x != -1) {
+                        if (rc.canSpawn(spawnLoc)) {
+                            rc.spawn(spawnLoc);
                             break spawn;
                         }
                     }
@@ -109,11 +96,8 @@ public strictfp class RobotPlayer {
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
-                Leader.indicatorString = indicatorString;
-                Follower.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
                     GlobalArray.incrementSectorTime();
-                    GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
                     if (mode == DEFENSIVE) {
@@ -126,10 +110,6 @@ public strictfp class RobotPlayer {
                         Scout.jailed();
                     }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.jailed();
-                        }
-                        Follower.jailed();
                         Offensive.jailed();
                     }
                 }
@@ -156,10 +136,6 @@ public strictfp class RobotPlayer {
                         Scout.run();
                     }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.run();
-                        }
-                        Follower.run();
                         Offensive.run();
                     }
                 }

@@ -25,7 +25,7 @@ public class GlobalArray {
      * 18: Flag target (setup only)
      * 19: Gathering point (setup only)
      * 20-44: Sectors
-     * 45-52: Group instructions
+     * 45-54: Group instructions
      * 63: global id counter (first round only, can overwrite later)
      * 
      * Sectors:
@@ -34,7 +34,8 @@ public class GlobalArray {
      * 4: Turns since last explored
      * 
      * Groups:
-     * 13: Location
+     * 12: Location
+     * 1: Offense/defense toggle
      * 3: idk
      */
     protected static final int ALLY_FLAG_ID = 0;
@@ -42,16 +43,12 @@ public class GlobalArray {
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
     protected static final int OPPO_FLAG_ID = 12;
-    protected static final int OPPO_FLAG_DEF_LOC = 15;
-    protected static final int OPPO_FLAG_CUR_LOC = 18;
-    protected static final int SETUP_FLAG_TARGET = 21;
-    protected static final int SETUP_GATHER_LOC = 22;
-    protected static final int SECTOR_START = 23;
+    protected static final int OPPO_FLAG_LOC = 15;
+    protected static final int SETUP_FLAG_TARGET = 18;
+    protected static final int SETUP_GATHER_LOC = 19;
+    protected static final int SECTOR_START = 20;
     protected static final int SECTOR_SIZE = 5;
-    protected static final int GROUP_INSTRUCTIONS = 48;
-    protected static final int STAGING_TARGET = 56;
-    protected static final int STAGING_BEST = 57;
-    protected static final int STAGING_CURR = 58;
+    protected static final int GROUP_INSTRUCTIONS = 45;
     protected static final int SECTOR_COUNT = SECTOR_SIZE * SECTOR_SIZE;
 
     protected static int[][] sectors;
@@ -68,18 +65,6 @@ public class GlobalArray {
     protected static boolean isFlagPickedUp(int n) {
         return ((n >> 13) & 0b1) == 1;
     }
-
-    
-    public static int getNumberOfRobots(int n) {
-        return (n & 0b111111);
-    }
-    public static int setNumberOfRobots(int n, int v) {
-        return (n & 0b1111111111000000) | v;
-    }
-    public static MapLocation getRobotDirection(int n) {
-        return new MapLocation(((n >> 6) & 0b1111) - 8, ((n >> 9) & 0b1111) - 8);
-    }
-
     protected static void write(int index, int bits, int n) throws GameActionException {
         int r = rc.readSharedArray(index);
         for (int i = index / 16; i < (index + bits) / 16; i++) {
@@ -90,31 +75,6 @@ public class GlobalArray {
             }
         }
         rc.writeSharedArray(index, r);
-    }
-
-    protected static boolean isGlobalArrayLoc(int n) {
-        return ((n >> 13) & 0b1) == 1;
-    }
-
-    protected static int getDistance(int n) {
-        return n & 0b111111111111;
-    }
-    protected static int setDistance(int n, int v) {
-        return (n & 0b1111000000000000) | v;
-    }
-    protected static int getGroupId(int n) {
-        return ((n >> 12) & 0b111) + 2;
-    }
-    protected static int setGroupId(int n, int v) {
-        return (n & 0b1000111111111111) | ((v - 2) << 12);
-    }
-    protected static boolean isUnassigned(int n) {
-        return ((n >> 15) & 0b1) == 1;
-    }
-
-    
-    protected static int intifyTarget(int index) {
-        return 0b11000000000000 | index;
     }
 
     protected static int getNumberOfOpponentRobots(int n) {
@@ -168,7 +128,7 @@ public class GlobalArray {
         return y * SECTOR_SIZE + x;
     }
 
-    protected static final double MININUM_SENSED_TILES = 0.1;
+    protected static final double MININUM_SENSED_TILES = 0.4;
     protected static String updateSector() throws GameActionException {
         // indicatorString.append(" " + Clock.getBytecodeNum() + " ");
         MapLocation[] locs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 20);
@@ -211,11 +171,9 @@ public class GlobalArray {
             if (sectors[i] > (int) size * MININUM_SENSED_TILES) {
                 int newFriendly = Math.min(friendly[i] * size / sectors[i], 31);
                 int newOpponents = Math.min(opponents[i] * size / sectors[i], 31);
-                int n = setTimeSinceLastExplored(setNumberOfFriendlyRobots(setNumberOfOpponentRobots(rc.readSharedArray(i), newOpponents), newFriendly), 0);
+                int n = setNumberOfFriendlyRobots(setNumberOfOpponentRobots(0, newOpponents), newFriendly);
                 rc.writeSharedArray(SECTOR_START + i, n);
-                if (sectors[i] > (int) size * 0.4) {
-                    updatedSectors.append(i + "A");
-                }
+                updatedSectors.append(i + "A");
             }
         }
         // indicatorString.append(" " + Clock.getBytecodeNum() + " ");
@@ -248,9 +206,7 @@ public class GlobalArray {
                         rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
                     }
                     if (flag.isPickedUp()) {
-                        MapLocation me = rc.getLocation();
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                        rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 9) + ((flag.getLocation().x - me.x + 8) << 6) + rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
                     } else {
                         if (rc.getRoundNum() < 200) {
                             rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
@@ -266,56 +222,15 @@ public class GlobalArray {
                 if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0 || rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
-                        rc.writeSharedArray(OPPO_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
                     }
                     if (flag.isPickedUp()) {
-                        rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
                     } else {
-                        rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(OPPO_FLAG_LOC + i, intifyLocation(flag.getLocation()));
                     }
                     break;
                 }
             }
-        }
-    }
-
-    protected static MapLocation groupTarget(int index) throws GameActionException {
-        return parseLocation(rc.readSharedArray(GROUP_INSTRUCTIONS + index - 2));
-    }
-    protected static int groupData(int index) throws GameActionException {
-        return rc.readSharedArray(GROUP_INSTRUCTIONS + index - 2) >> 13;
-    }
-
-    protected static MapLocation getGroupTarget(int index) throws GameActionException {
-        int n = rc.readSharedArray(GROUP_INSTRUCTIONS + index - 2);
-        if (n == 0) {
-            return null;
-        }
-        if (GlobalArray.isGlobalArrayLoc(n)) {
-            int i = n & 0b111111;
-            int n2 = rc.readSharedArray(i);
-            if (!GlobalArray.hasLocation(n2)) {
-                rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
-                return null;
-            }
-            if (i >= ALLY_FLAG_CUR_LOC && i <= ALLY_FLAG_CUR_LOC + 2) {
-                MapLocation defaultLoc = parseLocation(rc.readSharedArray(i - 3));
-                if (parseLocation(n2).equals(defaultLoc)) {
-                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
-                    return null;
-                }
-            }
-            if (i >= OPPO_FLAG_DEF_LOC && i <= OPPO_FLAG_DEF_LOC + 2) {
-                int currLoc = rc.readSharedArray(i + 3);
-                if (isFlagPickedUp(currLoc)) {
-                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
-                    return null;
-                }
-            }
-            return GlobalArray.parseLocation(n2);
-        }
-        else {
-            return GlobalArray.parseLocation(n);
         }
     }
 
@@ -347,96 +262,13 @@ public class GlobalArray {
             sectorY[i] = sectorY[i - 1] + sectorHeight[i - 1];
         }
         sectors = new int[rc.getMapWidth()][rc.getMapHeight()];
-        int x = 0;
         for (int i = 0; i < rc.getMapWidth(); i++) {
-            if (x < 4 && i == sectorX[x + 1]) {
-                x += 1;
-            }
-            int y = 0;
             for (int j = 0; j < rc.getMapHeight(); j++) {
-                if (y < 4 && j == sectorY[y + 1]) {
-                    y += 1;
-                }
-                sectors[i][j] = y * 5 + x;
+                sectors[i][j] = locationToSectorInit(new MapLocation(i, j));
             }
         }
         // set up groups here, leaders are just the first duck in the group
         groupId = id / 5;
         groupLeader = id % 5 == 0;
-        sectorGroupsAssigned = new StringBuilder[SECTOR_COUNT];
-        for (int i = 0; i < SECTOR_COUNT; i++) {
-            sectorGroupsAssigned[i] = new StringBuilder();
-        }
-        for (int i = 0; i < 3; i++) {
-            opponentFlagGroupsAssigned[i] = new StringBuilder();
-            friendlyFlagGroupsAssigned[i] = new StringBuilder();
-        }
-    }
-
-    protected static StringBuilder[] sectorGroupsAssigned;
-    protected static StringBuilder[] friendlyFlagGroupsAssigned = new StringBuilder[3];
-    protected static StringBuilder[] opponentFlagGroupsAssigned = new StringBuilder[3];
-    protected static void allocateGroups() throws GameActionException {
-        if (rc.getRoundNum() % 2 == 0) {
-            // find stolen flags to allocate
-            // find sectors to allocate
-            // if no sectors, find flags to allocate
-            // for (int i = 0; i < SECTOR_COUNT; i++) {
-            //     int n = rc.readSharedArray(SECTOR_START + i);
-            //     if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() <= -5) {
-            //         // System.out.println(sectorGroupsAssigned[i].length());
-            //         // System.out.println(sectorGroupsAssigned[i].toString());
-            //         String s = sectorGroupsAssigned[i].substring(sectorGroupsAssigned[i].length() - 5);
-            //         int g = Integer.parseInt(s) - 10000;
-            //         rc.writeSharedArray(GROUP_INSTRUCTIONS + g - 2, 0);
-            //         sectorGroupsAssigned[i].delete(sectorGroupsAssigned[i].length() - 5, sectorGroupsAssigned[i].length());
-            //     }
-            // }
-            // // rc.writeSharedArray(STAGING_TARGET, 0b11000000000000 | OPPO_FLAG_CUR_LOC);
-            // // rc.writeSharedArray(STAGING_BEST, 0b111111111111);
-            // for (int i = 0; i < SECTOR_COUNT; i++) {
-            //     int n = rc.readSharedArray(SECTOR_START + i);
-            //     if (getNumberOfOpponentRobots(n) - sectorGroupsAssigned[i].length() >= 5) {
-            //         rc.writeSharedArray(STAGING_TARGET, intifyLocation(sectorToLocation(i)));
-            //         rc.writeSharedArray(STAGING_BEST, 0b111111111111);
-            //         // n = setGroupsAssigned(n, getGroupsAssigned(n) + 1);
-            //         // rc.writeSharedArray(i, n);
-            //         return;
-            //     }
-            // }
-            for (int i = 0; i <= 2; i++) {
-                int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
-                if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
-                    int d = rc.readSharedArray(ALLY_FLAG_INFO + i);
-                    int number = GlobalArray.getNumberOfRobots(d);
-                    if (number > 0) {
-                        rc.writeSharedArray(ALLY_FLAG_INFO + i, GlobalArray.setNumberOfRobots(d, Math.max(number - 5, 0)));
-                        rc.writeSharedArray(STAGING_TARGET, intifyTarget(ALLY_FLAG_CUR_LOC + i));
-                        rc.writeSharedArray(STAGING_BEST, 0b111111111111);
-                        return;
-                    }
-                }
-            }
-            rc.writeSharedArray(STAGING_TARGET, 0);
-        }
-        else {
-            // if there is a target:
-            // if it is a sector
-            int n = rc.readSharedArray(STAGING_TARGET);
-            if (n != 0) {
-                if (isGlobalArrayLoc(n)) {
-                    int index = n & 0b111111;
-                    if (index >= ALLY_FLAG_CUR_LOC && index <= ALLY_FLAG_CUR_LOC + 2) {
-                        friendlyFlagGroupsAssigned[index - ALLY_FLAG_CUR_LOC].append(10000 + getGroupId(n) + "");
-                    }
-                    else {
-                        opponentFlagGroupsAssigned[index - OPPO_FLAG_DEF_LOC].append(10000 + getGroupId(n) + "");
-                    }
-                }
-                else {
-                    sectorGroupsAssigned[locationToSector(parseLocation(n))].append(10000 + getGroupId(n) + ""); 
-                }
-            }
-        }
     }
 }
