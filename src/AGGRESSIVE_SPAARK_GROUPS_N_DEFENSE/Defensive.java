@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package AGGRESSIVE_SPAARK_GROUPS_N_DEFENSE;
 
 import battlecode.common.*;
 
@@ -86,7 +86,6 @@ public class Defensive {
                             rc.build(TrapType.WATER, buildLoc);
                         }
                     } else {
-                        // if (buildLoc.translate(i, i))
                         if (rc.canBuild(TrapType.STUN, buildLoc)) {
                             rc.build(TrapType.STUN, buildLoc);
                         }
