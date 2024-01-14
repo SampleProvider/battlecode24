@@ -184,7 +184,10 @@ public class Offensive {
                                 if (closestStoredFlag != null) {
                                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
                                 }
-                                Motion.moveRandomly();
+                                else {
+                                    Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2), Motion.DEFAULT_RETREAT_HP);
+                                }
+                                // Motion.moveRandomly();
                             }
                         }
                     }

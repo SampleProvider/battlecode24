@@ -695,6 +695,9 @@ public class Motion {
         // RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
         // if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
         //     bug2retreat();
+        if (rc.hasFlag() && rc.getLocation().distanceSquaredTo(dest) <= 36) {
+            retreatHP = 0;
+        }
         if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             // bug2retreat();
             micro(dest);
@@ -791,6 +794,9 @@ public class Motion {
                         // attack micro - retreat when too close and move closer to attack
                         if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
+                            // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
+                            //     weight += 6;
+                            // }
                         }
                         else {
                             actions -= 1;
@@ -868,7 +874,7 @@ public class Motion {
                                 break build;
                             }
                         }
-                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getRoundNum() <= 250) {
+                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getCrumbs() >= 500) {
                             rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     }
