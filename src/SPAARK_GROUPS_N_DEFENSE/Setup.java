@@ -38,6 +38,9 @@ public class Setup {
     
     protected static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+        for (FlagInfo flag : flags) {
+            GlobalArray.writeFlag(flag);
+        }
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 1)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 2))) {

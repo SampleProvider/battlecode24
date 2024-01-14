@@ -63,9 +63,16 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE && spawnLoc.x != -1) {
-                        if (rc.canSpawn(spawnLoc)) {
-                            rc.spawn(spawnLoc);
+                    if (mode == DEFENSIVE) {
+                        if (GlobalArray.id < 3) {
+                            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
+                                break spawn;
+                            }
+                            MapLocation spawnLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id));
+                            if (rc.canSpawn(spawnLoc)) {
+                                rc.spawn(spawnLoc);
+                                break spawn;
+                            }
                             break spawn;
                         }
                     }
