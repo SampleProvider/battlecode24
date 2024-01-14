@@ -1,4 +1,4 @@
-package SPAARKsetup;
+package SPAARKJAN13;
 
 import battlecode.common.*;
 
@@ -53,6 +53,8 @@ public strictfp class RobotPlayer {
         } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
+
+        Clock.yield();
 
         while (true) {
             turnCount += 1;

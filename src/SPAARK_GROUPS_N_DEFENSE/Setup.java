@@ -1,5 +1,4 @@
 package SPAARK_GROUPS_N_DEFENSE;
-
 import battlecode.common.*;
 
 import java.util.Random;
@@ -39,11 +38,10 @@ public class Setup {
     protected static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
-        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 1)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 2))) {
-                // rc.pickupFlag(closestFlag.getLocation());
-                // leaving flags at start location for now
-            }
+        int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
+        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
+            rc.pickupFlag(closestFlag.getLocation());
+            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
         if (rc.hasFlag()) {
             //ignore this because we aren't moving flags rn
@@ -97,7 +95,9 @@ public class Setup {
             Motion.bugnavTowards(toPlace, 500);
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
-                if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
+                MapInfo tile = rc.senseMapInfo(toPlace);
+                if (!tile.isPassable() && !tile.isWater()) {
+                    System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
                     indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
@@ -113,6 +113,9 @@ public class Setup {
                     }
                     toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                 }
+            }
+            if (rc.canFill(toPlace)) {
+                rc.fill(toPlace);
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
@@ -189,6 +192,7 @@ public class Setup {
                         botWeight = Math.min(botWeight, 7);
                         int storedBotWeight = damLoc >> 13 & 0b111;
                         if (!GlobalArray.hasLocation(damLoc) || botWeight > storedBotWeight) {
+                            //Changing meeting point if there are lots of enemy bots/not many friendly bots
                             for (MapInfo i : info) {
                                 if (i.isDam()) {
                                     rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | botWeight << 13);

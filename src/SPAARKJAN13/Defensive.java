@@ -1,4 +1,4 @@
-package SPAARKsetup;
+package SPAARKJAN13;
 
 import battlecode.common.*;
 
@@ -50,16 +50,16 @@ public class Defensive {
                         //     rc.build(TrapType.EXPLOSIVE, buildLoc);
                         //     break;
                         // }
-                        if (j % 2 == 0) {
-                            if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                                rc.build(TrapType.EXPLOSIVE, buildLoc);
-                            }
-                        }
-                        else {
-                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                rc.build(TrapType.STUN, buildLoc);
-                            }
-                        }
+                        // if (j % 2 == 0) {
+                        //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                        //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        //     }
+                        // }
+                        // else {
+                        //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                        //         rc.build(TrapType.STUN, buildLoc);
+                        //     }
+                        // }
                     }
                 }
             }
@@ -81,16 +81,16 @@ public class Defensive {
                     if (targetFlag.distanceSquaredTo(buildLoc) <= 2) {
                         continue;
                     }
-                    if (i % 2 == 0) {
-                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                            rc.build(TrapType.WATER, buildLoc);
-                        }
-                    } else {
-                        // if (buildLoc.translate(i, i))
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        }
-                    }
+                    // if (i % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                    //         rc.build(TrapType.WATER, buildLoc);
+                    //     }
+                    // } else {
+                    //     // if (buildLoc.translate(i, i))
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
+                    // }
                 }
             }
         }
