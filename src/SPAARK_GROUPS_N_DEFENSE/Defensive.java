@@ -46,10 +46,6 @@ public class Defensive {
                     // rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
                     for (int j = 0; j < 8; j++) {
                         MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                        // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                        //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        //     break;
-                        // }
                         // if (j % 2 == 0) {
                         //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
                         //         rc.build(TrapType.EXPLOSIVE, buildLoc);
@@ -81,6 +77,13 @@ public class Defensive {
                     if (targetFlag.distanceSquaredTo(buildLoc) <= 2) {
                         continue;
                     }
+                    
+                    // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
+                    // for (MapInfo m : mapInfo) {
+                    //     if (m.getTrapType() != TrapType.NONE) {
+                    //         break build;
+                    //     }
+                    // }
                     // if (i % 2 == 0) {
                     //     if (rc.canBuild(TrapType.WATER, buildLoc)) {
                     //         rc.build(TrapType.WATER, buildLoc);

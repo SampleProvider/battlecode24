@@ -816,13 +816,7 @@ public class Motion {
             if (bestDir != null) {
                 if (opponentRobots.length >= 5 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                        // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
-                        // for (MapInfo m : mapInfo) {
-                        //     if (m.getTrapType() != TrapType.NONE) {
-                        //         break build;
-                        //     }
-                        // }
+                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
                         rc.build(TrapType.EXPLOSIVE, buildLoc);
                     }
                 }

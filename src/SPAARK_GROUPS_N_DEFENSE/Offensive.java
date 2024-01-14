@@ -74,9 +74,6 @@ public class Offensive {
             }
         }
         else {
-            Boolean action = false;
-            
-        
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
 
             if (target != null) {
