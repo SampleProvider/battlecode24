@@ -1,4 +1,4 @@
-package SPAARKsetup;
+package SPAARKJAN13;
 
 import battlecode.common.*;
 
@@ -305,6 +305,13 @@ public class GlobalArray {
                     return null;
                 }
             }
+            if (i >= OPPO_FLAG_DEF_LOC && i <= OPPO_FLAG_DEF_LOC + 2) {
+                int currLoc = rc.readSharedArray(i + 3);
+                if (isFlagPickedUp(currLoc)) {
+                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
+                    return null;
+                }
+            }
             return GlobalArray.parseLocation(n2);
         }
         else {
@@ -423,7 +430,7 @@ public class GlobalArray {
                         friendlyFlagGroupsAssigned[index - ALLY_FLAG_CUR_LOC].append(10000 + getGroupId(n) + "");
                     }
                     else {
-                        opponentFlagGroupsAssigned[index - OPPO_FLAG_CUR_LOC].append(10000 + getGroupId(n) + "");
+                        opponentFlagGroupsAssigned[index - OPPO_FLAG_DEF_LOC].append(10000 + getGroupId(n) + "");
                     }
                 }
                 else {

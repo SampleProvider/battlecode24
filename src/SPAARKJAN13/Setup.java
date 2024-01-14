@@ -1,4 +1,4 @@
-package SPAARKsetup;
+package SPAARKJAN13;
 
 import battlecode.common.*;
 
@@ -39,10 +39,11 @@ public class Setup {
     protected static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
-        int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
-        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
-            rc.pickupFlag(closestFlag.getLocation());
-            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
+        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 1)) || !GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + 2))) {
+                // rc.pickupFlag(closestFlag.getLocation());
+                // leaving flags at start location for now
+            }
         }
         if (rc.hasFlag()) {
             //ignore this because we aren't moving flags rn
@@ -96,9 +97,7 @@ public class Setup {
             Motion.bugnavTowards(toPlace, 500);
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
-                MapInfo tile = rc.senseMapInfo(toPlace);
-                if (!tile.isPassable() && !tile.isWater()) {
-                    System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
+                if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
                     indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
@@ -114,9 +113,6 @@ public class Setup {
                     }
                     toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                 }
-            }
-            if (rc.canFill(toPlace)) {
-                rc.fill(toPlace);
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
