@@ -384,7 +384,13 @@ public class GlobalArray {
                 int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
                 if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
                     int d = rc.readSharedArray(ALLY_FLAG_INFO + i);
+                    // int number = GlobalArray.getNumberOfRobots(d) - friendlyFlagGroupsAssigned[i] * 5;
                     int number = GlobalArray.getNumberOfRobots(d);
+                    for (int j = 0; j < 8; j++) {
+                        if (rc.readSharedArray(GROUP_INSTRUCTIONS + j) == intifyTarget(ALLY_FLAG_CUR_LOC + i)) {
+                            number -= 5;
+                        }
+                    }
                     if (number > 0) {
                         rc.writeSharedArray(ALLY_FLAG_INFO + i, GlobalArray.setNumberOfRobots(d, Math.max(number - 5, 0)));
                         rc.writeSharedArray(STAGING_TARGET, intifyTarget(ALLY_FLAG_CUR_LOC + i));

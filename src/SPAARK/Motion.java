@@ -477,8 +477,17 @@ public class Motion {
             else {
                 direction = direction.rotateLeft();
             }
+            // if (rc.onTheMap(me.add(direction)) && rc.senseMapInfo(me.add(direction)).isPassable() && lastDir != direction.opposite()) {
+            //     if (rc.canMove(direction)) {
+            //         return direction;
+            //     }
+            //     return Direction.CENTER;
+            // }
             if (rc.canMove(direction) && lastDir != direction.opposite()) {
-                return direction;
+                if (rc.canMove(direction)) {
+                    return direction;
+                }
+                return Direction.CENTER;
             }
             else if (rc.canFill(me.add(direction))) {
                 int water = 0;
@@ -754,10 +763,21 @@ public class Motion {
                 // incentivize moving towards target
                 int weight = 0;
                 if (d.equals(me.directionTo(dest))) {
-                    weight += 3;
+                    weight += 1;
                 }
                 if (d.equals(me.directionTo(dest).rotateLeft()) || d.equals(me.directionTo(dest).rotateRight())) {
                     weight += 1;
+                }
+                if (rc.hasFlag() && d.equals(me.directionTo(dest).opposite()) || d.equals(me.directionTo(dest).opposite().rotateLeft()) || d.equals(me.directionTo(dest).opposite().rotateRight())) {
+                    weight -= 2;
+                }
+                if (rc.hasFlag()) {
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 1 && rc.getTeam() == Team.A) {
+                        weight += 100;
+                    }
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 2 && rc.getTeam() == Team.B) {
+                        weight += 100;
+                    }
                 }
                 int actions = rc.isActionReady() ? 1 : 0;
                 for (RobotInfo robot : opponentRobots) {
@@ -771,17 +791,24 @@ public class Motion {
                             actions -= 1;
                             weight += 4;
                         }
+                        if (robot.hasFlag()) {
+                            weight += 10;
+                        }
                     }
-                    else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
-                        // REALLY DONT MOVE TOWARDS OPPONENT IF HAVE FLAG
-                        weight -= 5;
-                        if (robot.hasFlag) {
+                    else if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                        weight -= 3;
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                        if (robot.hasFlag()) {
                             weight += 20;
                         }
                     }
                     // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
+                        if (robot.hasFlag()) {
+                            weight += 20;
+                        }
                     }
                 }
                 // maybe be closer to friendly robots
@@ -820,16 +847,18 @@ public class Motion {
             }
             // trap micro
             if (bestDir != null) {
-                if (opponentRobots.length >= 5 && friendlyRobots.length >= 5) {
+                if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                        // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
-                        // for (MapInfo m : mapInfo) {
-                        //     if (m.getTrapType() != TrapType.NONE) {
-                        //         break build;
-                        //     }
-                        // }
-                        rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                        MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
+                        for (MapInfo m : mapInfo) {
+                            if (m.getTrapType() != TrapType.NONE) {
+                                break build;
+                            }
+                        }
+                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getRoundNum() <= 250) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        }
                     }
                 }
                 moveWithAction(bestDir);

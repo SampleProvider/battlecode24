@@ -42,12 +42,15 @@ public class Leader {
                     }
                 }
                 int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
-                if (GlobalArray.isGlobalArrayLoc(instruction)) {
-                    int i = instruction & 0b111111;
-                    if (i >= GlobalArray.OPPO_FLAG_CUR_LOC && i <= GlobalArray.OPPO_FLAG_CUR_LOC + 2) {
-                        return;
-                    }
+                if (instruction == rc.readSharedArray(GlobalArray.STAGING_TARGET)) {
+                    return;
                 }
+                // if (GlobalArray.isGlobalArrayLoc(instruction)) {
+                //     int i = instruction & 0b111111;
+                //     if (i >= GlobalArray.ALLY_FLAG_CUR_LOC && i <= GlobalArray.ALLY_FLAG_CUR_LOC + 2) {
+                //         return;
+                //     }
+                // }
                 int n = GlobalArray.setGroupId(0, GlobalArray.groupId);
                 if (instruction == 0) {
                     n += 1 << 15;
