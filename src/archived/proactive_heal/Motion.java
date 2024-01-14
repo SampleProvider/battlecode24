@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package proactive_heal;
 
 import battlecode.common.*;
 
@@ -683,7 +683,8 @@ public class Motion {
         // RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
         // if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
         //     bug2retreat();
-        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+        // if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+        if (rc.getHealth() <= retreatHP) {
             // bug2retreat();
             micro(dest);
         }
@@ -790,6 +791,9 @@ public class Motion {
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
                         friendlyWeight += 1;
                     }
+                    // if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                    //     weight += 2;
+                    // }
                 }
                 weight += Math.min(friendlyWeight, 4);
                 if (rc.canFill(me.add(d))) {

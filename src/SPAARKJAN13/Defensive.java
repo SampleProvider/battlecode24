@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package SPAARKJAN13;
 
 import battlecode.common.*;
 
@@ -32,14 +32,14 @@ public class Defensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
-        if (GlobalArray.id < 3 && GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id))) {
-            // if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id))) {
-            //     return;
-            // }
+        if (GlobalArray.id < 3) {
+            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id))) {
+                return;
+            }
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id));
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length != 0) {
-                // Motion.bugnavTowards(Attack.getPrioritizedOpponentRobot(opponentRobots).getLocation(), 0);
+                Motion.bugnavTowards(Attack.getPrioritizedOpponentRobot(opponentRobots).getLocation(), 0);
             } else {
                 Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
                 if (rc.getLocation().equals(targetLoc)) {

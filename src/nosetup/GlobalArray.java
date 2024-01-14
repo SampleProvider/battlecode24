@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package nosetup;
 
 import battlecode.common.*;
 
