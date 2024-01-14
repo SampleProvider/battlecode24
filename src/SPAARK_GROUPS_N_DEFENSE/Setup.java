@@ -37,6 +37,9 @@ public class Setup {
     
     protected static void run() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+        for (FlagInfo flag : flags) {
+            GlobalArray.writeFlag(flag);
+        }
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
