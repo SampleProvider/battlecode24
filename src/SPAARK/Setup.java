@@ -46,6 +46,7 @@ public class Setup {
             rc.pickupFlag(closestFlag.getLocation());
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
+        GlobalArray.updateSector();
         if (rc.hasFlag()) {
             //ignore this because we aren't moving flags rn
             if (flagIndex == -1) {
@@ -77,12 +78,6 @@ public class Setup {
                     case 1:
                         for (MapLocation loc : placementLocationsOne) {
                             flagOffset = loc;
-                            if (flagTarget.x < rc.getMapWidth() / 2) {
-                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
-                            }
-                            if (flagTarget.y < rc.getMapHeight() / 2) {
-                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
-                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x>= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -92,12 +87,6 @@ public class Setup {
                     case 2:
                         for (MapLocation loc : placementLocationsTwo) {
                             flagOffset = loc;
-                            if (flagTarget.x < rc.getMapWidth() / 2) {
-                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
-                            }
-                            if (flagTarget.y < rc.getMapHeight() / 2) {
-                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
-                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x >= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
