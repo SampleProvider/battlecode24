@@ -10,6 +10,8 @@ public class Defensive {
 
     protected static Random rng;
 
+    protected static boolean hasFoundFlag = false;
+
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
         Direction.SOUTH,
@@ -22,6 +24,10 @@ public class Defensive {
     };
 
     protected static void run() throws GameActionException {
+        if (!hasFoundFlag) {
+            MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+
+        }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {

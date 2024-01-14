@@ -47,7 +47,8 @@ public class Setup {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
             flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
-            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
+            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget | 0b10000000000000);
+            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
         }
         GlobalArray.updateSector();
         if (rc.hasFlag()) {
@@ -135,19 +136,19 @@ public class Setup {
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
-                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
+                // rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
                 flagIndex = -1;
             }
             else {
                 rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(rc.getLocation()));
             }
         }
-        else if (GlobalArray.id < 3) {
+        else if (GlobalArray.id < 6) {
             // follow the flag carrier
-            Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id)));
+            Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3))));
         }
         else {
             //grab any crumb we see
