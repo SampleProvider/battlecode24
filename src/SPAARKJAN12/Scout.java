@@ -30,7 +30,7 @@ public class Scout {
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
 
-        rc.setIndicatorDot(me, 255, 0, 255);
+        // rc.setIndicatorDot(me, 255, 0, 255);
 
         // try to sneak flags back (call for help?)
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -67,7 +67,7 @@ public class Scout {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getClosest(spawnLocs);
-            rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, 0);
@@ -131,7 +131,7 @@ public class Scout {
                     targetTime = 0;
                 }
                 targetTime += 1;
-                rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 255, 0);
+                // rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 255, 0);
                 Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector), Motion.DEFAULT_RETREAT_HP);
             }
         }

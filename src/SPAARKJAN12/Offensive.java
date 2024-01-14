@@ -61,7 +61,7 @@ public class Offensive {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getClosest(spawnLocs);
-            rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_LOC + flagIndex, 0);
@@ -78,7 +78,7 @@ public class Offensive {
                 if (GlobalArray.hasLocation(n)) {
                     MapLocation loc = GlobalArray.parseLocation(n);
                     if (!loc.equals(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i)))) {
-                        rc.setIndicatorDot(loc, 0, 255, 255);
+                        // rc.setIndicatorDot(loc, 0, 255, 255);
                         if (rc.getLocation().distanceSquaredTo(loc)  <= 4 && rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length == 0) {
                             boolean seesFlag = false;
                             for (FlagInfo flag : friendlyFlags) {

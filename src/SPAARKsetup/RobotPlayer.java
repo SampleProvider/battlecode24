@@ -163,7 +163,7 @@ public strictfp class RobotPlayer {
                         Offensive.run();
                     }
                 }
-                rc.setIndicatorString(indicatorString.toString());
+                // rc.setIndicatorString(indicatorString.toString());
 
             }
             catch (GameActionException e) {

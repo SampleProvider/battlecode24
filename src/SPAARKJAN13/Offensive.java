@@ -64,7 +64,7 @@ public class Offensive {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getSafest(spawnLocs);
-            rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, GlobalArray.intifyTarget(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex));
             if (!rc.hasFlag()) {
@@ -123,7 +123,7 @@ public class Offensive {
                     return;
                 }
                 Motion.bugnavTowards(target, Motion.DEFAULT_RETREAT_HP);
-                rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
+                // rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
                 indicatorString.append(GlobalArray.groupId);
             }
             else {

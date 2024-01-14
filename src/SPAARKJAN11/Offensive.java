@@ -55,7 +55,7 @@ public class Offensive {
         if (flagIndex != -1) {
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getClosest(spawnLocs);
-            rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(flagIndex + 3, 0);

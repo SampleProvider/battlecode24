@@ -127,7 +127,7 @@ public class Setup {
                 flagIndex = -1;
             }
             else {
-                rc.setIndicatorLine(me, toPlace, 255, 255, 255);
+                // rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
@@ -170,7 +170,7 @@ public class Setup {
                         if (GlobalArray.hasLocation(damLoc)) {
                             Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                             indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                            rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
+                            // rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
                             action = true;
                         }
                         if (!action) {

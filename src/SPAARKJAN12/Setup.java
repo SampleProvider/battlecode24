@@ -95,7 +95,7 @@ public class Setup {
                 }
             }
             Motion.bugnavTowards(toPlace, 500);
-            MapLocation me = rc.getLocation();
+            // MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 if (!rc.senseLegalStartingFlagPlacement(toPlace)) {
                     indicatorString.append("FLAGINVALID;");
@@ -121,7 +121,7 @@ public class Setup {
                 flagIndex = -1;
             }
             else {
-                rc.setIndicatorLine(me, toPlace, 255, 255, 255);
+                // rc.setIndicatorLine(me, toPlace, 255, 255, 255);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }

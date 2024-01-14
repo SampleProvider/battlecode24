@@ -465,7 +465,7 @@ public class Motion {
                     rotation = CLOCKWISE;
                 }
             }
-            rc.setIndicatorString(clockwiseDist + " " + counterClockwiseDist);
+            // rc.setIndicatorString(clockwiseDist + " " + counterClockwiseDist);
         }
 
         for (int i = 0; i < 7; i++) {
