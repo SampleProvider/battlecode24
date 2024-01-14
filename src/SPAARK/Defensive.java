@@ -74,9 +74,9 @@ public class Defensive {
                         //         rc.build(TrapType.WATER, buildLoc);
                         //     }
                         // } else {
-                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                rc.build(TrapType.STUN, buildLoc);
-                            }
+                            // if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                            //     rc.build(TrapType.STUN, buildLoc);
+                            // }
                         // }
                     }
                 }
