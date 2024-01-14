@@ -68,7 +68,6 @@ public class GlobalArray {
     protected static boolean isFlagPickedUp(int n) {
         return ((n >> 13) & 0b1) == 1;
     }
-
     
     public static int getNumberOfRobots(int n) {
         return (n & 0b111111);
@@ -112,7 +111,6 @@ public class GlobalArray {
         return ((n >> 15) & 0b1) == 1;
     }
 
-    
     protected static int intifyTarget(int index) {
         return 0b11000000000000 | index;
     }

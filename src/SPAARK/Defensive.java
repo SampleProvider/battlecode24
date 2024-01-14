@@ -33,36 +33,29 @@ public class Defensive {
             GlobalArray.writeFlag(flag);
         }
         if (GlobalArray.id < 3 && GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id))) {
-            // if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id))) {
-            //     return;
-            // }
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id));
-            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            if (opponentRobots.length != 0) {
-                // Motion.bugnavTowards(Attack.getPrioritizedOpponentRobot(opponentRobots).getLocation(), 0);
-            } else {
-                Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
-                if (rc.getLocation().equals(targetLoc)) {
-                    // rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
-                    for (int j = 0; j < 8; j++) {
-                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                        // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                        //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        //     break;
-                        // }
-                        // if (j % 2 == 0) {
-                        //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                        //         rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        //     }
-                        // }
-                        // else {
-                        //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                        //         rc.build(TrapType.STUN, buildLoc);
-                        //     }
-                        // }
-                    }
+            // RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            // if (opponentRobots.length != 0) {
+            //     Motion.bugnavTowards(Attack.getPrioritizedOpponentRobot(opponentRobots).getLocation(), 0);
+            // } else {
+            Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+            if (rc.getLocation().equals(targetLoc)) {
+                // rc.writeSharedArray(GlobalArray.id, GlobalArray.intifyLocation(targetLoc));
+                for (int j = 0; j < 8; j++) {
+                    // MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                    // if (j % 2 == 0) {
+                    //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                    //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    //     }
+                    // }
+                    // else {
+                    //     if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //         rc.build(TrapType.STUN, buildLoc);
+                    //     }
+                    // }
                 }
             }
+            // }
         } else {
             // spam traps around other flags
             if (targetFlag.x == -1 || rng.nextInt(30) == 1) {
@@ -81,6 +74,12 @@ public class Defensive {
                     if (targetFlag.distanceSquaredTo(buildLoc) <= 2) {
                         continue;
                     }
+                    // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
+                    // for (MapInfo m : mapInfo) {
+                    //     if (m.getTrapType() != TrapType.NONE) {
+                    //         continue;
+                    //     }
+                    // }
                     // if (i % 2 == 0) {
                     //     if (rc.canBuild(TrapType.WATER, buildLoc)) {
                     //         rc.build(TrapType.WATER, buildLoc);
