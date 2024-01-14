@@ -76,7 +76,7 @@ public class GlobalArray {
     public static int setNumberOfRobots(int n, int v) {
         return (n & 0b1111111111000000) | v;
     }
-    public static MapLocation robotDirection(int n) {
+    public static MapLocation getRobotDirection(int n) {
         return new MapLocation(((n >> 6) & 0b1111) - 8, ((n >> 9) & 0b1111) - 8);
     }
 
@@ -298,9 +298,12 @@ public class GlobalArray {
                 rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
                 return null;
             }
-            if (i >= ALLY_FLAG_CUR_LOC && i <= ALLY_FLAG_CUR_LOC + 2 && !isFlagPickedUp(n2)) {
-                rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
-                return null;
+            if (i >= ALLY_FLAG_CUR_LOC && i <= ALLY_FLAG_CUR_LOC + 2) {
+                MapLocation defaultLoc = parseLocation(rc.readSharedArray(i - 3));
+                if (parseLocation(n2).equals(defaultLoc)) {
+                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - 2, 0);
+                    return null;
+                }
             }
             return GlobalArray.parseLocation(n2);
         }
