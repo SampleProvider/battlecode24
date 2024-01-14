@@ -41,7 +41,7 @@ public class Leader {
                         rc.writeSharedArray(GlobalArray.STAGING_BEST, curr);
                     }
                 }
-                int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2);
+                int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(instruction)) {
                     int i = instruction & 0b111111;
                     if (i >= GlobalArray.OPPO_FLAG_CUR_LOC && i <= GlobalArray.OPPO_FLAG_CUR_LOC + 2) {
@@ -57,7 +57,7 @@ public class Leader {
             else {
                 int n = rc.readSharedArray(GlobalArray.STAGING_BEST);
                 if (GlobalArray.getGroupId(n) == GlobalArray.groupId) {
-                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2, rc.readSharedArray(GlobalArray.STAGING_TARGET));
+                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, rc.readSharedArray(GlobalArray.STAGING_TARGET));
                 }
             }
         }
