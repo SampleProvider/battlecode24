@@ -1,4 +1,4 @@
-package SPAARK_GROUPS_N_DEFENSE;
+package AGGRESSIVE_SPAARK_GROUPS_N_DEFENSE;
 
 import battlecode.common.*;
 
@@ -691,6 +691,10 @@ public class Motion {
                 // MapLocation me = rc.getLocation();
                 Direction d = bug2towards(dest);
                 if (d == Direction.CENTER) {
+                    return;
+                }
+                if (rc.senseNearbyRobots(rc.getLocation().add(d), 4, rc.getTeam().opponent()).length >= 2) {
+                    micro(dest);
                     return;
                 }
                 // for (RobotInfo robot : nearbyRobots) {

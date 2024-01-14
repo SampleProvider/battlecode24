@@ -129,6 +129,8 @@ public class Setup {
         else {
             //grab any crumb we see
             MapInfo[] info = rc.senseNearbyMapInfos();
+            RobotInfo[] bots = rc.senseNearbyRobots();
+            MapLocation me = rc.getLocation();
             Boolean action = false;
             for (MapInfo i : info) {
                 if (i.getCrumbs() > 0) {
@@ -138,38 +140,88 @@ public class Setup {
                     break;
                 }
             }
+            Boolean nearDam = false;
+            for (MapInfo i : info) {
+                if (i.isDam()) {
+                    nearDam = true;
+                }
+            }
             int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
             if (!GlobalArray.hasLocation(damLoc)) {
                 for (MapInfo i : info) {
                     if (i.isDam()) {
-                        rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()));
-                        action = true;
+                        rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | 1 << 13);
+                        break;
                     }
                 }
             }
+            // System.out.println(GlobalArray.parseLocation(damLoc).x + " " + GlobalArray.parseLocation(damLoc).y + " " + damLoc);
             if (rc.getRoundNum() + rc.getMapHeight() + rc.getMapWidth() > 240) {
                 //Almost done with setup rounds, go and line up at the wall
                 if (!action) {
-                    if (GlobalArray.hasLocation(damLoc)) {
-                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
-                        indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                        if (rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 25) {
-                            for (int j = 0; j < 8; j++) {
-                                MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                                build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 5);
-                                    for (MapInfo m : mapInfo) {
-                                        if (m.getTrapType() != TrapType.NONE) {
-                                            break build;
-                                        }
-                                    }
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    if (!nearDam) {
+                        //if we aren't near the dam, then go to the meeting point
+                        if (GlobalArray.hasLocation(damLoc)) {
+                            Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
+                            indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
+                            rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
+                            action = true;
+                        }
+                        if (!action) {
+                            Motion.moveRandomly();
+                            indicatorString.append("RANDOM;");
+                        }
+                    } else {
+                        //Nearby dam, try to spread out
+                        int botWeight = 16;
+                        double weights[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; //one for each direction
+                        for (RobotInfo i : bots) {
+                            if (i.team == rc.getTeam()) {
+                                botWeight -= 1;
+                                weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getLocation());
+                            } else {
+                                botWeight += 3;
+                                weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] += 60/me.distanceSquaredTo(i.getLocation());
+                            }
+                        }
+                        botWeight /= 4;
+                        botWeight = Math.max(botWeight, 0);
+                        botWeight = Math.min(botWeight, 7);
+                        int storedBotWeight = damLoc >> 13 & 0b111;
+                        if (!GlobalArray.hasLocation(damLoc) || botWeight > storedBotWeight) {
+                            for (MapInfo i : info) {
+                                if (i.isDam()) {
+                                    rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | botWeight << 13);
+                                    break;
                                 }
                             }
                         }
-                    }
-                    if (!action) {
-
+                        if (me.distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 5) {
+                            rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(GlobalArray.parseLocation(damLoc)) | botWeight << 13);
+                        }
+                        for (MapInfo i : info) {
+                            if (i.isDam()) {
+                                weights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] += 20;
+                            }
+                        }
+                        double dx=0;
+                        double dy=0;
+                        for (Direction i : Direction.allDirections()) {
+                            dx += i.getDeltaX() * weights[i.getDirectionOrderNum()];
+                            dy += i.getDeltaY() * weights[i.getDirectionOrderNum()];
+                        }
+                        Direction dir = me.directionTo(new MapLocation((int)(me.x+dx), (int)(me.y+dy)));
+                        if (!rc.canMove(dir)) {
+                            dir = dir.rotateRight();
+                            if (!rc.canMove(dir)) {
+                                dir = dir.rotateLeft().rotateLeft();
+                            }
+                        }
+                        if (rc.canMove(dir) && rc.isMovementReady()) {
+                            rc.move(dir);
+                        }
+                        indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
+                        action = true;
                     }
                 }
             } else {
