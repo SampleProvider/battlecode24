@@ -769,16 +769,21 @@ public class Motion {
                         else {
                             actions -= 1;
                             weight += 4;
+                            if (robot.hasFlag) {
+                                weight += 20;
+                            }
                         }
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
                         weight -= 5;
+                    }
+                    else if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (robot.hasFlag) {
-                            weight += 20;
+                            weight += 10;
                         }
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                        weight -= 16;
+                        weight -= 160;
                     }
                 }
                 int friendlyWeight = 0;

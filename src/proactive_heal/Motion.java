@@ -791,9 +791,9 @@ public class Motion {
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
                         friendlyWeight += 1;
                     }
-                    if (me.distanceSquaredTo(relativeLoc) <= 4) {
-                        weight += 2;
-                    }
+                    // if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                    //     weight += 2;
+                    // }
                 }
                 weight += Math.min(friendlyWeight, 4);
                 if (rc.canFill(me.add(d))) {
