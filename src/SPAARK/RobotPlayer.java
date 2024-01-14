@@ -53,6 +53,13 @@ public strictfp class RobotPlayer {
         } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
+        if (GlobalArray.id == 5) {
+            GlobalArray.groupLeader = false;
+            GlobalArray.groupId = 0;
+            mode = DEFENSIVE;
+        } else if (GlobalArray.id == 6) {
+            GlobalArray.groupLeader = true;
+        }
 
         Clock.yield();
 
@@ -138,12 +145,6 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.getRoundNum() == 200) {
-                        if (mode == DEFENSIVE && GlobalArray.id < 3) {
-                            spawnLoc = rc.getLocation();
-                        }
-                    }
-                    
                     if (rc.getRoundNum() >= 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
                     }

@@ -47,16 +47,10 @@ public class Setup {
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
         if (rc.hasFlag()) {
-            //ignore this because we aren't moving flags rn
+            // move flag
             if (flagIndex == -1) {
-                int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
                 for (int i = 0; i <= 2; i++) {
-                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == 0) {
-                        rc.writeSharedArray(i, flagId);
-                        flagIndex = i;
-                        break;
-                    }
-                    else if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == flagId) {
+                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
                         flagIndex = i;
                         break;
                     }
@@ -131,6 +125,10 @@ public class Setup {
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
+        }
+        else if (GlobalArray.id < 3) {
+            // follow the flag carrier
+            Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.id)));
         }
         else {
             //grab any crumb we see
@@ -238,5 +236,6 @@ public class Setup {
         }
     }
     protected static void jailed() throws GameActionException {
+        // how are you dying lol
     }
 }
