@@ -23,6 +23,8 @@ public class Setup {
         new MapLocation(8, -8),
     };
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
+    protected static int turnsPlacingFlag = 0;
+    protected static MapLocation flagInit;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -43,6 +45,7 @@ public class Setup {
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
+            flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
             rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
         }
@@ -64,6 +67,9 @@ public class Setup {
             }
             MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
+            if (turnsPlacingFlag > 90) {
+                toPlace = flagInit;
+            }
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
                     case 0:
@@ -72,6 +78,12 @@ public class Setup {
                     case 1:
                         for (MapLocation loc : placementLocationsOne) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x>= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -81,6 +93,12 @@ public class Setup {
                     case 2:
                         for (MapLocation loc : placementLocationsTwo) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x >= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
