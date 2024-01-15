@@ -62,9 +62,18 @@ public class Defensive {
                 // TEMP CODE AAA
                 // TEMP CODE AAA
                 // TEMP CODE AAA
-                Motion.moveRandomly();
+                RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
+                // Motion.moveRandomly();
                 for (int i = 0; i < 4; i++) {
-                    MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
+                    // MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
+                    Direction buildDir = me.directionTo(closestRobot.getLocation());
+                    if (rng.nextInt(3) == 0) {
+                        buildDir = buildDir.rotateLeft();
+                    }
+                    if (rng.nextInt(3) == 0) {
+                        buildDir = buildDir.rotateRight();
+                    }
+                    MapLocation buildLoc = me.add(buildDir);
                     if (rng.nextInt(3) == 0) {
                         // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
                         //     rc.build(TrapType.EXPLOSIVE, buildLoc);

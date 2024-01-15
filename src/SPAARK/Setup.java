@@ -61,14 +61,18 @@ public class Setup {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
+            boolean found = false;
             for (int i = 0; i <= 2; i++) {
                 if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
                     flagIndex = i;
-                    return true;
+                    found = true;
                 }
             }
-            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget);
-            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
+            if (found) {
+                rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget);
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
+            }
+            return found;
         }
         return false;
     }
@@ -76,6 +80,7 @@ public class Setup {
     protected static void moveFlag() throws GameActionException {
         MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
         MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
+        turnsPlacingFlag += 1;
         if (turnsPlacingFlag > 90) {
             toPlace = flagInit;
         }
@@ -262,7 +267,7 @@ public class Setup {
                 MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
                 Motion.bugnavTowards(flagCarrier);
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
-                indicatorString.append("FOLLOW-FLAG;");
+                indicatorString.append("FOLLOW-FLAG;" + GlobalArray.id);
             } else {
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
