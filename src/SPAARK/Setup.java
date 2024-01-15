@@ -157,7 +157,9 @@ public class Setup {
         }
         else if (GlobalArray.id < 6) {
             // follow the flag carrier
-            Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3))));
+            MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+            Motion.bug2towards(flagTarget);
+            rc.setIndicatorLine(rc.getLocation(), flagTarget, 255, 0, 255);
         }
         else {
             //grab any crumb we see
