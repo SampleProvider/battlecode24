@@ -80,7 +80,7 @@ public class Scout {
             // go to flag!
             if (!action) {
                 if (closestFlag != null) {
-                    Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavTowards(closestFlag.getLocation());
                     action = true;
                 }
             }
@@ -89,7 +89,7 @@ public class Scout {
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 for (MapInfo i : info) {
                     if (i.getCrumbs() > 0) {
-                        Motion.bugnavTowards(i.getMapLocation(), Motion.DEFAULT_RETREAT_HP);
+                        Motion.bugnavTowards(i.getMapLocation());
                         indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                         action = true;
                         break;
@@ -120,7 +120,7 @@ public class Scout {
                     }
                 }
                 rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 0, 255);
-                Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector), Motion.DEFAULT_RETREAT_HP);
+                Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector));
             }
         }
 

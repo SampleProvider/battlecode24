@@ -106,7 +106,7 @@ public class Offensive {
 
                                 // MapLocation offset = GlobalArray.getRobotDirection(rc.readSharedArray(i));
                                 // indicatorString.append(offset);
-                                // Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
+                                // Motion.bugnavTowards(target.translate(offset.x, offset.y));
                                 // target = target.add(me.directionTo(rc.getLocation()));
                                 turnsFindingFlagTarget = target;
 
@@ -134,10 +134,10 @@ public class Offensive {
                 }
                 int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(n) && (n & 0b111111) >= GlobalArray.OPPO_FLAG_CUR_LOC && (n & 0b111111) <= GlobalArray.OPPO_FLAG_CUR_LOC + 2 && GlobalArray.isFlagPickedUp(rc.readSharedArray(n & 0b111111))) {
-                    Motion.bugnavAround(target, 4, 20, Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavAround(target, 4, 20);
                 }
                 else {
-                    Motion.bugnavTowards(target, Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavTowards(target);
                 }
                 rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
                 indicatorString.append(GlobalArray.groupId);
@@ -149,7 +149,7 @@ public class Offensive {
                     MapInfo[] info = rc.senseNearbyMapInfos();
                     for (MapInfo i : info) {
                         if (i.getCrumbs() > 0) {
-                            Motion.bugnavTowards(i.getMapLocation(), Motion.DEFAULT_RETREAT_HP);
+                            Motion.bugnavTowards(i.getMapLocation());
                             indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                             action = true;
                             break;
@@ -159,7 +159,7 @@ public class Offensive {
                 
                 if (!action) {
                     if (closestFlag != null) {
-                        // Motion.bugnavTowards(closestFlag.getLocation(), Motion.DEFAULT_RETREAT_HP);
+                        // Motion.bugnavTowards(closestFlag.getLocation());
                         rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestFlag.getLocation()));
                     }
                     else {
@@ -186,7 +186,7 @@ public class Offensive {
                             if (hiddenFlags.length > 0) {
                                 MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
                                 rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestHiddenFlag));
-                                // Motion.bugnavTowards(closestHiddenFlag, Motion.DEFAULT_RETREAT_HP);
+                                // Motion.bugnavTowards(closestHiddenFlag);
                             }
                             else {
                                 closestStoredFlag = null;
@@ -220,7 +220,7 @@ public class Offensive {
                                         rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStolenFlagIndex));
                                     }
                                     else {
-                                        Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2), Motion.DEFAULT_RETREAT_HP);
+                                        Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
                                     }
                                 }
                                 // Motion.moveRandomly();
