@@ -76,6 +76,9 @@ public class Setup {
     protected static void moveFlag() throws GameActionException {
         MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
         MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
+        if (turnsPlacingFlag > 90) {
+            toPlace = flagInit;
+        }
         if (flagOffset.x == -100) {
             switch (flagIndex) {
                 case 0:
@@ -192,9 +195,6 @@ public class Setup {
         //     }
         //     MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
         //     MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        //     // if (turnsPlacingFlag > 90) {
-        //     //     toPlace = flagInit;
-        //     // }
         //     if (flagOffset.x == -100) {
         //         switch (flagIndex) {
         //             case 0:
