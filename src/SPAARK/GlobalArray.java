@@ -137,11 +137,13 @@ public class GlobalArray {
                     if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
                     }
-                    if (flag.isPickedUp() && rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
+                    if (flag.isPickedUp()) {
                         MapLocation me = rc.getLocation();
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
                         // bug bug fix now
-                        rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
+                        if (rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
+                            rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
+                        }
                     } else {
                         // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         //     rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
