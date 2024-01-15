@@ -1,4 +1,4 @@
-package SPAARK;
+package NewBugNav2SPAARK;
 import battlecode.common.*;
 
 import java.util.Random;
