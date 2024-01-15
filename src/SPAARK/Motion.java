@@ -54,6 +54,7 @@ public class Motion {
     protected static Direction lastDir = Direction.CENTER;
     protected static Direction optimalDir = Direction.CENTER;
     protected static int rotation = NONE;
+    protected static int circleDirection = CLOCKWISE;
 
     protected static Direction lastRandomDir = Direction.CENTER;
     protected static MapLocation lastRandomSpread;
@@ -297,7 +298,11 @@ public class Motion {
             }
             else if (me.distanceSquaredTo(dest) <= maxRadiusSquared) {
                 direction = direction.rotateLeft().rotateLeft();
+                if (circleDirection == COUNTER_CLOCKWISE) {
+                    direction = direction.opposite();
+                }
             }
+            lastDir = Direction.CENTER;
         }
 
         boolean stuck = true;
@@ -324,6 +329,10 @@ public class Motion {
                 direction = optimalDir;
             }
         }
+
+        // indicatorString.append("CIRCLE: " + circleDirection);
+        // indicatorString.append("DIR: " + direction);
+        // indicatorString.append("OFF: " + rc.onTheMap(me.add(direction)));
         
         if (lastDir != direction.opposite()) {
             if (rc.canMove(direction)) {
@@ -377,8 +386,15 @@ public class Motion {
                 return direction;
             }
         }
-        else if (!rc.onTheMap(me.add(direction))) {
-            direction = me.directionTo(dest);
+        if (!rc.onTheMap(me.add(direction))) {
+            if (mode == AROUND) {
+                circleDirection *= -1;
+                direction = direction.opposite();
+                indicatorString.append("FLIPPED");
+            }
+            else {
+                direction = me.directionTo(dest);
+            }
             if (rc.canMove(direction)) {
                 return direction;
             }
