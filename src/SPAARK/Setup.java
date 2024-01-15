@@ -244,7 +244,7 @@ public class Setup {
                     rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, (weight << 13) | GlobalArray.intifyLocation(rc.getLocation()));
                 }
             }
-        } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 215) {
+        } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 210) {
             //move flag
             if (rc.hasFlag()) {
                 moveFlag();

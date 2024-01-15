@@ -145,7 +145,7 @@ public class GlobalArray {
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | (1 << 13) | intifyLocation(flag.getLocation()));
                         // bug bug fix now
                         if (rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
-                            rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
+                            rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2 + 5));
                         }
                     } else {
                         // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
