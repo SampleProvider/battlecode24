@@ -51,7 +51,8 @@ public class Setup {
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
         }
         GlobalArray.updateSector();
-        if (rc.hasFlag()) {
+        closestFlag = Motion.getClosestFlag(rc.senseNearbyFlags(-1, rc.getTeam()), true);
+        if (rc.hasFlag() && closestFlag != null) {
             // move flag
             FlagInfo myFlag = Motion.getClosestFlag(flags, true);
             if (flagIndex == -1) {
@@ -69,9 +70,9 @@ public class Setup {
             }
             MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-            if (turnsPlacingFlag > 90) {
-                toPlace = flagInit;
-            }
+            // if (turnsPlacingFlag > 90) {
+            //     toPlace = flagInit;
+            // }
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
                     case 0:
