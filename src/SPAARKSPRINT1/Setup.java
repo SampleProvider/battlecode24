@@ -1,4 +1,4 @@
-package SPAARKsetup;
+package SPAARKSPRINT1;
 import battlecode.common.*;
 
 import java.util.Random;
