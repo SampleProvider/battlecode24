@@ -77,27 +77,27 @@ public class Defensive {
                 } else {
                     // patroling i guess
                     Motion.bugnavAround(targetLoc, 9, 25, Motion.DEFAULT_RETREAT_HP);
-                    for (int i = 0; i < 2; i++) {
-                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
-                        if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
-                            continue;
-                        }
-                        MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
-                        for (MapInfo m : mapInfo) {
-                            if (m.getTrapType() != TrapType.NONE) {
-                                continue;
-                            }
-                        }
-                        // if (i % 2 == 0) {
-                        //     if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                        //         rc.build(TrapType.WATER, buildLoc);
-                        //     }
-                        // } else {
-                            // if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            //     rc.build(TrapType.STUN, buildLoc);
-                            // }
-                        // }
-                    }
+                    // for (int i = 0; i < 2; i++) {
+                    //     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
+                    //     if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
+                    //         continue;
+                    //     }
+                    //     MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
+                    //     for (MapInfo m : mapInfo) {
+                    //         if (m.getTrapType() != TrapType.NONE) {
+                    //             continue;
+                    //         }
+                    //     }
+                    //     if (i % 2 == 0) {
+                    //         if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                    //             rc.build(TrapType.WATER, buildLoc);
+                    //         }
+                    //     } else {
+                    //         if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    //             rc.build(TrapType.STUN, buildLoc);
+                    //         }
+                    //     }
+                    // }
                 }
             }
         } else {
