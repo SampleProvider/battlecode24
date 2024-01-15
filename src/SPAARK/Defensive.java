@@ -2,8 +2,6 @@ package SPAARK;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Random;
 
 public class Defensive {
@@ -112,35 +110,6 @@ public class Defensive {
                         }
                     }
                 }
-            } else {
-                // patroling i guess
-                if (opponentRobots.length > 0) {
-                    Motion.bugnavTowards(Motion.getClosestRobot(opponentRobots).getLocation(), 1000);
-                }
-                else {
-                    Motion.bugnavAround(targetLoc, 9, 25, Motion.DEFAULT_RETREAT_HP);
-                }
-                // for (int i = 0; i < 2; i++) {
-                //     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
-                //     if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
-                //         continue;
-                //     }
-                //     MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
-                //     for (MapInfo m : mapInfo) {
-                //         if (m.getTrapType() != TrapType.NONE) {
-                //             continue;
-                //         }
-                //     }
-                //     if (i % 2 == 0) {
-                //         if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                //             rc.build(TrapType.WATER, buildLoc);
-                //         }
-                //     } else {
-                //         if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                //             rc.build(TrapType.STUN, buildLoc);
-                //         }
-                //     }
-                // }
             }
         } else {
             Motion.spreadRandomly();
