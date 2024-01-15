@@ -100,7 +100,7 @@ public class Setup {
             if (rc.canSenseLocation(toPlace)) {
                 MapInfo tile = rc.senseMapInfo(toPlace);
                 if (!tile.isPassable() && !tile.isWater()) {
-                    System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
+                    // System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
                     indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);

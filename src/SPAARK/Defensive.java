@@ -65,13 +65,13 @@ public class Defensive {
                 Motion.moveRandomly();
                 for (int i = 0; i < 4; i++) {
                     MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
-                    if (rng.nextBoolean()) {
-                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                            rc.build(TrapType.WATER, buildLoc);
+                    if (rng.nextInt(3) == 0) {
+                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     } else {
-                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                            rc.build(TrapType.STUN, buildLoc);
+                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                            rc.build(TrapType.WATER, buildLoc);
                         }
                     }
                 }
@@ -85,14 +85,21 @@ public class Defensive {
                         // camping
                         for (int j = 0; j < 8; j++) {
                             MapLocation buildLoc = me.add(DIRECTIONS[j]);
-                            if (j % 2 == 0) {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(4);
+                            placeTrap: if (j % 2 == 0) {
+                                for (MapInfo info : nearbyTraps) {
+                                    if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                }
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
                                     rc.build(TrapType.WATER, buildLoc);
                                 }
                             }
                             else {
-                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
+                                for (MapInfo info : nearbyTraps) {
+                                    if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                                }
+                                if (rc.canBuild(TrapType.STUN, buildLoc) && rc.getRoundNum() > 100) {
+                                    rc.build(TrapType.STUN, buildLoc);
                                 }
                             }
                         }
