@@ -318,15 +318,25 @@ public class Motion {
             }
         }
 
-        // for (int i = 0; i < 3; i++) {
-
-        // }
-        // visitedList.append(me + " ");
+        boolean stuck = true;
+        for (int i = 0; i < 3; i++) {
+            if (!visitedList.toString().contains(me + " " + i + " ")) {
+                visitedList.append(me + " " + i + " ");
+                stuck = false;
+                break;
+            }
+        }
+        if (stuck) {
+            moveRandomly();
+            visitedList = new StringBuilder();
+            return Direction.CENTER;
+        }
 
         if (optimalDir != Direction.CENTER) {
             if (rc.canMove(optimalDir) && lastDir != optimalDir.opposite()) {
                 optimalDir = Direction.CENTER;
                 rotation = NONE;
+                visitedList = new StringBuilder();
             }
             else {
                 direction = optimalDir;
