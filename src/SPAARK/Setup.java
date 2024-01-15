@@ -155,240 +155,17 @@ public class Setup {
         }
         if (rc.canDropFlag(toPlace)) {
             rc.dropFlag(toPlace);
-            // rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
             flagIndex = -1;
         }
         else {
-            rc.setIndicatorLine(me, toPlace, 255, 255, 0);
+            rc.setIndicatorLine(me, toPlace, 0, 255, 0);
             indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
         }
     }
     
     protected static void run() throws GameActionException {
-        // FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
-        // for (FlagInfo flag : flags) {
-        //     GlobalArray.writeFlag(flag);
-        // }
-        // FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
-        // int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
-        // if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
-        //     flagInit = closestFlag.getLocation();
-        //     rc.pickupFlag(closestFlag.getLocation());
-        //     for (int i = 0; i <= 2; i++) {
-        //         if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
-        //             flagIndex = i;
-        //             break;
-        //         }
-        //     }
-        //     rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
-        //     rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
-        // }
-        // GlobalArray.updateSector();
-        // if (rc.hasFlag()) {
-        //     // move flag
-        //     if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET))) {
-        //         //set flag target
-        //         MapLocation[] spawns = rc.getAllySpawnLocations();
-        //         rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, GlobalArray.intifyLocation(Motion.getFarthest(spawns, new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2))));
-        //     }
-        //     MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
-        //     MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        //     if (flagOffset.x == -100) {
-        //         switch (flagIndex) {
-        //             case 0:
-        //                 flagOffset = new MapLocation(0, 0);
-        //                 break;
-        //             case 1:
-        //                 for (MapLocation loc : placementLocationsOne) {
-        //                     flagOffset = loc;
-        //                     if (flagTarget.x < rc.getMapWidth() / 2) {
-        //                         flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
-        //                     }
-        //                     if (flagTarget.y < rc.getMapHeight() / 2) {
-        //                         flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
-        //                     }
-        //                     toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        //                     if (toPlace.x>= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
-        //                         break;
-        //                     }
-        //                 }
-        //                 break;
-        //             case 2:
-        //                 for (MapLocation loc : placementLocationsTwo) {
-        //                     flagOffset = loc;
-        //                     if (flagTarget.x < rc.getMapWidth() / 2) {
-        //                         flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
-        //                     }
-        //                     if (flagTarget.y < rc.getMapHeight() / 2) {
-        //                         flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
-        //                     }
-        //                     toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        //                     if (toPlace.x >= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
-        //                         break;
-        //                     }
-        //                 }
-        //                 break;
-        //             default:
-        //         }
-        //     }
-        //     Motion.bugnavTowards(toPlace, 500);
-        //     MapLocation me = rc.getLocation();
-        //     if (rc.canSenseLocation(toPlace)) {
-        //         MapInfo tile = rc.senseMapInfo(toPlace);
-        //         // testing if flag placement is valid because senseLegalStartingFlagPlacement is broken
-        //         boolean valid = true;
-        //         for (int i = 0; i <= 2; i++) {
-        //             int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
-        //             if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
-        //                 if (toPlace.distanceSquaredTo(GlobalArray.parseLocation(n)) < 36) {
-        //                     valid = false;
-        //                 }
-        //             }
-        //         }
-        //         if (!tile.isPassable() || !valid) {
-        //             // System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
-        //             indicatorString.append(flagIndex+" "+toPlace.x+","+toPlace.y+" "+valid+" "+tile.isPassable());
-        //             indicatorString.append("FLAGINVALID;");
-        //             if (flagOffset.x < 0) {
-        //                 flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
-        //             } else
-        //             if (flagOffset.x > 0) {
-        //                 flagOffset = new MapLocation(flagOffset.x + 1, flagOffset.y);
-        //             } else
-        //             if (flagOffset.y < 0) {
-        //                 flagOffset = new MapLocation(flagOffset.x, flagOffset.y - 1);
-        //             } else
-        //             if (flagOffset.y > 0) {
-        //                 flagOffset = new MapLocation(flagOffset.x, flagOffset.y + 1);
-        //             }
-        //             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        //         }
-        //     }
-        //     if (rc.canFill(toPlace)) {
-        //         rc.fill(toPlace);
-        //     }
-        //     if (rc.canDropFlag(toPlace)) {
-        //         rc.dropFlag(toPlace);
-        //         // rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
-        //         rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
-        //         flagIndex = -1;
-        //     }
-        //     else {
-        //         rc.setIndicatorLine(me, toPlace, 255, 255, 0);
-        //         indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-        //         rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
-        //     }
-        // }
-        // else if (GlobalArray.id < 6) {
-        //     // follow the flag carrier
-        //     Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3))));
-        // }
-        // else {
-        //     //grab any crumb we see
-            // MapInfo[] info = rc.senseNearbyMapInfos();
-            // RobotInfo[] bots = rc.senseNearbyRobots();
-            // MapLocation me = rc.getLocation();
-            // Boolean action = false;
-            // for (MapInfo i : info) {
-            //     if (i.getCrumbs() > 0) {
-            //         Motion.bugnavTowards(i.getMapLocation(), 500);
-            //         indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
-            //         action = true;
-            //         break;
-            //     }
-            // }
-        //     Boolean nearDam = false;
-        //     for (MapInfo i : info) {
-        //         if (i.isDam()) {
-        //             nearDam = true;
-        //         }
-        //     }
-        //     int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
-        //     if (!GlobalArray.hasLocation(damLoc)) {
-        //         for (MapInfo i : info) {
-        //             if (i.isDam()) {
-        //                 rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | 1 << 13);
-        //                 break;
-        //             }
-        //         }
-        //     }
-        //     // System.out.println(GlobalArray.parseLocation(damLoc).x + " " + GlobalArray.parseLocation(damLoc).y + " " + damLoc);
-        //     if (rc.getRoundNum() + Math.max(rc.getMapHeight(), rc.getMapWidth()) > 215) {
-        //         //Almost done with setup rounds, go and line up at the wall
-        //         if (!action) {
-        //             if (!nearDam) {
-        //                 //if we aren't near the dam, then go to the meeting point
-        //                 if (GlobalArray.hasLocation(damLoc)) {
-        //                     Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
-        //                     indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-        //                     rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
-        //                     action = true;
-        //                 }
-        //                 if (!action) {
-        //                     Motion.moveRandomly();
-        //                     indicatorString.append("RANDOM;");
-        //                 }
-        //             } else {
-        //                 //Nearby dam, try to spread out
-        //                 int botWeight = 16;
-        //                 double weights[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; //one for each direction
-        //                 for (RobotInfo i : bots) {
-        //                     if (i.team == rc.getTeam()) {
-        //                         botWeight -= 1;
-                                // weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getLocation());
-        //                     } else {
-        //                         botWeight += 3;
-        //                         weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] += 60/me.distanceSquaredTo(i.getLocation());
-        //                     }
-        //                 }
-        //                 botWeight /= 4;
-        //                 botWeight = Math.max(botWeight, 0);
-        //                 botWeight = Math.min(botWeight, 7);
-        //                 int storedBotWeight = damLoc >> 13 & 0b111;
-        //                 if (!GlobalArray.hasLocation(damLoc) || botWeight > storedBotWeight) {
-        //                     //Changing meeting point if there are lots of enemy bots/not many friendly bots
-        //                     for (MapInfo i : info) {
-        //                         if (i.isDam()) {
-        //                             rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | botWeight << 13);
-        //                             break;
-        //                         }
-        //                     }
-        //                 }
-        //                 if (me.distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 5) {
-        //                     rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(GlobalArray.parseLocation(damLoc)) | botWeight << 13);
-        //                 }
-        //                 for (MapInfo i : info) {
-        //                     if (i.isDam()) {
-        //                         weights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] += 20;
-        //                     }
-        //                 }
-        //                 double dx=0;
-        //                 double dy=0;
-        //                 for (Direction i : Direction.allDirections()) {
-        //                     dx += i.getDeltaX() * weights[i.getDirectionOrderNum()];
-        //                     dy += i.getDeltaY() * weights[i.getDirectionOrderNum()];
-        //                 }
-        //                 Direction dir = me.directionTo(new MapLocation((int)(me.x+dx), (int)(me.y+dy)));
-        //                 if (!rc.canMove(dir)) {
-        //                     dir = dir.rotateRight();
-        //                     if (!rc.canMove(dir)) {
-        //                         dir = dir.rotateLeft().rotateLeft();
-        //                     }
-        //                 }
-        //                 if (rc.canMove(dir) && rc.isMovementReady()) {
-        //                     rc.move(dir);
-        //                 }
-        //                 indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
-        //                 action = true;
-        //             }
-        //         }
-        //     } else {
-        //         if (!action)
-        //         Motion.spreadRandomly();
-        //     }
-        // }
         if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -429,7 +206,7 @@ public class Setup {
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
                 Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
-                rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 0, 255);
+                rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
             }
         } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             if (damInit == null) {
@@ -466,6 +243,11 @@ public class Setup {
             //move flag
             if (rc.hasFlag()) {
                 moveFlag();
+            } else if (GlobalArray.id < 6) {
+                MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+                Motion.bugnavTowards(flagCarrier);
+                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
+                indicatorString.append("FOLLOW-FLAG;");
             } else {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos)) {
@@ -476,6 +258,11 @@ public class Setup {
             //line up
             if (rc.hasFlag()) {
                 moveFlag();
+            } else if (GlobalArray.id < 6) {
+                MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+                Motion.bugnavTowards(flagCarrier);
+                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
+                indicatorString.append("FOLLOW-FLAG;");
             } else {
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
@@ -559,6 +346,9 @@ public class Setup {
                     indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                 }
             }
+        }
+        if (GlobalArray.id < 6) {
+            rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }
     protected static void jailed() throws GameActionException {

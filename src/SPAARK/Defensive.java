@@ -28,7 +28,7 @@ public class Defensive {
         rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
-            Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+            Motion.bugnavTowards(targetLoc);
             rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
@@ -79,7 +79,7 @@ public class Defensive {
                 MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (GlobalArray.id < 3) {
-                    Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavTowards(targetLoc);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
                         // camping
@@ -108,7 +108,7 @@ public class Defensive {
                     }
                 } else {
                     // patrolling i guess
-                    Motion.bugnavAround(targetLoc, 4, 25, Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavAround(targetLoc, 4, 25);
                     me = rc.getLocation();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {

@@ -58,17 +58,20 @@ public class Motion {
     protected static Direction lastRandomDir = Direction.CENTER;
     protected static MapLocation lastRandomSpread;
 
+    // common distance stuff
     protected static int getManhattanDistance(MapLocation a, MapLocation b) {
         return Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
     }
-
     protected static int getChebyshevDistance(MapLocation a, MapLocation b) {
         return Math.max(Math.abs(a.x-b.x), Math.abs(a.y-b.y));
     }
 
     protected static MapLocation getClosest(MapLocation[] a) throws GameActionException {
         /* Get closest MapLocation to this robot (Euclidean) */
-        MapLocation me = rc.getLocation();
+        return getClosest(a, rc.getLocation());
+    }
+    protected static MapLocation getClosest(MapLocation[] a, MapLocation me) throws GameActionException {
+        /* Get closest MapLocation to me (Euclidean) */
         MapLocation closest = a[0];
         int distance = me.distanceSquaredTo(a[0]);
         for (MapLocation loc : a) {
@@ -109,31 +112,8 @@ public class Motion {
 
     protected static MapLocation getFarthest(MapLocation[] a) throws GameActionException {
         /* Get farthest MapLocation to this robot (Euclidean) */
-        MapLocation me = rc.getLocation();
-        MapLocation closest = a[0];
-        int distance = me.distanceSquaredTo(a[0]);
-        for (MapLocation loc : a) {
-            if (me.distanceSquaredTo(loc) > distance) {
-                closest = loc;
-                distance = me.distanceSquaredTo(loc);
-            }
-        }
-        return closest;
+        return getFarthest(a, rc.getLocation());
     }
-
-    protected static MapLocation getClosest(MapLocation[] a, MapLocation me) throws GameActionException {
-        /* Get closest MapLocation to me (Euclidean) */
-        MapLocation closest = a[0];
-        int distance = me.distanceSquaredTo(a[0]);
-        for (MapLocation loc : a) {
-            if (me.distanceSquaredTo(loc) < distance) {
-                closest = loc;
-                distance = me.distanceSquaredTo(loc);
-            }
-        }
-        return closest;
-    }
-
     protected static MapLocation getFarthest(MapLocation[] a, MapLocation me) throws GameActionException {
         /* Get farthest MapLocation to me (Euclidean) */
         MapLocation closest = a[0];
@@ -161,7 +141,7 @@ public class Motion {
         return safest;
     }
 
-
+    // basic random movement
     protected static void moveRandomly() throws GameActionException {
         boolean stuck = true;
         for (Direction d : DIRECTIONS) {
@@ -231,10 +211,10 @@ public class Motion {
             }
         }
     }
-    protected static void groupRandomly() throws GameActionException {
-        // moves randomly but tries to stick to robots in small groups
-    }
     
+    // bugnav helpers
+    protected static boolean lastBlocked = false;
+    protected static StringBuilder visitedList = new StringBuilder();
     protected static int[] simulateMovement(MapLocation me, MapLocation dest) throws GameActionException {
         MapLocation clockwiseLoc = rc.getLocation();
         Direction clockwiseLastDir = lastDir;
@@ -298,9 +278,6 @@ public class Motion {
 
         return new int[]{clockwiseDist, clockwiseStuck, counterClockwiseDist, counterClockwiseStuck};
     }
-    
-    protected static boolean lastBlocked = false;
-    protected static StringBuilder visitedList = new StringBuilder();
     protected static Direction bug2Helper(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
         if (me.equals(dest)) {
             return Direction.CENTER;
@@ -589,7 +566,8 @@ public class Motion {
         }
         return Direction.CENTER;
     }
-    
+
+    // bugnav
     protected static Direction bug2towards(MapLocation dest) throws GameActionException {
         while (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
@@ -682,6 +660,11 @@ public class Motion {
         }
         indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
     }
+    
+    // actual bugnav
+    protected static void bugnavTowards(MapLocation dest) throws GameActionException {
+        bugnavTowards(dest, DEFAULT_RETREAT_HP);
+    }
     protected static void bugnavTowards(MapLocation dest, int retreatHP) throws GameActionException {
         // RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
         // if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
@@ -703,6 +686,9 @@ public class Motion {
             }
         }
     }
+    protected static void bugnavAway(MapLocation dest) throws GameActionException {
+        bugnavAway(dest, DEFAULT_RETREAT_HP);
+    }
     protected static void bugnavAway(MapLocation dest, int retreatHP) throws GameActionException {
         if (rc.isMovementReady()) {
             Direction d = bug2away(dest);
@@ -717,6 +703,9 @@ public class Motion {
                 lastDir = d;
             }
         }
+    }
+    protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
+        bugnavAround(dest, minRadiusSquared, maxRadiusSquared, DEFAULT_RETREAT_HP);
     }
     protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP) throws GameActionException {
         if (rc.isMovementReady()) {
@@ -734,6 +723,7 @@ public class Motion {
         }
     }
 
+    // micro strat used by bugnav
     protected static void micro(Direction bugDir) throws GameActionException {
         if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
@@ -868,7 +858,6 @@ public class Motion {
             }
         }
     }
-
     protected static void moveWithAction(Direction dir) throws GameActionException {
         if (rc.isActionReady()) {
             MapLocation me = rc.getLocation();
