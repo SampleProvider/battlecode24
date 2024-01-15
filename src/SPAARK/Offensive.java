@@ -74,6 +74,9 @@ public class Offensive {
         }
         else {
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
+
+            boolean findingTarget = false;
+
             if (target != null) {
                 int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(n)) {
@@ -89,29 +92,34 @@ public class Offensive {
                                 }
                             }
                             if (seesFlag == false) {
-                                if (!target.equals(turnsFindingFlagTarget)) {
+                                findingTarget = true;
+                                if (target.distanceSquaredTo(turnsFindingFlagTarget) > 2) {
                                     turnsFindingFlag = 0;
                                 }
                                 
                                 turnsFindingFlag += 1;
 
-                                MapLocation offset = GlobalArray.getRobotDirection(rc.readSharedArray(i));
-                                indicatorString.append(offset);
-                                Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
-                                target = target.add(me.directionTo(rc.getLocation()));
+                                // MapLocation offset = GlobalArray.getRobotDirection(rc.readSharedArray(i));
+                                // indicatorString.append(offset);
+                                // Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
+                                // target = target.add(me.directionTo(rc.getLocation()));
                                 turnsFindingFlagTarget = target;
 
-                                if (!rc.onTheMap(target) || turnsFindingFlag >= 100) {
-                                    rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i, 0);
+                                if (!rc.onTheMap(target) || turnsFindingFlag >= 10) {
+                                    rc.writeSharedArray(i, 0);
                                     target = null;
                                 }
-                                else {
-                                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(target));
-                                }
+                                // else {
+                                //     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(target));
+                                // }
                             }
                         }
                     }
                 }
+            }
+
+            if (!findingTarget) {
+                turnsFindingFlag = 0;
             }
             
             if (target != null) {
