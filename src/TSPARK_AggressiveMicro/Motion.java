@@ -1,7 +1,6 @@
-package SPAARKJAN15;
+package TSPARK_AggressiveMicro;
 
 import battlecode.common.*;
-import battlecode.schema.GameplayConstants;
 
 import java.util.Random;
 

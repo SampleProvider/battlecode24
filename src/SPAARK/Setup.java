@@ -198,7 +198,7 @@ public class Setup {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos)) {
+                if (!getCrumbs(infos) && !rc.hasFlag()) {
                     Motion.spreadRandomly();
                 }
             } else {
@@ -217,7 +217,7 @@ public class Setup {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos)) {
+                if (!getCrumbs(infos) && !rc.hasFlag()) {
                     Motion.spreadRandomly();
                 }
             } else {

@@ -1,4 +1,4 @@
-package SPAARK_Agressive;
+package TSPARK_AggressiveMicro;
 
 import battlecode.common.*;
 
@@ -28,7 +28,7 @@ public class Scout {
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
 
-        // rc.setIndicatorDot(me, 255, 0, 255);
+        // rc.setIndicatorDot(me, 0, 0, 255);
 
         // try to sneak flags back (call for help?)
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -65,7 +65,8 @@ public class Scout {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getSafest(spawnLocs);
-            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(me, 255, 0, 0);
+            // rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
             Motion.bugnavTowards(bestLoc, 1000);
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 0);
@@ -118,7 +119,7 @@ public class Scout {
                         }
                     }
                 }
-                // rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 255, 0);
+                // rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 0, 255);
                 Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector), Motion.DEFAULT_RETREAT_HP);
             }
         }

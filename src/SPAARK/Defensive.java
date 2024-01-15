@@ -36,7 +36,7 @@ public class Defensive {
                 // if the flag is there the spawn point is valid
                 if (flags.length > 0) {
                     for (FlagInfo flag : flags) {
-                        if (flag.getLocation().equals(targetLoc)) {
+                        if (flag.getLocation().equals(targetLoc) && flag.getID() == rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + (GlobalArray.id % 3))) {
                             rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3), rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
                             break;
                         }
@@ -56,12 +56,6 @@ public class Defensive {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
-                // TEMP CODE AAA
-                // TEMP CODE AAA
-                // TEMP CODE AAA
-                // TEMP CODE AAA
-                // TEMP CODE AAA
-                // TEMP CODE AAA
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
                 // Motion.moveRandomly();
                 for (int i = 0; i < 4; i++) {
@@ -75,27 +69,12 @@ public class Defensive {
                     }
                     MapLocation buildLoc = me.add(buildDir);
                     if (rng.nextInt(3) == 0) {
-                        // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                        //     rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        // }
-                        placeTrap: {
-                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
-                            for (MapInfo info : nearbyTraps) {
-                                if (info.getTrapType() == TrapType.STUN) break placeTrap; 
-                            }
-                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                rc.build(TrapType.STUN, buildLoc);
-                            }
+                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     } else {
-                        placeTrap: {
-                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
-                            for (MapInfo info : nearbyTraps) {
-                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
-                            }
-                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                rc.build(TrapType.WATER, buildLoc);
-                            }
+                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                            rc.build(TrapType.WATER, buildLoc);
                         }
                     }
                 }
@@ -106,48 +85,61 @@ public class Defensive {
                     Motion.bugnavTowards(targetLoc);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
-                        // camping
-                        for (int j = 0; j < 8; j++) {
-                            MapLocation buildLoc = me.add(DIRECTIONS[j]);
-                            if (j % 2 == 0) {
+                        // dont bother placing traps around nothing
+                        FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
+                        if (flags.length > 0) {
+                            // camping
+                            for (int j = 0; j < 8; j++) {
+                                MapLocation buildLoc = me.add(DIRECTIONS[j]);
+                                if (rc.canFill(buildLoc)) {
+                                    rc.fill(buildLoc);
+                                }
+                                // if (j % 2 == 0) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
                                     rc.build(TrapType.WATER, buildLoc);
                                 }
-                            }
-                            else {
-                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
-                                }
+                                // }
+                                // else {
+                                //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                                //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                                //     }
+                                // }
                             }
                         }
                     }
                 } else {
                     // patrolling i guess
-                    Motion.bugnavAround(targetLoc, 9, 36);
+                    Motion.bugnavAround(targetLoc, 9, 25);
                     me = rc.getLocation();
-                    MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
-                        if (me.directionTo(oppFlag).equals(me.directionTo(targetLoc).opposite())) {
-                            MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
-                            for (Direction d : DIRECTIONS) {
-                                // dont obstruct traps of camping duck
-                                if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
-                            }
-                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
-                            placeTrap: if (rng.nextBoolean()) {
-                                for (MapInfo info : nearbyTraps) {
-                                    if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                    FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+                    // also dont place traps around nothing
+                    if (flags.length > 0) {
+                        MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                        preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
+                            if (me.directionTo(oppFlag).equals(me.directionTo(targetLoc).opposite())) {
+                                MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
+                                for (Direction d : DIRECTIONS) {
+                                    // dont obstruct traps of camping duck
+                                    if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
                                 }
-                                if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                    rc.build(TrapType.WATER, buildLoc);
-                                }
-                            } else {
-                                buh: if (true) {
-                                    for (MapInfo info : nearbyTraps) {
-                                        if (info.getTrapType() == TrapType.STUN) break buh; 
+                                MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                                if (rng.nextBoolean()) {
+                                    placeTrap: {
+                                        for (MapInfo info : nearbyTraps) {
+                                            if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                        }
+                                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                            rc.build(TrapType.WATER, buildLoc);
+                                        }
                                     }
-                                    if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                        rc.build(TrapType.STUN, buildLoc);
+                                } else {
+                                    placeTrap: {
+                                        for (MapInfo info : nearbyTraps) {
+                                            if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                                        }
+                                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                            rc.build(TrapType.STUN, buildLoc);
+                                        }
                                     }
                                 }
                             }

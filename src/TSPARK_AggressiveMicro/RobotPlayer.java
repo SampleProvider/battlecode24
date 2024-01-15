@@ -1,4 +1,4 @@
-package SPAARKJAN12;
+package TSPARK_AggressiveMicro;
 
 import battlecode.common.*;
 
@@ -41,6 +41,10 @@ public strictfp class RobotPlayer {
         Defensive.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Leader.rc = rc;
+        Leader.rng = rng;
+        Follower.rc = rc;
+        Follower.rng = rng;
 
         GlobalArray.init();
         
@@ -49,6 +53,15 @@ public strictfp class RobotPlayer {
         } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
+        if (GlobalArray.id == 5) {
+            GlobalArray.groupLeader = false;
+            GlobalArray.groupId = 0;
+            mode = DEFENSIVE;
+        } else if (GlobalArray.id == 6) {
+            GlobalArray.groupLeader = true;
+        }
+
+        Clock.yield();
 
         while (true) {
             turnCount += 1;
@@ -57,10 +70,21 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE && spawnLoc.x != -1) {
-                        if (rc.canSpawn(spawnLoc)) {
-                            rc.spawn(spawnLoc);
-                            break spawn;
+                    defenseSpawn: if (mode == DEFENSIVE) {
+                        if (GlobalArray.id < 3) {
+                            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
+                                break defenseSpawn; // labels moment
+                            }
+                            for (int i = 0; i < 27; i++) {
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
+                                }
+                            }
+                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id)));
+                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                                rc.spawn(bestSpawnLoc);
+                                break spawn;
+                            }
                         }
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
@@ -69,7 +93,7 @@ public strictfp class RobotPlayer {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                             if (rc.canSpawn(randomLoc)) {
                                 rc.spawn(randomLoc);
-                                break;
+                                break spawn;
                             }
                             else {
                                 index++;
@@ -96,46 +120,51 @@ public strictfp class RobotPlayer {
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
+                Leader.indicatorString = indicatorString;
+                Follower.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
                     GlobalArray.incrementSectorTime();
+                    GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
-                    if (mode == DEFENSIVE) {
-                        Defensive.jailed();
-                    }
-                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
+                    }
+                    else if (mode == DEFENSIVE) {
+                        Defensive.jailed();
                     }
                     else if (mode == SCOUT) {
                         Scout.jailed();
                     }
                     else {
+                        if (GlobalArray.groupLeader) {
+                            Leader.jailed();
+                        }
+                        Follower.jailed();
                         Offensive.jailed();
                     }
                 }
                 else {
-                    if (rc.getRoundNum() == 200) {
-                        if (mode == DEFENSIVE && GlobalArray.id < 3) {
-                            spawnLoc = rc.getLocation();
-                        }
-                    }
-                    
                     if (rc.getRoundNum() >= 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
                     }
                     if (rc.getRoundNum() >= 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
-                    if (mode == DEFENSIVE) {
-                        Defensive.run();
-                    }
-                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
+                    }
+                    else if (mode == DEFENSIVE) {
+                        Defensive.run();
                     }
                     else if (mode == SCOUT) {
                         Scout.run();
                     }
                     else {
+                        if (GlobalArray.groupLeader) {
+                            Leader.run();
+                        }
+                        Follower.run();
                         Offensive.run();
                     }
                 }
@@ -145,12 +174,12 @@ public strictfp class RobotPlayer {
             catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
-                rc.resign();
+                // rc.resign();
             }
             catch (Exception e) {
                 System.out.println("Exception");
                 e.printStackTrace();
-                rc.resign();
+                // rc.resign();
             }
             finally {
                 Clock.yield();

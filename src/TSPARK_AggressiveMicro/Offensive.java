@@ -1,4 +1,4 @@
-package SPAARK_Agressive;
+package TSPARK_AggressiveMicro;
 
 import battlecode.common.*;
 
@@ -29,6 +29,9 @@ public class Offensive {
         // capturing opponent flags
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+        
+        // indicator thingy
+        // rc.setIndicatorDot(me, 0, 255, Math.min((GlobalArray.groupId - 2) * 32, 255));
 
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
@@ -56,15 +59,16 @@ public class Offensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
-
-        // GlobalArray.updateSector();
+        GlobalArray.checkFlags(opponentFlags);
+        GlobalArray.updateSector();
 
         // flagIndex: index of flag currently holding in global array
         if (flagIndex != -1) {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
             MapLocation bestLoc = Motion.getSafest(spawnLocs);
-            // rc.setIndicatorDot(bestLoc, 100, 100, 100);
+            // rc.setIndicatorDot(me, 255, 0, 0);
+            // rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
             Motion.bugnavTowards(bestLoc, 1000);
             rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex));
             if (!rc.hasFlag()) {
@@ -75,6 +79,9 @@ public class Offensive {
         }
         else {
             MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
+
+            boolean findingTarget = false;
+
             if (target != null) {
                 int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(n)) {
@@ -90,29 +97,34 @@ public class Offensive {
                                 }
                             }
                             if (seesFlag == false) {
-                                if (!target.equals(turnsFindingFlagTarget)) {
+                                findingTarget = true;
+                                if (target.distanceSquaredTo(turnsFindingFlagTarget) > 2) {
                                     turnsFindingFlag = 0;
                                 }
                                 
                                 turnsFindingFlag += 1;
 
-                                MapLocation offset = GlobalArray.getRobotDirection(rc.readSharedArray(i));
-                                indicatorString.append(offset);
-                                Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
-                                target = target.add(me.directionTo(rc.getLocation()));
+                                // MapLocation offset = GlobalArray.getRobotDirection(rc.readSharedArray(i));
+                                // indicatorString.append(offset);
+                                // Motion.bugnavTowards(target.translate(offset.x, offset.y), Motion.DEFAULT_RETREAT_HP);
+                                // target = target.add(me.directionTo(rc.getLocation()));
                                 turnsFindingFlagTarget = target;
 
-                                if (!rc.onTheMap(target) || turnsFindingFlag >= 100) {
-                                    rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i, 0);
+                                if (!rc.onTheMap(target) || turnsFindingFlag >= 10) {
+                                    rc.writeSharedArray(i, 0);
                                     target = null;
                                 }
-                                else {
-                                    rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(target));
-                                }
+                                // else {
+                                //     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(target));
+                                // }
                             }
                         }
                     }
                 }
+            }
+
+            if (!findingTarget) {
+                turnsFindingFlag = 0;
             }
             
             if (target != null) {
@@ -120,7 +132,13 @@ public class Offensive {
                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, 0);
                     return;
                 }
-                Motion.bugnavTowards(target, Motion.DEFAULT_RETREAT_HP);
+                int n = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
+                if (GlobalArray.isGlobalArrayLoc(n) && (n & 0b111111) >= GlobalArray.OPPO_FLAG_CUR_LOC && (n & 0b111111) <= GlobalArray.OPPO_FLAG_CUR_LOC + 2 && GlobalArray.isFlagPickedUp(rc.readSharedArray(n & 0b111111))) {
+                    Motion.bugnavAround(target, 4, 20, Motion.DEFAULT_RETREAT_HP);
+                }
+                else {
+                    Motion.bugnavTowards(target, Motion.DEFAULT_RETREAT_HP);
+                }
                 // rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
                 indicatorString.append(GlobalArray.groupId);
             }
@@ -150,17 +168,18 @@ public class Offensive {
                         for (int i = 0; i <= 2; i++) {
                             int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
                             int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
-                            if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
+                            // if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
+                            if (GlobalArray.hasLocation(n)) {
                                 MapLocation loc = GlobalArray.parseLocation(n2);
                                 if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
                                     closestStoredFlag = loc;
-                                    closestStoredFlagIndex = GlobalArray.OPPO_FLAG_DEF_LOC + i;
+                                    closestStoredFlagIndex = GlobalArray.OPPO_FLAG_CUR_LOC + i;
                                 }
                             }
                         }
                         if (closestStoredFlag != null) {
-                            // rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
-                            rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestStoredFlag));
+                            rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
+                            // rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyLocation(closestStoredFlag));
                         }
                         else {
                             MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
@@ -184,7 +203,27 @@ public class Offensive {
                                 if (closestStoredFlag != null) {
                                     rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStoredFlagIndex));
                                 }
-                                Motion.moveRandomly();
+                                else {
+                                    MapLocation closestStolenFlag = null;
+                                    int closestStolenFlagIndex = -1;
+                                    for (int i = 0; i <= 2; i++) {
+                                        int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
+                                        if (GlobalArray.hasLocation(n) && GlobalArray.isFlagInDanger(n)) {
+                                            MapLocation loc = GlobalArray.parseLocation(n);
+                                            if (closestStolenFlag == null || me.distanceSquaredTo(closestStolenFlag) > me.distanceSquaredTo(loc)) {
+                                                closestStolenFlag = loc;
+                                                closestStolenFlagIndex = GlobalArray.ALLY_FLAG_CUR_LOC + i;
+                                            }
+                                        }
+                                    }
+                                    if (closestStolenFlag != null) {
+                                        rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStolenFlagIndex));
+                                    }
+                                    else {
+                                        Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2), Motion.DEFAULT_RETREAT_HP);
+                                    }
+                                }
+                                // Motion.moveRandomly();
                             }
                         }
                     }
@@ -201,6 +240,23 @@ public class Offensive {
         }
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
+        }
+        GlobalArray.checkFlags(opponentFlags);
+        closestFlag = Motion.getClosestFlag(opponentFlags, false);
+        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
+            rc.pickupFlag(closestFlag.getLocation());
+            int flagId = closestFlag.getID();
+            for (int i = 0; i <= 2; i++) {
+                if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
+                    flagIndex = i;
+                    rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);
+                    break;
+                }
+                else if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == flagId) {
+                    flagIndex = i;
+                    break;
+                }
+            }
         }
 
         GlobalArray.updateSector();
