@@ -1,6 +1,7 @@
-package SPAARK;
+package testSPAARK;
 
 import battlecode.common.*;
+import battlecode.schema.GameplayConstants;
 
 import java.util.Random;
 
@@ -52,7 +53,6 @@ public class Motion {
 
     protected static int symmetry = 0;
     protected static Direction lastDir = Direction.CENTER;
-    protected static Direction optimalDir = Direction.CENTER;
     protected static int rotation = NONE;
 
     protected static Direction lastRandomDir = Direction.CENTER;
@@ -299,8 +299,7 @@ public class Motion {
         return new int[]{clockwiseDist, clockwiseStuck, counterClockwiseDist, counterClockwiseStuck};
     }
     
-    protected static boolean lastBlocked = false;
-    protected static StringBuilder visitedList = new StringBuilder();
+    static boolean lastBlocked = false;
     protected static Direction bug2Helper(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
         if (me.equals(dest)) {
             return Direction.CENTER;
@@ -317,28 +316,13 @@ public class Motion {
                 direction = direction.rotateLeft().rotateLeft();
             }
         }
-
-        // for (int i = 0; i < 3; i++) {
-
-        // }
-        // visitedList.append(me + " ");
-
-        if (optimalDir != Direction.CENTER) {
-            if (rc.canMove(optimalDir) && lastDir != optimalDir.opposite()) {
-                optimalDir = Direction.CENTER;
-                rotation = NONE;
-            }
-            else {
-                direction = optimalDir;
-            }
-        }
         
         if (lastDir != direction.opposite()) {
             if (rc.canMove(direction)) {
-                // if (!lastBlocked) {
-                //     rotation = NONE;
-                // }
-                // lastBlocked = false;
+                if (!lastBlocked) {
+                    rotation = NONE;
+                }
+                lastBlocked = false;
                 // boolean touchingTheWallBefore = false;
                 // for (Direction d : DIRECTIONS) {
                 //     MapLocation translatedMapLocation = me.add(d);
@@ -357,6 +341,74 @@ public class Motion {
             else if (rc.canFill(me.add(direction))) {
                 rc.fill(me.add(direction));
                 return Direction.CENTER;
+
+                // int[] simulated = simulateMovement(me, dest);
+        
+                // int clockwiseDist = simulated[0];
+                // int counterClockwiseDist = simulated[2];
+                // boolean clockwiseStuck = simulated[1] == 1;
+                // boolean counterClockwiseStuck = simulated[3] == 1;
+
+                // if ((clockwiseStuck || clockwiseDist > me.add(direction).distanceSquaredTo(dest)) && (counterClockwiseStuck || counterClockwiseDist > me.add(direction).distanceSquaredTo(dest))) {
+
+                //     int water = 0;
+                //     for (Direction d : DIRECTIONS) {
+                //         MapLocation translatedMapLocation = me.add(d);
+                //         if (rc.onTheMap(translatedMapLocation)) {
+                //             // if (rc.canFill(translatedMapLocation)) {
+                //             if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                //                 water += 1;
+                //             }
+                //         }
+                //     }
+                //     if (water >= 2) {
+                //         rc.fill(me.add(direction));
+                //         return Direction.CENTER;
+                //     }
+                // }
+                // else {
+                //     int tempMode = mode;
+                //     if (mode == AROUND) {
+                //         if (clockwiseDist < minRadiusSquared) {
+                //             if (counterClockwiseDist < minRadiusSquared) {
+                //                 tempMode = AWAY;
+                //             }
+                //             else {
+                //                 tempMode = AWAY;
+                //             }
+                //         }
+                //         else {
+                //             if (counterClockwiseDist < minRadiusSquared) {
+                //                 tempMode = AWAY;
+                //             }
+                //             else {
+                //                 tempMode = TOWARDS;
+                //             }
+                //         }
+                //     }
+                //     if (clockwiseStuck) {
+                //         rotation = COUNTER_CLOCKWISE;
+                //     }
+                //     else if (counterClockwiseStuck) {
+                //         rotation = CLOCKWISE;
+                //     }
+                //     else if (tempMode == TOWARDS) {
+                //         if (clockwiseDist < counterClockwiseDist) {
+                //             rotation = CLOCKWISE;
+                //         }
+                //         else {
+                //             rotation = COUNTER_CLOCKWISE;
+                //         }
+                //     }
+                //     else if (tempMode == AWAY) {
+                //         if (clockwiseDist < counterClockwiseDist) {
+                //             rotation = COUNTER_CLOCKWISE;
+                //         }
+                //         else {
+                //             rotation = CLOCKWISE;
+                //         }
+                //     }
+                // }
             }
         }
         else if (rc.canMove(direction)) {
@@ -385,23 +437,8 @@ public class Motion {
                 return direction;
             }
         }
-        else if (!rc.onTheMap(me.add(direction))) {
-            direction = me.directionTo(dest);
-            if (rc.canMove(direction)) {
-                return direction;
-            }
-            else if (rc.canFill(me.add(direction))) {
-                rc.fill(me.add(direction));
-                return Direction.CENTER;
-            }
-        }
-
-        if (optimalDir == Direction.CENTER) {
-            optimalDir = direction;
-        }
         
         indicatorString.append("ROTATION=" + rotation + " ");
-        indicatorString.append("OPTIMAL=" + optimalDir + " ");
         if (rotation == NONE) {
             int[] simulated = simulateMovement(me, dest);
     
@@ -679,52 +716,63 @@ public class Motion {
         if (rc.hasFlag() && rc.getLocation().distanceSquaredTo(dest) <= 36) {
             retreatHP = 0;
         }
-        if (rc.isMovementReady()) {
-            Direction d = bug2towards(dest);
-            if (d == Direction.CENTER) {
-                d = rc.getLocation().directionTo(dest);
-            }
-            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d);
-            }
-            else if (rc.canMove(d)) {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
+        }
+        else {
+            if (rc.isMovementReady()) {
+                // MapLocation me = rc.getLocation();
+                Direction d = bug2towards(dest);
+                if (d == Direction.CENTER) {
+                    return;
+                }
+                // for (RobotInfo robot : nearbyRobots) {
+                //     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                //     // if (rc.canSenseLocation(relativeLoc)) {
+                //     //     weight -= 4;
+                //     // }
+                //     if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                //         return;
+                //     }
+                // }
+                // if (friendlyRobots.length < 6 || rc.getHealth() <= retreatHP) {
+                // }
                 rc.move(d);
                 lastDir = d;
             }
         }
     }
     protected static void bugnavAway(MapLocation dest, int retreatHP) throws GameActionException {
-        if (rc.isMovementReady()) {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
+        }
+        else {
             Direction d = bug2away(dest);
             if (d == Direction.CENTER) {
-                d = rc.getLocation().directionTo(dest);
+                return;
             }
-            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d);
-            }
-            else if (rc.canMove(d)) {
-                rc.move(d);
-                lastDir = d;
-            }
+            rc.move(d);
+            lastDir = d;
         }
     }
     protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP) throws GameActionException {
-        if (rc.isMovementReady()) {
+        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            // bug2retreat();
+            micro(dest);
+        }
+        else {
             Direction d = bug2around(dest, minRadiusSquared, maxRadiusSquared);
             if (d == Direction.CENTER) {
-                d = rc.getLocation().directionTo(dest);
+                return;
             }
-            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d);
-            }
-            else if (rc.canMove(d)) {
-                rc.move(d);
-                lastDir = d;
-            }
+            rc.move(d);
+            lastDir = d;
         }
     }
 
-    protected static void micro(Direction bugDir) throws GameActionException {
+    protected static void micro(MapLocation dest) throws GameActionException {
         if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
             Direction bestDir = null;
@@ -739,13 +787,13 @@ public class Motion {
                 }
                 // incentivize moving towards target
                 int weight = 0;
-                if (d.equals(bugDir)) {
+                if (d.equals(me.directionTo(dest))) {
                     weight += 1;
                 }
-                if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
+                if (d.equals(me.directionTo(dest).rotateLeft()) || d.equals(me.directionTo(dest).rotateRight())) {
                     weight += 1;
                 }
-                if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
+                if (rc.hasFlag() && d.equals(me.directionTo(dest).opposite()) || d.equals(me.directionTo(dest).opposite().rotateLeft()) || d.equals(me.directionTo(dest).opposite().rotateRight())) {
                     weight -= 2;
                 }
                 // really incentivize moving into spawn area
@@ -811,7 +859,6 @@ public class Motion {
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);
-                // weight += friendlyWeight;
                 // prefer not filling?
                 if (rc.canFill(me.add(d))) {
                     if (bestFillDir == null) {
