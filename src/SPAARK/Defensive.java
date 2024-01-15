@@ -58,7 +58,7 @@ public class Defensive {
                 // spam traps between enemy and flag
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
                 // Motion.moveRandomly();
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 1; i++) {
                     // MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     Direction buildDir = me.directionTo(closestRobot.getLocation());
                     if (rng.nextInt(3) == 0) {
