@@ -66,12 +66,27 @@ public class Defensive {
                 for (int i = 0; i < 4; i++) {
                     MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     if (rng.nextInt(3) == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                        //     rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        // }
+                        placeTrap: {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                            for (MapInfo info : nearbyTraps) {
+                                if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                            }
+                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                rc.build(TrapType.STUN, buildLoc);
+                            }
                         }
                     } else {
-                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                            rc.build(TrapType.WATER, buildLoc);
+                        placeTrap: {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                            for (MapInfo info : nearbyTraps) {
+                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                            }
+                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                rc.build(TrapType.WATER, buildLoc);
+                            }
                         }
                     }
                 }
@@ -84,8 +99,8 @@ public class Defensive {
                     if (me.equals(targetLoc)) {
                         // camping
                         for (int j = 0; j < 8; j++) {
-                            MapLocation buildLoc = me.add(DIRECTIONS[j]);
-                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(4);
+                            MapLocation buildLoc = me.add(DIRECTIONS[j]); 
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                             placeTrap: if (j % 2 == 0) {
                                 for (MapInfo info : nearbyTraps) {
                                     if (info.getTrapType() == TrapType.WATER) break placeTrap; 
@@ -114,17 +129,29 @@ public class Defensive {
                     preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
                         if (me.directionTo(oppFlag).equals(me.directionTo(targetLoc).opposite())) {
                             MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
-                            for (Direction d : DIRECTIONS) {
-                                // dont obstruct traps of camping duck
-                                if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
-                            }
-                            if (rng.nextBoolean()) {
-                                if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                    rc.build(TrapType.WATER, buildLoc);
-                                }
-                            } else {
-                                if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                    rc.build(TrapType.STUN, buildLoc);
+                            // for (Direction d : DIRECTIONS) {
+                            //     // dont obstruct traps of camping duck
+                            //     if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
+                            // }
+                            if ((buildLoc.x + buildLoc.y * 3) % 5 == 0) {
+                                MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                                placeTrap: {
+                                    if (rng.nextBoolean()) {
+                                        // for (MapInfo info : nearbyTraps) {
+                                        //     if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                        // }
+                                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                            rc.build(TrapType.WATER, buildLoc);
+                                        }
+                                    }
+                                    else {
+                                        // for (MapInfo info : nearbyTraps) {
+                                        //     if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                                        // }
+                                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                            rc.build(TrapType.STUN, buildLoc);
+                                        }
+                                    }
                                 }
                             }
                         }
