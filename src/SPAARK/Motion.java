@@ -93,6 +93,18 @@ public class Motion {
         }
         return closest;
     }
+    protected static RobotInfo getClosestRobot(RobotInfo[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        RobotInfo closest = null;
+        int distance = 0;
+        for (RobotInfo loc : a) {
+            if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
+                closest = loc;
+                distance = me.distanceSquaredTo(loc.getLocation());
+            }
+        }
+        return closest;
+    }
 
     protected static MapLocation getFarthest(MapLocation[] a) throws GameActionException {
         /* Get farthest MapLocation to this robot (Euclidean) */

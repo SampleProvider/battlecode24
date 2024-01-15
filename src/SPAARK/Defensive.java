@@ -53,52 +53,74 @@ public class Defensive {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
-
-            } else {
-                MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
-                if (GlobalArray.id < 3) {
-                    Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
-                    if (rc.getLocation().equals(targetLoc)) {
-                        // camping
-                        for (int j = 0; j < 8; j++) {
-                            MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
-                            if (j % 2 == 0) {
-                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
-                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
-                                }
+                for (int i = 0; i < 2; i++) {
+                    Direction dir = rc.getLocation().directionTo(Motion.getClosestRobot(opponentRobots).getLocation());
+                    if (rng.nextInt(3) == 0) {
+                        dir = dir.rotateLeft();
+                    }
+                    if (rng.nextInt(3) == 0) {
+                        dir = dir.rotateRight();
+                    }
+                    MapLocation buildLoc = rc.getLocation().add(dir);
+                    if (i % 2 == 0) {
+                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                            rc.build(TrapType.WATER, buildLoc);
+                        }
+                    } else {
+                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        }
+                    }
+                }
+            }
+            MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
+            if (GlobalArray.id < 3) {
+                Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+                if (rc.getLocation().equals(targetLoc)) {
+                    // camping
+                    for (int j = 0; j < 8; j++) {
+                        MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[j]);
+                        if (j % 2 == 0) {
+                            if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                                rc.build(TrapType.EXPLOSIVE, buildLoc);
                             }
-                            else {
-                                if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                    rc.build(TrapType.WATER, buildLoc);
-                                }
+                        }
+                        else {
+                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                rc.build(TrapType.WATER, buildLoc);
                             }
                         }
                     }
-                } else {
-                    // patroling i guess
-                    Motion.bugnavAround(targetLoc, 9, 25, Motion.DEFAULT_RETREAT_HP);
-                    // for (int i = 0; i < 2; i++) {
-                    //     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
-                    //     if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
-                    //         continue;
-                    //     }
-                    //     MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
-                    //     for (MapInfo m : mapInfo) {
-                    //         if (m.getTrapType() != TrapType.NONE) {
-                    //             continue;
-                    //         }
-                    //     }
-                    //     if (i % 2 == 0) {
-                    //         if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                    //             rc.build(TrapType.WATER, buildLoc);
-                    //         }
-                    //     } else {
-                    //         if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    //             rc.build(TrapType.STUN, buildLoc);
-                    //         }
-                    //     }
-                    // }
                 }
+            } else {
+                // patroling i guess
+                if (opponentRobots.length > 0) {
+                    Motion.bugnavTowards(Motion.getClosestRobot(opponentRobots).getLocation(), 1000);
+                }
+                else {
+                    Motion.bugnavAround(targetLoc, 9, 25, Motion.DEFAULT_RETREAT_HP);
+                }
+                // for (int i = 0; i < 2; i++) {
+                //     MapLocation buildLoc = rc.getLocation().add(DIRECTIONS[rng.nextInt(8)]);
+                //     if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
+                //         continue;
+                //     }
+                //     MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
+                //     for (MapInfo m : mapInfo) {
+                //         if (m.getTrapType() != TrapType.NONE) {
+                //             continue;
+                //         }
+                //     }
+                //     if (i % 2 == 0) {
+                //         if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                //             rc.build(TrapType.WATER, buildLoc);
+                //         }
+                //     } else {
+                //         if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                //             rc.build(TrapType.STUN, buildLoc);
+                //         }
+                //     }
+                // }
             }
         } else {
             Motion.spreadRandomly();
