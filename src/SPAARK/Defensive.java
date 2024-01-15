@@ -103,7 +103,7 @@ public class Defensive {
                 MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (GlobalArray.id < 3) {
-                    Motion.bugnavTowards(targetLoc);
+                    Motion.bugnavTowards(targetLoc, 0);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
                         // camping

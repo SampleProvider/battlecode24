@@ -279,10 +279,15 @@ public class Motion {
         return new int[]{clockwiseDist, clockwiseStuck, counterClockwiseDist, counterClockwiseStuck};
     }
     protected static Direction bug2Helper(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
-        if (me.equals(dest)) {
-            return Direction.CENTER;
-        }
         Direction direction = me.directionTo(dest);
+        if (me.equals(dest)) {
+            if (mode == AROUND) {
+                direction = Direction.EAST;
+            }
+            else {
+                return Direction.CENTER;
+            }
+        }
         if (mode == AWAY) {
             direction = direction.opposite();
         }
@@ -845,7 +850,7 @@ public class Motion {
                                 break build;
                             }
                         }
-                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getCrumbs() >= 500) {
+                        if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
                             rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     }
