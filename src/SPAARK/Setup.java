@@ -53,9 +53,10 @@ public class Setup {
         GlobalArray.updateSector();
         if (rc.hasFlag()) {
             // move flag
+            FlagInfo myFlag = Motion.getClosestFlag(flags, true);
             if (flagIndex == -1) {
                 for (int i = 0; i <= 2; i++) {
-                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
+                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == myFlag.getID()) {
                         flagIndex = i;
                         break;
                     }
