@@ -1,4 +1,4 @@
-package SPAARK_Agressive;
+package TSPARK_AggressiveMicro;
 
 import battlecode.common.*;
 
