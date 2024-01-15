@@ -233,7 +233,7 @@ public class Setup {
 
                 int weight = 32768 // 2^15
                 + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
-                - 2*closestSpawn //distance to nearest spawn (closer is better)
+                - 6*closestSpawn //distance to nearest spawn (closer is better)
                 ;
                 weight = Math.max(weight, 0);
                 weight = Math.min(weight, 65535);
