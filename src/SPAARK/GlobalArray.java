@@ -116,6 +116,9 @@ public class GlobalArray {
     protected static boolean isFlagPickedUp(int n) {
         return ((n >> 13) & 0b1) == 1;
     }
+    protected static boolean isFlagInDanger(int n) {
+        return ((n >> 14) & 0b1) == 1;
+    }
 
     // flaginfos
     public static int getNumberOfRobots(int n) {
@@ -139,7 +142,7 @@ public class GlobalArray {
                     }
                     if (flag.isPickedUp()) {
                         MapLocation me = rc.getLocation();
-                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
+                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | (1 << 13) | intifyLocation(flag.getLocation()));
                         // bug bug fix now
                         if (rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
                             rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
@@ -148,7 +151,12 @@ public class GlobalArray {
                         // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         //     rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
                         // }
-                        rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
+                        if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length > 0) {
+                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | intifyLocation(flag.getLocation()));
+                        }
+                        else {
+                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
+                        }
                     }
                     break;
                 }
@@ -167,6 +175,25 @@ public class GlobalArray {
                         rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
                     }
                     break;
+                }
+            }
+        }
+    }
+    protected static void checkFlags(FlagInfo[] opponentFlags) throws GameActionException {
+        // detect if flags were reset
+        for (int i = 0; i <= 2; i++) {
+            int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
+            if (hasLocation(n)) {
+                if (rc.canSenseLocation(parseLocation(n))) {
+                    boolean found = false;
+                    for (FlagInfo flag : opponentFlags) {
+                        if (flag.getLocation().equals(parseLocation(n)) && flag.getID() == rc.readSharedArray(OPPO_FLAG_ID + i)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, rc.readSharedArray(OPPO_FLAG_DEF_LOC + i));
+                    }
                 }
             }
         }
@@ -385,7 +412,7 @@ public class GlobalArray {
             // }
             for (int i = 0; i <= 2; i++) {
                 int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
-                if (GlobalArray.isFlagPickedUp(n) && GlobalArray.hasLocation(n)) {
+                if (GlobalArray.isFlagInDanger(n) && GlobalArray.hasLocation(n)) {
                     int d = rc.readSharedArray(ALLY_FLAG_INFO + i);
                     // int number = GlobalArray.getNumberOfRobots(d) - friendlyFlagGroupsAssigned[i] * 5;
                     int number = GlobalArray.getNumberOfRobots(d);

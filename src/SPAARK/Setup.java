@@ -116,7 +116,6 @@ public class Setup {
                 for (int i = 0; i <= 2; i++) {
                     int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
                     if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
-                        indicatorString.append(" " + (n >> 13) + " A ");
                         if (toPlace.distanceSquaredTo(GlobalArray.parseLocation(n)) < 36) {
                             valid = false;
                         }
