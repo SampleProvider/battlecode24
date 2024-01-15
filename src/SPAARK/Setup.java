@@ -194,7 +194,7 @@ public class Setup {
                     }
                 }
             }
-        } else if (rc.getRoundNum() < 2*Math.max(rc.getMapHeight(), rc.getMapWidth())) {
+        } else if (rc.getRoundNum() < 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -213,7 +213,7 @@ public class Setup {
                 Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
             }
-        } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth())) {
+        } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
