@@ -11,16 +11,16 @@ public class Setup {
 
     protected static int flagIndex = -1;
     protected static MapLocation[] placementLocationsOne = {
-        new MapLocation(0, 7),
-        new MapLocation(0, -7),
-        new MapLocation(8, 8),
-        new MapLocation(-8, -8),
+        new MapLocation(0, 6),
+        new MapLocation(0, -6),
+        new MapLocation(6, 6),
+        new MapLocation(-6, -6),
     };
     protected static MapLocation[] placementLocationsTwo = {
-        new MapLocation(7, 0),
-        new MapLocation(-7, 0),
-        new MapLocation(-8, 8),
-        new MapLocation(8, -8),
+        new MapLocation(6, 0),
+        new MapLocation(-6, 0),
+        new MapLocation(-6, 6),
+        new MapLocation(6, -6),
     };
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
     protected static int turnsPlacingFlag = 0;
@@ -212,6 +212,7 @@ public class Setup {
                 }
                 Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
+                indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
         } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
             if (damInit == null) {
@@ -230,18 +231,18 @@ public class Setup {
                     closestSpawn = Math.min(me.distanceSquaredTo(i), closestSpawn);
                 }
 
-                int weight = 500
+                int weight = 32768 // 2^15
                 + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
-                - closestSpawn //distance to nearest spawn (closer is better)
+                - 2*closestSpawn //distance to nearest spawn (closer is better)
                 ;
-                weight /= 128;
                 weight = Math.max(weight, 0);
-                weight = Math.min(weight, 7);
+                weight = Math.min(weight, 65535);
 
                 //using setup flag target global array index
-                int best = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
-                if ((best & 0b1110000000000000 >> 13) < weight) {
-                    rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, (weight << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+                int best = rc.readSharedArray(GlobalArray.SETUP_FLAG_WEIGHT);
+                if (best < weight) {
+                    rc.writeSharedArray(GlobalArray.SETUP_FLAG_WEIGHT, weight);
+                    rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, GlobalArray.intifyLocation(rc.getLocation()));
                 }
             }
         } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 210) {

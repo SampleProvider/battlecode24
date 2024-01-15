@@ -26,7 +26,7 @@ public class GlobalArray {
      * 19: Gathering point (setup only)
      * 20-44: Sectors
      * 45-52: Group instructions
-     * 63: Global id counter (first round only, can overwrite later)
+     * 63: Global id counter (first round only), flag target heuristic (setup only)
      * 
      * Formatting:
      * 
@@ -72,6 +72,7 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_CUR_LOC = 18;
     protected static final int SETUP_FLAG_TARGET = 21;
     protected static final int SETUP_GATHER_LOC = 22;
+    protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int SECTOR_START = 23;
     protected static final int SECTOR_SIZE = 5;
     protected static final int GROUP_INSTRUCTIONS = 48;
@@ -79,6 +80,7 @@ public class GlobalArray {
     protected static final int STAGING_BEST = 57;
     protected static final int STAGING_CURR = 58;
     protected static final int SECTOR_COUNT = SECTOR_SIZE * SECTOR_SIZE;
+    protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
     protected static int[][] sectors;
     
@@ -456,8 +458,8 @@ public class GlobalArray {
 
     protected static void init() throws GameActionException {
         // get own id (used for groups and staging)
-        id = rc.readSharedArray(63);
-        rc.writeSharedArray(63, id + 1);
+        id = rc.readSharedArray(INIT_GLOBAL_ID_COUNTER);
+        rc.writeSharedArray(INIT_GLOBAL_ID_COUNTER, id + 1);
         // divide the map into sectors
         sectorWidth = new int[SECTOR_SIZE];
         for (int i = 0; i < SECTOR_SIZE; i++) {
