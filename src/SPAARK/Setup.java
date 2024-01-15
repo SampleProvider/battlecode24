@@ -114,7 +114,7 @@ public class Setup {
             MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 MapInfo tile = rc.senseMapInfo(toPlace);
-                if (!tile.isPassable() && !tile.isWater()) {
+                if (!tile.isPassable() || !rc.senseLegalStartingFlagPlacement(toPlace)) {
                     System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
                     indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
