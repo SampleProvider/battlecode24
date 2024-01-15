@@ -1,6 +1,7 @@
 package SPAARK;
 
 import battlecode.common.*;
+import battlecode.schema.GameplayConstants;
 
 import java.util.Random;
 
