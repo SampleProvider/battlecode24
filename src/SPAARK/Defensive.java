@@ -26,7 +26,20 @@ public class Defensive {
     protected static void run() throws GameActionException {
         if (!hasFoundFlag) {
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
-
+            Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+            if (rc.getLocation().equals(targetLoc)) {
+                hasFoundFlag = true;
+                FlagInfo[] flags = rc.senseNearbyFlags(0, rc.getTeam());
+                // if the flag is there the spawn point is valid
+                if (flags.length > 0) {
+                    for (FlagInfo flag : flags) {
+                        if (flag.getLocation().equals(rc.getLocation())) {
+                            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3), rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+                            break;
+                        }
+                    }
+                }
+            }
         }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
