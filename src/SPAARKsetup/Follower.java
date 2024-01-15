@@ -1,4 +1,4 @@
-package SPAARKJAN13;
+package SPAARKsetup;
 
 import battlecode.common.*;
 
@@ -24,7 +24,7 @@ public class Follower {
     protected static void run() throws GameActionException {
         if (rc.readSharedArray(GlobalArray.STAGING_TARGET) != 0) {
             if (rc.getRoundNum() % 2 == 0) {
-                int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - 2);
+                int instruction = rc.readSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET);
                 if (GlobalArray.isGlobalArrayLoc(instruction)) {
                     int i = instruction & 0b111111;
                     if (i >= GlobalArray.OPPO_FLAG_CUR_LOC && i <= GlobalArray.OPPO_FLAG_CUR_LOC + 2) {

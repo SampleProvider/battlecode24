@@ -1,4 +1,4 @@
-package SPAARKJAN11;
+package SPAARKsetup;
 
 import battlecode.common.*;
 
@@ -6,15 +6,12 @@ public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
-    public static RobotInfo[] friendlyRobots;
-    public static RobotInfo[] opponentRobots;
-
     protected static void attack() throws GameActionException {
-        opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
+        RobotInfo[] opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
-                RobotInfo robot = getPrioritizedOpponentRobot();
-                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 0, 0);
+                RobotInfo robot = getPrioritizedOpponentRobot(opponentRobots);
+                rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 100, 0, 0);
                 if (rc.canAttack(robot.getLocation())) {
                     indicatorString.append("ATK-" + robot.getLocation().toString() + "; ");
                     while (robot != null && rc.canAttack(robot.getLocation())) {
@@ -32,11 +29,11 @@ public class Attack {
         }
     }
     protected static void heal() throws GameActionException {
-        friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());
+        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
-                RobotInfo robot = getPrioritizedFriendlyRobot();
-                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
+                RobotInfo robot = getPrioritizedFriendlyRobot(friendlyRobots);
+                rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 0, 100, 0);
                 if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {
@@ -54,7 +51,7 @@ public class Attack {
         }
     }
 
-    protected static RobotInfo getPrioritizedOpponentRobot() throws GameActionException {
+    protected static RobotInfo getPrioritizedOpponentRobot(RobotInfo[] opponentRobots) throws GameActionException {
         RobotInfo robot = null;
         for (RobotInfo r : opponentRobots) {
             if (robot == null) {
@@ -80,7 +77,7 @@ public class Attack {
         }
         return robot;
     }
-    protected static RobotInfo getPrioritizedFriendlyRobot() throws GameActionException {
+    protected static RobotInfo getPrioritizedFriendlyRobot(RobotInfo[] friendlyRobots) throws GameActionException {
         RobotInfo robot = null;
         for (RobotInfo r : friendlyRobots) {
             if (robot == null) {
