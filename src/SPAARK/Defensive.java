@@ -25,9 +25,11 @@ public class Defensive {
 
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
+        rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
             Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
+            rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
                 FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
@@ -35,16 +37,11 @@ public class Defensive {
                 if (flags.length > 0) {
                     for (FlagInfo flag : flags) {
                         if (flag.getLocation().equals(targetLoc)) {
-                            // System.out.println("found flag");
                             rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3), rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
                             break;
                         }
                     }
                 }
-                // System.out.println(me.toString());
-                // System.out.println(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3))).toString());
-                // System.out.println(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3))).toString());
-                // System.err.println("BUH=============");
             }
         }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -59,9 +56,28 @@ public class Defensive {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
-                
+                // TEMP CODE AAA
+                // TEMP CODE AAA
+                // TEMP CODE AAA
+                // TEMP CODE AAA
+                // TEMP CODE AAA
+                // TEMP CODE AAA
+                Motion.moveRandomly();
+                for (int i = 0; i < 4; i++) {
+                    MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
+                    if (rng.nextBoolean()) {
+                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                            rc.build(TrapType.WATER, buildLoc);
+                        }
+                    } else {
+                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        }
+                    }
+                }
             } else {
                 MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
+                rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (GlobalArray.id < 3) {
                     Motion.bugnavTowards(targetLoc, Motion.DEFAULT_RETREAT_HP);
                     me = rc.getLocation();
@@ -83,20 +99,15 @@ public class Defensive {
                     }
                 } else {
                     // patrolling i guess
-                    Motion.bugnavAround(targetLoc, 9, 25, Motion.DEFAULT_RETREAT_HP);
+                    Motion.bugnavAround(targetLoc, 4, 25, Motion.DEFAULT_RETREAT_HP);
                     me = rc.getLocation();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    for (MapLocation oppFlag : hiddenFlags) {
+                    preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
                         if (me.directionTo(oppFlag).equals(me.directionTo(targetLoc).opposite())) {
                             MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
-                            if (targetLoc.distanceSquaredTo(buildLoc) <= 2) {
-                                continue;
-                            }
-                            MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 4);
-                            for (MapInfo m : mapInfo) {
-                                if (m.getTrapType() != TrapType.NONE) {
-                                    continue;
-                                }
+                            for (Direction d : DIRECTIONS) {
+                                // dont obstruct traps of camping duck
+                                if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
                             }
                             if (rng.nextBoolean()) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {

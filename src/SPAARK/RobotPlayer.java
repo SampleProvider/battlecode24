@@ -127,11 +127,11 @@ public strictfp class RobotPlayer {
                     GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
-                    if (mode == DEFENSIVE) {
-                        Defensive.jailed();
-                    }
-                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
+                    }
+                    else if (mode == DEFENSIVE) {
+                        Defensive.jailed();
                     }
                     else if (mode == SCOUT) {
                         Scout.jailed();
@@ -151,11 +151,11 @@ public strictfp class RobotPlayer {
                     if (rc.getRoundNum() >= 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
-                    if (mode == DEFENSIVE) {
-                        Defensive.run();
-                    }
-                    else if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
+                    }
+                    else if (mode == DEFENSIVE) {
+                        Defensive.run();
                     }
                     else if (mode == SCOUT) {
                         Scout.run();
