@@ -85,30 +85,21 @@ public class Defensive {
                         // camping
                         for (int j = 0; j < 8; j++) {
                             MapLocation buildLoc = me.add(DIRECTIONS[j]);
-                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(4);
-                            placeTrap: if (j % 2 == 0) {
-                                for (MapInfo info : nearbyTraps) {
-                                    if (info.getTrapType() == TrapType.WATER) break placeTrap; 
-                                }
+                            if (j % 2 == 0) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
                                     rc.build(TrapType.WATER, buildLoc);
                                 }
                             }
                             else {
-                                buh: if (true) {
-                                    for (MapInfo info : nearbyTraps) {
-                                        if (info.getTrapType() == TrapType.STUN) break buh; 
-                                    }
-                                    if (rc.canBuild(TrapType.STUN, buildLoc) && rc.getRoundNum() > 100) {
-                                        rc.build(TrapType.STUN, buildLoc);
-                                    }
+                                if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                                    rc.build(TrapType.EXPLOSIVE, buildLoc);
                                 }
                             }
                         }
                     }
                 } else {
                     // patrolling i guess
-                    Motion.bugnavAround(targetLoc, 4, 25);
+                    Motion.bugnavAround(targetLoc, 9, 36);
                     me = rc.getLocation();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
@@ -118,13 +109,22 @@ public class Defensive {
                                 // dont obstruct traps of camping duck
                                 if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
                             }
-                            if (rng.nextBoolean()) {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                            placeTrap: if (rng.nextBoolean()) {
+                                for (MapInfo info : nearbyTraps) {
+                                    if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                }
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
                                     rc.build(TrapType.WATER, buildLoc);
                                 }
                             } else {
-                                if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                    rc.build(TrapType.STUN, buildLoc);
+                                buh: if (true) {
+                                    for (MapInfo info : nearbyTraps) {
+                                        if (info.getTrapType() == TrapType.STUN) break buh; 
+                                    }
+                                    if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                        rc.build(TrapType.STUN, buildLoc);
+                                    }
                                 }
                             }
                         }
