@@ -1,4 +1,4 @@
-package SPAARK;
+package aggressiveSPAARK;
 
 import battlecode.common.*;
 
@@ -16,51 +16,51 @@ public class GlobalArray {
     protected static int[] sectorY;
 
     /*
-     * 0-2: Ally flag ids
-     * 3-5: Ally flag default locations
-     * 6-8: Ally flag current locations
-     * 9-11: Ally flag number of robots and robot direction
-     * 12-14: Opponent flag ids
-     * 15-17: Opponent flag locations
+     * 0-2: ally flag ids
+     * 3-5: ally flag default locations
+     * 6-8: ally flag current locations
+     * 9-11: ally flag number of robots and robot direction
+     * 12-14: opponent flag ids
+     * 15-17: opponent flag locations
      * 18: Flag target (setup only)
      * 19: Gathering point (setup only)
      * 20-44: Sectors
      * 45-52: Group instructions
-     * 63: Global id counter (first round only, can overwrite later)
+     * 63: global id counter (first round only, can overwrite later)
      * 
      * Formatting:
      * 
      * Location:
-     * bit 1-6: X
-     * bit 7-12: Y
-     * bit 13: Presence indicator
+     * Bit 1-6: x
+     * Bit 7-12: y
+     * Bit 13: indicator bit
      * 
      * Flags:
-     * bit 14: Flag picked up
+     * Bit 14: isFlagPickedUp
      * 
      * Flag Info:
-     * bit 1-6: Number of opponent robots
-     * bit 7-10: X of robot direction (which direction the robot with the flag is going)
-     * bit 11-14: Y of robot direction
+     * Bit 1-6: Number of opponent robots
+     * Bit 7-10: x of robot direction (which direction the robot with the flag is going)
+     * Bit 11-14: y of robot direction
      * 
      * Sectors:
-     * bit 1-5: Number of opponent robots
-     * bit 6-10: Number of friendly robots
-     * bit 11-13: Number of assigned groups
-     * bit 14-16: Time since last explored
+     * Bit 1-5: number of opponent robots
+     * Bit 6-10: number of friendly robots
+     * Bit 11-13: number of assigned groups
+     * Bit 14-16: time since last explored
      * 
      * Staging Target:
-     * bit 13: Presence indicator
+     * Bit 13: indicator bit
      * 
-     * If bit 14 is 1:
-     *   bits 1-6: Array index of target
+     * If Bit 14 is 1:
+     * Bits 1-6: array index of target
      * If bit 14 is 0:
-     *   bits 1-12: Location of target
+     * Bits 1-12: location of target
      * 
      * Staging curr/best group:
-     * bits 1-12: Distance from target
-     * bits 13-15: Group id
-     * bit 16: if the target is NOT assigned
+     * Bits 1-12: distance from target
+     * Bits 13-15: group id
+     * Bit 16: isUnassigned
      * 
      */
     protected static final int ALLY_FLAG_ID = 0;
@@ -140,14 +140,11 @@ public class GlobalArray {
                     if (flag.isPickedUp()) {
                         MapLocation me = rc.getLocation();
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 13) | intifyLocation(flag.getLocation()));
-                        // bug bug fix now
-                        if (rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
-                            rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
-                        }
+                        rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) + ((flag.getLocation().x - me.x + 8) << 6) + rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2);
                     } else {
-                        // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
-                        //     rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
-                        // }
+                        if (rc.getRoundNum() < 200) {
+                            rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
+                        }
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
                     }
                     break;

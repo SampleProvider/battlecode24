@@ -1,4 +1,4 @@
-package SPAARK;
+package NewBugNav2SPAARK;
 
 import battlecode.common.*;
 
@@ -52,7 +52,11 @@ public class Motion {
 
     protected static int symmetry = 0;
     protected static Direction lastDir = Direction.CENTER;
-    protected static int rotation = NONE;
+    protected static int rotation = CLOCKWISE;
+
+    protected static MapLocation bugnavDest;
+    protected static MapLocation bugnavStart;
+    protected static boolean touchingTheWallLast = false;
 
     protected static Direction lastRandomDir = Direction.CENTER;
     protected static MapLocation lastRandomSpread;
@@ -86,18 +90,6 @@ public class Motion {
             if (loc.isPickedUp() != pickedUp) {
                 continue;
             }
-            if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
-                closest = loc;
-                distance = me.distanceSquaredTo(loc.getLocation());
-            }
-        }
-        return closest;
-    }
-    protected static RobotInfo getClosestRobot(RobotInfo[] a) throws GameActionException {
-        MapLocation me = rc.getLocation();
-        RobotInfo closest = null;
-        int distance = 0;
-        for (RobotInfo loc : a) {
             if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
                 closest = loc;
                 distance = me.distanceSquaredTo(loc.getLocation());
@@ -611,7 +603,12 @@ public class Motion {
         return Direction.CENTER;
     }
     
-    protected static Direction bug2towards(MapLocation dest) throws GameActionException {
+    protected static double distanceToLine(MapLocation p1, MapLocation p2, MapLocation p) {
+        double n = Math.abs((p2.x - p1.x) * (p1.y - p.y) - (p1.x - p.x) * (p2.y - p1.y));
+        double d = Math.sqrt(p1.distanceSquaredTo(p2));
+        return n / d;
+    }
+    protected static Direction bug2towards1(MapLocation dest) throws GameActionException {
         while (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
             Direction d = bug2Helper(me, dest, TOWARDS, 0, 0);
@@ -622,6 +619,139 @@ public class Motion {
         }
         return Direction.CENTER;
         // indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
+    }
+    protected static Direction bug2towards(MapLocation dest) throws GameActionException {
+        
+        MapLocation me = rc.getLocation();
+
+        if (!dest.equals(bugnavDest)) {
+            bugnavDest = dest;
+            bugnavStart = me;
+        }
+        if (me.equals(bugnavDest)) {
+            return Direction.CENTER;
+        }
+
+        rc.setIndicatorLine(bugnavStart, bugnavDest, 0, 255, 0);
+
+        Direction direction = me.directionTo(bugnavDest);
+
+        boolean touchingTheWall = false;
+        for (Direction d : DIRECTIONS) {
+            if (!rc.onTheMap(me.add(d)) || (!rc.senseMapInfo(me.add(d)).isPassable() && !rc.senseMapInfo(me.add(d)).isWater())) {
+                touchingTheWall = true;
+                break;
+            }
+        }
+
+        Direction dir;
+        indicatorString.append(lastDir.toString() + " " + rotation);
+        if (distanceToLine(bugnavDest, bugnavStart, me) <= 1 || !touchingTheWallLast) {
+            touchingTheWallLast = touchingTheWall;
+            if (rc.canMove(direction) && direction != lastDir) {
+                return direction;
+            }
+            else if (rc.canFill(me.add(direction))) {
+                rc.fill(me.add(direction));
+                return Direction.CENTER;
+            }
+            else {
+                if (lastDir == Direction.CENTER) {
+                    lastDir = direction;
+                }
+                // getBestRotation();
+                // rotation = CLOCKWISE;
+                rotation *= -1;
+                dir = lastDir;
+            }
+        }
+        else {
+            touchingTheWallLast = touchingTheWall;
+            if (lastDir == Direction.CENTER) {
+                lastDir = direction;
+            }
+            MapLocation loc = rc.getLocation().add(lastDir);
+            // if (rc.onTheMap(loc) && rc.senseRobotAtLocation(loc) != null) {
+            //     rotation *= -1;
+            //     lastDir = lastDir.opposite();
+            // }
+            Direction d = lastDir;
+            int clockwiseWalls = 0;
+            int counterclockwiseWalls = 0;
+            for (int i = 0; i < 3; i++) {
+                d = d.rotateRight();
+                if (rc.onTheMap(me.add(d)) && (rc.senseMapInfo(me.add(d)).isPassable() || rc.senseMapInfo(me.add(d)).isWater())) {
+
+                }
+                else {
+                    clockwiseWalls += 1;
+                }
+            }
+            d = lastDir.opposite();
+            for (int i = 0; i < 3; i++) {
+                d = d.rotateRight();
+                if (rc.onTheMap(me.add(d)) && (rc.senseMapInfo(me.add(d)).isPassable() || rc.senseMapInfo(me.add(d)).isWater())) {
+                // if (rc.canMove(d)) {
+
+                }
+                else {
+                    counterclockwiseWalls += 1;
+                }
+            }
+            if (clockwiseWalls == 0) {
+                rotation = COUNTER_CLOCKWISE;
+            }
+            else if (counterclockwiseWalls == 0) {
+                rotation = CLOCKWISE;
+            }
+            dir = lastDir.opposite();
+            if (rotation == CLOCKWISE) {
+                dir = dir.rotateLeft().rotateLeft();
+            }
+            else {
+                dir = dir.rotateRight().rotateRight();
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            // if (rc.canMove(dir)) {
+            if (rc.onTheMap(me.add(dir)) && (rc.senseMapInfo(me.add(dir)).isPassable() || rc.senseMapInfo(me.add(dir)).isWater())) {
+                if (dir == lastDir.opposite()) {
+                    rotation *= -1;
+                }
+                break;
+            }
+            else {
+                if (rotation == CLOCKWISE) {
+                    dir = dir.rotateLeft();
+                }
+                else {
+                    dir = dir.rotateRight();
+                }
+            }
+        }
+        if (rc.canFill(me.add(dir))) {
+            rc.fill(me.add(dir));
+            return Direction.CENTER;
+        }
+        indicatorString.append(" CHOSE: " + dir);
+        if (!rc.canMove(dir)) {
+            dir = dir.rotateLeft();
+            if (!rc.canMove(dir)) {
+                dir = dir.rotateRight().rotateRight();
+                if (!rc.canMove(dir)) {
+                    dir = Direction.CENTER;
+                    // dir = dir.rotateLeft().rotateLeft().rotateLeft();
+                    // if (!rc.canMove(dir)) {
+                    //     dir = dir.rotateRight().rotateRight().rotateRight().rotateRight();
+                    //     if (!rc.canMove(dir)) {
+                    //         dir = Direction.CENTER;
+                    //     }
+                    // }
+                }
+            }
+        }
+        // lastDir = dir;
+        return dir;
     }
     protected static Direction bug2away(MapLocation dest) throws GameActionException {
         while (rc.isMovementReady()) {

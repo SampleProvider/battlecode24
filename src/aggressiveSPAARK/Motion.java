@@ -1,4 +1,4 @@
-package SPAARK;
+package aggressiveSPAARK;
 
 import battlecode.common.*;
 
@@ -86,18 +86,6 @@ public class Motion {
             if (loc.isPickedUp() != pickedUp) {
                 continue;
             }
-            if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
-                closest = loc;
-                distance = me.distanceSquaredTo(loc.getLocation());
-            }
-        }
-        return closest;
-    }
-    protected static RobotInfo getClosestRobot(RobotInfo[] a) throws GameActionException {
-        MapLocation me = rc.getLocation();
-        RobotInfo closest = null;
-        int distance = 0;
-        for (RobotInfo loc : a) {
             if (closest == null || me.distanceSquaredTo(loc.getLocation()) < distance) {
                 closest = loc;
                 distance = me.distanceSquaredTo(loc.getLocation());
@@ -330,7 +318,6 @@ public class Motion {
                 if (touchingTheWallBefore) {
                     rotation = NONE;
                 }
-                rotation = NONE;
                 return direction;
             }
             else if (rc.canFill(me.add(direction))) {
@@ -415,25 +402,23 @@ public class Motion {
                 dir = direction.rotateLeft();
             }
             if (!rc.onTheMap(me.add(dir))) {
-                // boolean touchingTheWallBefore = false;
-                // for (Direction d : DIRECTIONS) {
-                //     MapLocation translatedMapLocation = me.add(d);
-                //     if (rc.onTheMap(translatedMapLocation)) {
-                //         if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
-                //             touchingTheWallBefore = true;
-                //             break;
-                //         }
-                //     }
-                // }
-                // if (touchingTheWallBefore) {
-                //     rotation = NONE;
-                // }
-                rotation *= -1;
+                boolean touchingTheWallBefore = false;
+                for (Direction d : DIRECTIONS) {
+                    MapLocation translatedMapLocation = me.add(d);
+                    if (rc.onTheMap(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                            touchingTheWallBefore = true;
+                            break;
+                        }
+                    }
+                }
+                if (touchingTheWallBefore) {
+                    rotation = NONE;
+                }
                 return direction;
             }
         }
         
-        indicatorString.append("ROTATION=" + rotation + " ");
         if (rotation == NONE) {
             int[] simulated = simulateMovement(me, dest);
     
@@ -442,7 +427,6 @@ public class Motion {
             boolean clockwiseStuck = simulated[1] == 1;
             boolean counterClockwiseStuck = simulated[3] == 1;
             
-            indicatorString.append("DIST=" + clockwiseDist + " " + counterClockwiseDist);
             int tempMode = mode;
             if (mode == AROUND) {
                 if (clockwiseDist < minRadiusSquared) {
@@ -484,6 +468,7 @@ public class Motion {
                     rotation = CLOCKWISE;
                 }
             }
+            rc.setIndicatorString(clockwiseDist + " " + counterClockwiseDist);
         }
 
         for (int i = 0; i < 7; i++) {
@@ -707,9 +692,6 @@ public class Motion {
         // RobotInfo[] nearbyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
         // if ((nearbyRobots.length != 0 && rc.getHealth() <= retreatHP) || nearbyRobots.length >= 3 || rc.senseNearbyRobots(4, rc.getTeam().opponent()).length > 0) {
         //     bug2retreat();
-        if (rc.hasFlag() && rc.getLocation().distanceSquaredTo(dest) <= 36) {
-            retreatHP = 0;
-        }
         if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             // bug2retreat();
             micro(dest);
@@ -790,7 +772,6 @@ public class Motion {
                 if (rc.hasFlag() && d.equals(me.directionTo(dest).opposite()) || d.equals(me.directionTo(dest).opposite().rotateLeft()) || d.equals(me.directionTo(dest).opposite().rotateRight())) {
                     weight -= 2;
                 }
-                // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
                     if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 1 && rc.getTeam() == Team.A) {
                         weight += 100;
@@ -806,36 +787,30 @@ public class Motion {
                         // attack micro - retreat when too close and move closer to attack
                         if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
-                            // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
-                            //     weight += 6;
-                            // }
+                            if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
+                                weight += 6;
+                            }
                         }
                         else {
                             actions -= 1;
                             weight += 4;
                         }
-                        if (rc.hasFlag()) {
-                            weight -= 30;
-                        }
-                        else if (robot.hasFlag()) {
+                        if (robot.hasFlag()) {
                             weight += 10;
                         }
-                        // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        if (rc.hasFlag()) {
-                            weight -= 20;
-                        }
-                        else if (robot.hasFlag()) {
+                        if (robot.hasFlag()) {
                             weight += 20;
                         }
                     }
                     // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
+                        // UNLESS ITS THE FLAG ROBOT
                         if (robot.hasFlag()) {
                             weight += 20;
                         }
@@ -886,7 +861,7 @@ public class Motion {
                                 break build;
                             }
                         }
-                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getCrumbs() >= 500) {
+                        if (rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() || rc.getRoundNum() <= 250) {
                             rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                     }
