@@ -66,12 +66,27 @@ public class Defensive {
                 for (int i = 0; i < 4; i++) {
                     MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     if (rng.nextInt(3) == 0) {
-                        if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        // if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                        //     rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        // }
+                        placeTrap: {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                            for (MapInfo info : nearbyTraps) {
+                                if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                            }
+                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                rc.build(TrapType.STUN, buildLoc);
+                            }
                         }
                     } else {
-                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                            rc.build(TrapType.WATER, buildLoc);
+                        placeTrap: {
+                            MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                            for (MapInfo info : nearbyTraps) {
+                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                            }
+                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                rc.build(TrapType.WATER, buildLoc);
+                            }
                         }
                     }
                 }

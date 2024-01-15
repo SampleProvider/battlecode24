@@ -309,7 +309,7 @@ public class Motion {
             return Direction.CENTER;
         }
 
-        if (optimalDir != Direction.CENTER) {
+        if (optimalDir != Direction.CENTER && mode != AROUND) {
             if (rc.canMove(optimalDir) && lastDir != optimalDir.opposite()) {
                 optimalDir = Direction.CENTER;
                 rotation = NONE;
@@ -781,7 +781,7 @@ public class Motion {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        // weight -= 3;
+                        weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {
@@ -793,7 +793,7 @@ public class Motion {
                     }
                     // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                        // weight -= 16;
+                        weight -= 16;
                         if (robot.hasFlag()) {
                             weight += 20;
                         }
