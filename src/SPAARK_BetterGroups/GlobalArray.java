@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_BetterGroups;
 
 import battlecode.common.*;
 
@@ -26,11 +26,16 @@ public class GlobalArray {
      * 21-23: Opponent flag infos
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
-     * 26-50: Sectors
-     * 51-58: Group instructions
-     * 59: staging target
-     * 60: staging best
-     * 61: staging curr
+     * 24: Staging target
+     * 25: Staging best
+     * 26: Staging current
+     * 27-30: Robot POI
+     * rotating group staging?
+     * rotates over 5 rounds - 12 indices (6 per group)
+     * 1 index for location of one of the robots
+     * other robots fill themselves in by distance in the same turn
+      * 
+     * use another 9 indices for teh actual targets of the group as dictated by leader (first robot in group)
      * 63: Global id counter (first round only), flag target heuristic (setup only)
      * 
      * Formatting:
