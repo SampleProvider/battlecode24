@@ -60,13 +60,12 @@ public class Offensive {
             GlobalArray.writeFlag(flag);
         }
         GlobalArray.checkFlags(opponentFlags);
-        GlobalArray.updateSector();
 
         // flagIndex: index of flag currently holding in global array
         if (flagIndex != -1) {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getSafest(spawnLocs);
+            MapLocation bestLoc = Motion.getClosest(spawnLocs);
             rc.setIndicatorDot(me, 255, 0, 0);
             rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
             Motion.bugnavTowards(bestLoc, 1000);
@@ -259,7 +258,6 @@ public class Offensive {
             }
         }
 
-        GlobalArray.updateSector();
         Attack.attack();
         Attack.heal();
     }

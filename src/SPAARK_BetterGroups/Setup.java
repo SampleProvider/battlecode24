@@ -353,7 +353,7 @@ public class Setup {
                 }
             }
         }
-        if (GlobalArray.id < 6) {
+        if (GlobalArray.id < 3) {
             rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }

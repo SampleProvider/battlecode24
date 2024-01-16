@@ -117,7 +117,6 @@ public strictfp class RobotPlayer {
                 Leader.indicatorString = indicatorString;
                 Follower.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
-                    GlobalArray.incrementSectorTime();
                     GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
