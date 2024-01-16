@@ -1042,7 +1042,7 @@ public class Motion {
         }
         recalculationNeeded = MAX_PATH_LENGTH;
         
-        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 8000) {
+        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 10000) {
             stepOffset = step * (height + 2);
             switch (height) {
                 case 30:
