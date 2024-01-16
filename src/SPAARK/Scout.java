@@ -60,6 +60,7 @@ public class Scout {
         }
 
         String updatedSectors = GlobalArray.updateSector();
+        Motion.updateBfsMap();
 
         if (flagIndex != -1) {
             // navigate back to spawn
