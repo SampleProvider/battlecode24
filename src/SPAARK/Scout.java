@@ -67,7 +67,7 @@ public class Scout {
             MapLocation bestLoc = Motion.getSafest(spawnLocs);
             rc.setIndicatorDot(me, 255, 0, 0);
             rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
-            Motion.bugnavTowards(bestLoc, 1000);
+            Motion.bfsnav(bestLoc, 1000);
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 0);
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, 0);
@@ -80,7 +80,7 @@ public class Scout {
             // go to flag!
             if (!action) {
                 if (closestFlag != null) {
-                    Motion.bugnavTowards(closestFlag.getLocation());
+                    Motion.bfsnav(closestFlag.getLocation());
                     action = true;
                 }
             }
@@ -89,7 +89,7 @@ public class Scout {
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 for (MapInfo i : info) {
                     if (i.getCrumbs() > 0) {
-                        Motion.bugnavTowards(i.getMapLocation());
+                        Motion.bfsnav(i.getMapLocation());
                         indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                         action = true;
                         break;
@@ -120,7 +120,7 @@ public class Scout {
                     }
                 }
                 rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 0, 255);
-                Motion.bugnavTowards(GlobalArray.sectorToLocation(targetSector));
+                Motion.bfsnav(GlobalArray.sectorToLocation(targetSector));
             }
         }
 
