@@ -1,4 +1,4 @@
-package TSPARK_OneGroup;
+package TSPAARK_OneGroup;
 
 import battlecode.common.*;
 
