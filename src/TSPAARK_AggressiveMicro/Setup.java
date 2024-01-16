@@ -1,4 +1,4 @@
-package SPAARK_NoSetup;
+package TSPAARK_AggressiveMicro;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -11,18 +11,20 @@ public class Setup {
 
     protected static int flagIndex = -1;
     protected static MapLocation[] placementLocationsOne = {
-        new MapLocation(5, 5),
-        new MapLocation(-5, -5),
-        new MapLocation(0, 10),
-        new MapLocation(0, -10),
+        new MapLocation(0, 7),
+        new MapLocation(0, -7),
+        new MapLocation(8, 8),
+        new MapLocation(-8, -8),
     };
     protected static MapLocation[] placementLocationsTwo = {
-        new MapLocation(-5, 5),
-        new MapLocation(5, -5),
-        new MapLocation(10, 0),
-        new MapLocation(-10, 0),
+        new MapLocation(7, 0),
+        new MapLocation(-7, 0),
+        new MapLocation(-8, 8),
+        new MapLocation(8, -8),
     };
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
+    protected static int turnsPlacingFlag = 0;
+    protected static MapLocation flagInit;
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -43,25 +45,20 @@ public class Setup {
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation()) && flagtarget < 0b110000000000000) {
-            // rc.pickupFlag(closestFlag.getLocation());
-            // rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
-        }
-        if (rc.hasFlag()) {
-            //ignore this because we aren't moving flags rn
-            if (flagIndex == -1) {
-                int flagId = rc.senseNearbyFlags(0, rc.getTeam())[0].getID();
-                for (int i = 0; i <= 2; i++) {
-                    if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == 0) {
-                        rc.writeSharedArray(i, flagId);
-                        flagIndex = i;
-                        break;
-                    }
-                    else if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == flagId) {
-                        flagIndex = i;
-                        break;
-                    }
+            flagInit = closestFlag.getLocation();
+            rc.pickupFlag(closestFlag.getLocation());
+            for (int i = 0; i <= 2; i++) {
+                if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
+                    flagIndex = i;
+                    break;
                 }
             }
+            rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget + 0b10000000000000);
+            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
+        }
+        GlobalArray.updateSector();
+        if (rc.hasFlag()) {
+            // move flag
             if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET))) {
                 //set flag target
                 MapLocation[] spawns = rc.getAllySpawnLocations();
@@ -69,6 +66,9 @@ public class Setup {
             }
             MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
             MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
+            // if (turnsPlacingFlag > 90) {
+            //     toPlace = flagInit;
+            // }
             if (flagOffset.x == -100) {
                 switch (flagIndex) {
                     case 0:
@@ -77,6 +77,12 @@ public class Setup {
                     case 1:
                         for (MapLocation loc : placementLocationsOne) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x>= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -86,6 +92,12 @@ public class Setup {
                     case 2:
                         for (MapLocation loc : placementLocationsTwo) {
                             flagOffset = loc;
+                            if (flagTarget.x < rc.getMapWidth() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x * -1, flagOffset.y);
+                            }
+                            if (flagTarget.y < rc.getMapHeight() / 2) {
+                                flagOffset = new MapLocation(flagOffset.x, flagOffset.y * -1);
+                            }
                             toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
                             if (toPlace.x >= 0 && toPlace.x <= rc.getMapWidth() && toPlace.y >= 0 && toPlace.y <= rc.getMapHeight()) {
                                 break;
@@ -96,11 +108,22 @@ public class Setup {
                 }
             }
             Motion.bugnavTowards(toPlace, 500);
-            MapLocation me = rc.getLocation();
+            // MapLocation me = rc.getLocation();
             if (rc.canSenseLocation(toPlace)) {
                 MapInfo tile = rc.senseMapInfo(toPlace);
-                if (!tile.isPassable() && !tile.isWater()) {
-                    System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
+                // testing if flag placement is valid because senseLegalStartingFlagPlacement is broken
+                boolean valid = true;
+                for (int i = 0; i <= 2; i++) {
+                    int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
+                    if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
+                        if (toPlace.distanceSquaredTo(GlobalArray.parseLocation(n)) < 36) {
+                            valid = false;
+                        }
+                    }
+                }
+                if (!tile.isPassable() || !valid) {
+                    // System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
+                    indicatorString.append(flagIndex+" "+toPlace.x+","+toPlace.y+" "+valid+" "+tile.isPassable());
                     indicatorString.append("FLAGINVALID;");
                     if (flagOffset.x < 0) {
                         flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
@@ -122,15 +145,19 @@ public class Setup {
             }
             if (rc.canDropFlag(toPlace)) {
                 rc.dropFlag(toPlace);
-                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
+                // rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
                 flagIndex = -1;
             }
             else {
-                // rc.setIndicatorLine(me, toPlace, 255, 255, 255);
+                // rc.setIndicatorLine(me, toPlace, 255, 255, 0);
                 indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, (1 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+                rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
             }
+        }
+        else if (GlobalArray.id < 6) {
+            // follow the flag carrier
+            Motion.bug2towards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3))));
         }
         else {
             //grab any crumb we see
@@ -162,7 +189,7 @@ public class Setup {
                 }
             }
             // System.out.println(GlobalArray.parseLocation(damLoc).x + " " + GlobalArray.parseLocation(damLoc).y + " " + damLoc);
-            if (rc.getRoundNum() + rc.getMapHeight() + rc.getMapWidth() > 240) {
+            if (rc.getRoundNum() + rc.getMapHeight() + rc.getMapWidth() > 220) {
                 //Almost done with setup rounds, go and line up at the wall
                 if (!action) {
                     if (!nearDam) {
@@ -170,7 +197,7 @@ public class Setup {
                         if (GlobalArray.hasLocation(damLoc)) {
                             Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                             indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                            // rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 0, 255, 0);
+                            // rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
                             action = true;
                         }
                         if (!action) {
@@ -238,5 +265,6 @@ public class Setup {
         }
     }
     protected static void jailed() throws GameActionException {
+        // how are you dying lol
     }
 }

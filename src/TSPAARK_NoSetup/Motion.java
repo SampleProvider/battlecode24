@@ -1,4 +1,4 @@
-package TSPARK_OneGroup;
+package TSPAARK_NoSetup;
 
 import battlecode.common.*;
 
@@ -133,6 +133,21 @@ public class Motion {
         }
         return closest;
     }
+
+    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        MapLocation safest = a[0];
+        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
+        for (MapLocation loc : a) {
+            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
+            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
+                safest = loc;
+                robots = r;
+            }
+        }
+        return safest;
+    }
+
 
     protected static void moveRandomly() throws GameActionException {
         boolean stuck = true;
@@ -272,22 +287,14 @@ public class Motion {
     }
     
     protected static Direction bug2Helper(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
-        Direction direction = me.directionTo(dest);
-        if (mode == TOWARDS) {
-            if (direction == Direction.CENTER) {
-                return direction;
-            }
+        if (me.equals(dest)) {
+            return Direction.CENTER;
         }
-        else if (mode == AWAY) {
-            if (direction == Direction.CENTER) {
-                direction = Direction.EAST;
-            }
+        Direction direction = me.directionTo(dest);
+        if (mode == AWAY) {
             direction = direction.opposite();
         }
         else if (mode == AROUND) {
-            if (direction == Direction.CENTER) {
-                direction = Direction.EAST;
-            }
             if (me.distanceSquaredTo(dest) < minRadiusSquared) {
                 direction = direction.opposite();
             }
@@ -766,6 +773,9 @@ public class Motion {
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10 && rc.getHealth() < 500) {
                         weight -= 5;
+                        if (robot.hasFlag) {
+                            weight += 20;
+                        }
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
                         weight -= 16;
@@ -804,7 +814,19 @@ public class Motion {
                 }
             }
             if (bestDir != null) {
-                rc.move(bestDir);
+                if (opponentRobots.length >= 5 && friendlyRobots.length >= 5) {
+                    MapLocation buildLoc = rc.getLocation().add(bestDir);
+                    if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                        // MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 10);
+                        // for (MapInfo m : mapInfo) {
+                        //     if (m.getTrapType() != TrapType.NONE) {
+                        //         break;
+                        //     }
+                        // }
+                        rc.build(TrapType.EXPLOSIVE, buildLoc);
+                    }
+                }
+                moveWithAction(bestDir);
                 lastDir = bestDir;
             }
             else if (bestFillDir != null) {

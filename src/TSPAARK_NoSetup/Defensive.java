@@ -1,4 +1,4 @@
-package SPAARK_NoSetup;
+package TSPAARK_NoSetup;
 
 import battlecode.common.*;
 
