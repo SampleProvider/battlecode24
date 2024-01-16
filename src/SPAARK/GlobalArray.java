@@ -209,7 +209,7 @@ public class GlobalArray {
                         }
                     }
                     if (!found) {
-                        rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, Math.max(rc.readSharedArray(OPPO_FLAG_DEF_LOC + i));
+                        rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, rc.readSharedArray(OPPO_FLAG_DEF_LOC + i));
                     }
                 }
             }
