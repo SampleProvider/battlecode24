@@ -66,6 +66,10 @@ public strictfp class RobotPlayer {
         while (true) {
             turnCount += 1;
 
+            if (rc.getTeam() == Team.A) {
+                return;
+            }
+
             try {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
@@ -174,12 +178,12 @@ public strictfp class RobotPlayer {
             catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
-                // rc.resign();
+                rc.resign();
             }
             catch (Exception e) {
                 System.out.println("Exception");
                 e.printStackTrace();
-                // rc.resign();
+                rc.resign();
             }
             finally {
                 Clock.yield();

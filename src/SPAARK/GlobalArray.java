@@ -529,7 +529,7 @@ public class GlobalArray {
             opponentFlagGroupsAssigned[i] = new StringBuilder();
             friendlyFlagGroupsAssigned[i] = new StringBuilder();
         }
-        // Motion.bfsInit();
+        Motion.bfsInit();
     }
 
 }
