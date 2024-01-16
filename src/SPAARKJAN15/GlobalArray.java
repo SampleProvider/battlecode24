@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKJAN15;
 
 import battlecode.common.*;
 
@@ -529,7 +529,6 @@ public class GlobalArray {
             opponentFlagGroupsAssigned[i] = new StringBuilder();
             friendlyFlagGroupsAssigned[i] = new StringBuilder();
         }
-        Motion.bfsInit();
     }
 
 }

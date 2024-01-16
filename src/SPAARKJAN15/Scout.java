@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKJAN15;
 
 import battlecode.common.*;
 
@@ -35,19 +35,19 @@ public class Scout {
 
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            // rc.pickupFlag(closestFlag.getLocation());
-            // int flagId = closestFlag.getID();
-            // for (int i = 0; i <= 2; i++) {
-            //     if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
-            //         flagIndex = i;
-            //         rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);
-            //         break;
-            //     }
-            //     else if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == flagId) {
-            //         flagIndex = i;
-            //         break;
-            //     }
-            // }
+            rc.pickupFlag(closestFlag.getLocation());
+            int flagId = closestFlag.getID();
+            for (int i = 0; i <= 2; i++) {
+                if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
+                    flagIndex = i;
+                    rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);
+                    break;
+                }
+                else if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == flagId) {
+                    flagIndex = i;
+                    break;
+                }
+            }
         }
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
