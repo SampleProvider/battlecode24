@@ -1,4 +1,4 @@
-package SPAARK_BetterGroups;
+package SPAARK_POIComms;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -353,7 +353,7 @@ public class Setup {
                 }
             }
         }
-        if (GlobalArray.id < 3) {
+        if (GlobalArray.id < 6) {
             rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }

@@ -1,10 +1,12 @@
-package SPAARK_BetterGroups;
+package SPAARK_POIComms;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
 public strictfp class RobotPlayer {
+    protected static int turnCount = 0;
+
     protected static Random rng;
 
     protected static Direction[] directions = {
@@ -43,18 +45,27 @@ public strictfp class RobotPlayer {
         Leader.rng = rng;
         Follower.rc = rc;
         Follower.rng = rng;
-        Robot0.rng = rng;
 
         GlobalArray.init();
         
-        if (GlobalArray.groupId == -1) {
+        if (GlobalArray.groupId == 0) {
             mode = DEFENSIVE;
-        }
-        if (GlobalArray.id == 3 || GlobalArray.id == 4) {
+        } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
+        if (GlobalArray.id == 5) {
+            GlobalArray.groupLeader = false;
+            GlobalArray.groupId = 0;
+            mode = DEFENSIVE;
+        } else if (GlobalArray.id == 6) {
+            GlobalArray.groupLeader = true;
+        }
+
+        Clock.yield();
 
         while (true) {
+            turnCount += 1;
+
             try {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
@@ -111,9 +122,9 @@ public strictfp class RobotPlayer {
                 Scout.indicatorString = indicatorString;
                 Leader.indicatorString = indicatorString;
                 Follower.indicatorString = indicatorString;
-                Robot0.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
-                    Robot0.run();
+                    GlobalArray.incrementSectorTime();
+                    GlobalArray.allocateGroups();
                 }
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
@@ -152,9 +163,8 @@ public strictfp class RobotPlayer {
                     else {
                         if (GlobalArray.groupLeader) {
                             Leader.run();
-                        } else {
-                            Follower.run();
                         }
+                        Follower.run();
                         Offensive.run();
                     }
                 }
