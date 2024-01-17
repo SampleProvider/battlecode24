@@ -39,26 +39,11 @@ public strictfp class RobotPlayer {
         Offensive.rng = rng;
         Defensive.rc = rc;
         Defensive.rng = rng;
-        Scout.rc = rc;
-        Scout.rng = rng;
-        Leader.rc = rc;
-        Leader.rng = rng;
-        Follower.rc = rc;
-        Follower.rng = rng;
 
         GlobalArray.init();
         
-        if (GlobalArray.groupId == 0) {
+        if (GlobalArray.id < 3) {
             mode = DEFENSIVE;
-        } else if (GlobalArray.groupId == 1) {
-            mode = SCOUT;
-        }
-        if (GlobalArray.id == 5) {
-            GlobalArray.groupLeader = false;
-            GlobalArray.groupId = 0;
-            mode = DEFENSIVE;
-        } else if (GlobalArray.id == 6) {
-            GlobalArray.groupLeader = true;
         }
 
         Clock.yield();
@@ -119,13 +104,6 @@ public strictfp class RobotPlayer {
                 Setup.indicatorString = indicatorString;
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
-                Scout.indicatorString = indicatorString;
-                Leader.indicatorString = indicatorString;
-                Follower.indicatorString = indicatorString;
-                if (GlobalArray.id == 0) {
-                    GlobalArray.incrementSectorTime();
-                    GlobalArray.allocateGroups();
-                }
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
@@ -133,22 +111,18 @@ public strictfp class RobotPlayer {
                     else if (mode == DEFENSIVE) {
                         Defensive.jailed();
                     }
-                    else if (mode == SCOUT) {
-                        Scout.jailed();
-                    }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.jailed();
-                        }
-                        Follower.jailed();
                         Offensive.jailed();
                     }
                 }
                 else {
-                    if (rc.getRoundNum() >= 750 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+                    if (rc.getRoundNum() >= 600 && rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
                         rc.buyGlobal(GlobalUpgrade.ACTION);
                     }
-                    if (rc.getRoundNum() >= 1500 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                    if (rc.getRoundNum() >= 1200 && rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
+                        rc.buyGlobal(GlobalUpgrade.CAPTURING);
+                    }
+                    if (rc.getRoundNum() >= 1800 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
@@ -157,14 +131,7 @@ public strictfp class RobotPlayer {
                     else if (mode == DEFENSIVE) {
                         Defensive.run();
                     }
-                    else if (mode == SCOUT) {
-                        Scout.run();
-                    }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.run();
-                        }
-                        Follower.run();
                         Offensive.run();
                     }
                 }

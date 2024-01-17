@@ -30,9 +30,6 @@ public class Offensive {
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         
-        // indicator thingy
-        rc.setIndicatorDot(me, 0, 255, Math.min((GlobalArray.groupId - 2) * 32, 255));
-
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             rc.pickupFlag(closestFlag.getLocation());
@@ -67,7 +64,7 @@ public class Offensive {
         if (flagIndex != -1) {
             // navigate back to spawn
             MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getSafest(spawnLocs);
+            MapLocation bestLoc = Motion.getClosest(spawnLocs);
             rc.setIndicatorDot(me, 255, 0, 0);
             rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
             Motion.bfsnav(bestLoc, 1000);

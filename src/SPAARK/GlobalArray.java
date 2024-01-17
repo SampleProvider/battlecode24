@@ -31,8 +31,10 @@ public class GlobalArray {
      * 59: staging target
      * 60: staging best
      * 61: staging curr
-     * 63: Global id counter (first round only), flag target heuristic (setup only)
-     * 
+     * 63: Global id counter (first round only)
+     * 63: Flag target heuristic (setup only)
+    */
+    /**
      * Formatting:
      * 
      * Location:
@@ -89,7 +91,6 @@ public class GlobalArray {
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
     protected static int[][] sectors;
-    
 
     protected static void write(int index, int bits, int n) throws GameActionException {
         int r = rc.readSharedArray(index);
@@ -159,7 +160,7 @@ public class GlobalArray {
                         // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         //     rc.writeSharedArray(ALLY_FLAG_DEF_LOC + i, intifyLocation(flag.getLocation()));
                         // }
-                        MapLocation me = rc.getLocation();
+                        // MapLocation me = rc.getLocation();
                         if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length > 0) {
                             rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | intifyLocation(flag.getLocation()));
                             rc.writeSharedArray(ALLY_FLAG_INFO + i, Math.min(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2 + 5, 64));
@@ -528,5 +529,4 @@ public class GlobalArray {
         }
         Motion.bfsInit();
     }
-
 }
