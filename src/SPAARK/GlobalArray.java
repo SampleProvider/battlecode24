@@ -165,7 +165,7 @@ public class GlobalArray {
                         MapLocation me = rc.getLocation();
                         if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length > 0) {
                             rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | intifyLocation(flag.getLocation()));
-                            rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | Math.min(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2 + 5, 64));
+                            rc.writeSharedArray(ALLY_FLAG_INFO + i, Math.min(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2 + 5, 64));
                         }
                         else {
                             rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, intifyLocation(flag.getLocation()));
@@ -196,7 +196,7 @@ public class GlobalArray {
             }
         }
     }
-    protected static void checkFlags(FlagInfo[] opponentFlags) throws GameActionException {
+    protected static void checkFlags(FlagInfo[] friendlyFlags, FlagInfo[] opponentFlags) throws GameActionException {
         // detect if flags were reset
         for (int i = 0; i <= 2; i++) {
             int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
