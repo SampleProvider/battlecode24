@@ -51,6 +51,7 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_INFO = 21;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
+    protected static final int POI = 26;
     protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
@@ -165,7 +166,9 @@ public class GlobalArray {
     }
 
     // new POI stuff
-    protected static int 
+    protected static void writePOI(MapLocation loc) {
+        
+    }
 
     protected static void init() throws GameActionException {
         // get own id (used for groups and staging)
