@@ -196,7 +196,7 @@ public class GlobalArray {
             }
         }
     }
-    protected static void checkFlags(FlagInfo[] friendlyFlags, FlagInfo[] opponentFlags) throws GameActionException {
+    protected static void checkFlags(FlagInfo[] opponentFlags) throws GameActionException {
         // detect if flags were reset
         for (int i = 0; i <= 2; i++) {
             int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
