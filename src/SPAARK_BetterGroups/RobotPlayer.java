@@ -5,8 +5,6 @@ import battlecode.common.*;
 import java.util.Random;
 
 public strictfp class RobotPlayer {
-    protected static int turnCount = 0;
-
     protected static Random rng;
 
     protected static Direction[] directions = {
@@ -45,21 +43,18 @@ public strictfp class RobotPlayer {
         Leader.rng = rng;
         Follower.rc = rc;
         Follower.rng = rng;
+        Robot0.rng = rng;
 
         GlobalArray.init();
         
-        if (GlobalArray.groupId == 0) {
+        if (GlobalArray.groupId == -1) {
             mode = DEFENSIVE;
         }
         if (GlobalArray.id == 3 || GlobalArray.id == 4) {
             mode = SCOUT;
         }
 
-        Clock.yield();
-
         while (true) {
-            turnCount += 1;
-
             try {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
@@ -116,8 +111,9 @@ public strictfp class RobotPlayer {
                 Scout.indicatorString = indicatorString;
                 Leader.indicatorString = indicatorString;
                 Follower.indicatorString = indicatorString;
+                Robot0.indicatorString = indicatorString;
                 if (GlobalArray.id == 0) {
-                    GlobalArray.allocateGroups();
+                    Robot0.run();
                 }
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {

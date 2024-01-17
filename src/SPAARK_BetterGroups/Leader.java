@@ -9,20 +9,12 @@ public class Leader {
     protected static StringBuilder indicatorString;
 
     protected static Random rng;
-
-    protected static final Direction[] DIRECTIONS = {
-        Direction.SOUTHWEST,
-        Direction.SOUTH,
-        Direction.SOUTHEAST,
-        Direction.WEST,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.NORTHWEST,
-        Direction.NORTH,
-    };
     
     protected static void run() throws GameActionException {
+        // update own position
+        // remove group if there are no ducks in the group (delete own position)
     }
     protected static void jailed() throws GameActionException {
+        // remove own group id and become follower (also delete position)
     }
 }

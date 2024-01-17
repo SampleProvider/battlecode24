@@ -19,24 +19,21 @@ public class GlobalArray {
      * 0-2: Ally flag ids
      * 3-5: Ally flag default locations
      * 6-8: Ally flag current locations
-     * 9-11: Ally flag number of robots and robot direction
+     * 9-11: Ally flag info
      * 12-14: Opponent flag ids
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
-     * 21-23: Opponent flag infos
+     * 21-23: Opponent flag info
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
      * 24: Staging target
      * 25: Staging best
      * 26: Staging current
      * 27-30: Robot POI
-     * rotating group staging?
-     * rotates over 5 rounds - 12 indices (6 per group)
-     * 1 index for location of one of the robots, other 5 are ids
-     * other robots fill themselves in by distance in the same turn
-     * when filling by distance, if can't sense other robot just replace it (probably too far anyways)
-     * use another 9 indices for teh actual targets of the group as dictated by leader (first robot in group)
-     * 63: Global id counter (first round only), flag target heuristic (setup only)
+     * 31-39: Group staging
+     * 40-48: Group targets
+     * 63: Global id counter (first round only)
+     * 63: Flag target heuristic (setup only)
      * 
      * Formatting:
      * 
@@ -46,18 +43,13 @@ public class GlobalArray {
      * bit 13: Presence indicator
      * 
      * Flags:
+     * bits 1-13: Flag location
      * bit 14: Flag picked up
      * 
      * Flag Info:
      * bit 1-6: Number of opponent robots
      * bit 7-10: X of robot direction (which direction the robot with the flag is going)
      * bit 11-14: Y of robot direction
-     * 
-     * Sectors:
-     * bit 1-5: Number of opponent robots
-     * bit 6-10: Number of friendly robots
-     * bit 11-13: Number of assigned groups
-     * bit 14-16: Time since last explored
      * 
      * Staging Target:
      * bit 13: Presence indicator
@@ -72,6 +64,9 @@ public class GlobalArray {
      * bits 13-15: Group id
      * bit 16: if the target is NOT assigned
      * 
+     * Group staging area:
+     * bits 1-13: Leader location
+     * bits 14-16: Robot count
      */
     protected static final int ALLY_FLAG_ID = 0;
     protected static final int ALLY_FLAG_DEF_LOC = 3;
@@ -84,7 +79,10 @@ public class GlobalArray {
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
     protected static final int SETUP_FLAG_WEIGHT = 63;
-    protected static final int GROUP_INSTRUCTIONS = 51;
+    protected static final int POINTS_OF_INTEREST = 27;
+    protected static final int POI_LENGTH = 4;
+    protected static final int GROUP_STAGING = 31;
+    protected static final int GROUP_INSTRUCTIONS = 40;
     protected static final int STAGING_TARGET = 59;
     protected static final int STAGING_BEST = 60;
     protected static final int STAGING_CURR = 61;
@@ -206,78 +204,93 @@ public class GlobalArray {
     }
 
     // staging target
-    protected static final int GROUP_OFFSET = 2;
-    protected static boolean isGlobalArrayLoc(int n) {
-        return ((n >> 13) & 0b1) == 1;
-    }
-    protected static int intifyTarget(int index) {
-        return 0b11000000000000 | index;
-    }
-    protected static int getGroupData(int index) throws GameActionException {
-        return rc.readSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET) >> 13;
-    }
-    protected static MapLocation getGroupTarget(int index) throws GameActionException {
-        int n = rc.readSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET);
-        if (n == 0) {
-            return null;
-        }
-        if (GlobalArray.isGlobalArrayLoc(n)) {
-            int i = n & 0b111111;
-            int n2 = rc.readSharedArray(i);
-            if (!GlobalArray.hasLocation(n2)) {
-                rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
-                return null;
-            }
-            if (i >= ALLY_FLAG_CUR_LOC && i <= ALLY_FLAG_CUR_LOC + 2) {
-                MapLocation defaultLoc = parseLocation(rc.readSharedArray(i - 3));
-                if (parseLocation(n2).equals(defaultLoc)) {
-                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
-                    return null;
-                }
-            }
-            if (i >= OPPO_FLAG_DEF_LOC && i <= OPPO_FLAG_DEF_LOC + 2) {
-                int currLoc = rc.readSharedArray(i + 3);
-                if (isFlagPickedUp(currLoc)) {
-                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
-                    return null;
-                }
-            }
-            if (i >= OPPO_FLAG_CUR_LOC && i <= OPPO_FLAG_CUR_LOC + 2) {
-                int info = rc.readSharedArray(i + 3);
-                // just give up buh
-                if (getNumberOfRobots(info) - getNumberOfFriendlyRobotsFlagInfo(info) >= 15) {
-                    rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
-                    return null;
-                }
-            }
-            return GlobalArray.parseLocation(n2);
-        }
-        else {
-            return GlobalArray.parseLocation(n);
-        }
-    }
+    // REWRITE A BIT TO REMOVE GROUP OFFSET
+    // protected static final int GROUP_OFFSET = 1;
+    // protected static boolean isGlobalArrayLoc(int n) {
+    //     return ((n >> 13) & 0b1) == 1;
+    // }
+    // protected static int intifyTarget(int index) {
+    //     return 0b11000000000000 | index;
+    // }
+    // protected static int getGroupData(int index) throws GameActionException {
+    //     return rc.readSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET) >> 13;
+    // }
+    // protected static MapLocation getGroupTarget(int index) throws GameActionException {
+    //     int n = rc.readSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET);
+    //     if (n == 0) {
+    //         return null;
+    //     }
+    //     if (GlobalArray.isGlobalArrayLoc(n)) {
+    //         int i = n & 0b111111;
+    //         int n2 = rc.readSharedArray(i);
+    //         if (!GlobalArray.hasLocation(n2)) {
+    //             rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
+    //             return null;
+    //         }
+    //         if (i >= ALLY_FLAG_CUR_LOC && i <= ALLY_FLAG_CUR_LOC + 2) {
+    //             MapLocation defaultLoc = parseLocation(rc.readSharedArray(i - 3));
+    //             if (parseLocation(n2).equals(defaultLoc)) {
+    //                 rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
+    //                 return null;
+    //             }
+    //         }
+    //         if (i >= OPPO_FLAG_DEF_LOC && i <= OPPO_FLAG_DEF_LOC + 2) {
+    //             int currLoc = rc.readSharedArray(i + 3);
+    //             if (isFlagPickedUp(currLoc)) {
+    //                 rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
+    //                 return null;
+    //             }
+    //         }
+    //         if (i >= OPPO_FLAG_CUR_LOC && i <= OPPO_FLAG_CUR_LOC + 2) {
+    //             int info = rc.readSharedArray(i + 3);
+    //             // just give up buh
+    //             if (getNumberOfRobots(info) - getNumberOfFriendlyRobotsFlagInfo(info) >= 15) {
+    //                 rc.writeSharedArray(GROUP_INSTRUCTIONS + index - GROUP_OFFSET, 0);
+    //                 return null;
+    //             }
+    //         }
+    //         return GlobalArray.parseLocation(n2);
+    //     }
+    //     else {
+    //         return GlobalArray.parseLocation(n);
+    //     }
+    // }
 
     // group staging
-    protected static int getDistance(int n) {
-        return n & 0b111111111111;
+    // protected static int getDistance(int n) {
+    //     return n & 0b111111111111;
+    // }
+    // protected static int setDistance(int n, int v) {
+    //     return (n & 0b1111000000000000) | v;
+    // }
+    // protected static int getGroupId(int n) {
+    //     return ((n >> 12) & 0b111) + GROUP_OFFSET;
+    // }
+    // protected static int setGroupId(int n, int v) {
+    //     return (n & 0b1000111111111111) | ((v - GROUP_OFFSET) << 12);
+    // }
+    // protected static boolean isUnassigned(int n) {
+    //     return ((n >> 15) & 0b1) == 1;
+    // }
+
+    // new group stuff
+    protected static int getGroupRobotCount(int n) {
+        return n >> 13;
     }
-    protected static int setDistance(int n, int v) {
-        return (n & 0b1111000000000000) | v;
+    protected static void joinGroup(int id) throws GameActionException {
+        groupId = id;
+        rc.writeSharedArray(GROUP_STAGING + groupId, incrementGroupRobotCount(rc.readSharedArray(GROUP_STAGING + groupId)));
     }
-    protected static int getGroupId(int n) {
-        return ((n >> 12) & 0b111) + GROUP_OFFSET;
+    protected static void leaveGroup() throws GameActionException {
+        groupId = -1;
+        groupLeader = false;
+        rc.writeSharedArray(GROUP_STAGING + groupId, decrementGroupRobotCount(rc.readSharedArray(GROUP_STAGING + groupId)));
     }
-    protected static int setGroupId(int n, int v) {
-        return (n & 0b1000111111111111) | ((v - GROUP_OFFSET) << 12);
+    protected static int incrementGroupRobotCount(int n) {
+        return (Math.min(8, (n >> 13) + 1) << 13) | (n & 0b1111111111111);
     }
-    protected static boolean isUnassigned(int n) {
-        return ((n >> 15) & 0b1) == 1;
-    }
-    
-    protected static StringBuilder[] sectorGroupsAssigned;
-    protected static StringBuilder[] friendlyFlagGroupsAssigned = new StringBuilder[3];
-    protected static StringBuilder[] opponentFlagGroupsAssigned = new StringBuilder[3];
-    protected static void allocateGroups() throws GameActionException {
+    protected static int decrementGroupRobotCount(int n) {
+        return (Math.max(0, (n >> 13) - 1) << 13) | (n & 0b1111111111111);
     }
 
     protected static void init() throws GameActionException {
@@ -286,5 +299,4 @@ public class GlobalArray {
         rc.writeSharedArray(INIT_GLOBAL_ID_COUNTER, id + 1);
         // Motion.bfsInit();
     }
-
 }
