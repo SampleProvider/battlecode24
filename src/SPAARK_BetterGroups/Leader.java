@@ -11,10 +11,19 @@ public class Leader {
     protected static Random rng;
     
     protected static void run() throws GameActionException {
-        // update own position
+        // this could be bytecode optimized but lol nope pretty useless right now
+        // update own position for other robots
+        rc.writeSharedArray(GlobalArray.GROUP_STAGING + GlobalArray.groupId, GlobalArray.updateLocation(rc.readSharedArray(GlobalArray.GROUP_STAGING + GlobalArray.groupId), rc.getLocation()));
         // remove group if there are no ducks in the group (delete own position)
+        if (GlobalArray.getGroupRobotCount(rc.readSharedArray(GlobalArray.GROUP_STAGING + GlobalArray.groupId)) == 0) {
+            rc.writeSharedArray(GlobalArray.GROUP_STAGING + GlobalArray.groupId, rc.readSharedArray(GlobalArray.GROUP_STAGING + GlobalArray.groupId) & 0b1110111111111111);
+            GlobalArray.groupId = 0;
+            GlobalArray.groupLeader = false;
+        }
     }
     protected static void jailed() throws GameActionException {
-        // remove own group id and become follower (also delete position)
+        if (GlobalArray.groupId != -1) {
+            GlobalArray.leaveGroup();
+        }
     }
 }

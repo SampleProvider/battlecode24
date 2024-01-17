@@ -13,15 +13,34 @@ public class Follower {
     protected static MapLocation lastLeaderLocation;
     
     protected static void run() throws GameActionException {
-        int[] joinWeights = new int[9];
+        // join the nearest group, but also balancing group size if there's a lot of groups
+        int lowestWeight = Integer.MAX_VALUE;
+        int lowestIndex = -1;
         for (int i = 0; i < 9; i++) {
-
+            int n = rc.readSharedArray(GlobalArray.GROUP_STAGING + i);
+            if (GlobalArray.hasLocation(n)) {
+                int size = GlobalArray.getGroupRobotCount(n);
+                if (size < 5) {
+                    GlobalArray.joinGroup(i);
+                    lowestIndex = -1;
+                    break;
+                } else if (size <= 8) {
+                    // weight for group size has higher order to really decentivize large groups
+                    int weight = rc.getLocation().distanceSquaredTo(GlobalArray.parseLocation(n)) + size * size * size;
+                    if (weight < lowestWeight) {
+                        lowestIndex = i;
+                        lowestWeight = weight;
+                    }
+                }
+            }
         }
-        // join nearest group (probably can leave current group whenever since nearest group is often also current group, unless new group was made)
-        // if group size 0-4, join without other calculations
-        // if group size 5-8, use heuristic based on distance and group size (larger groups and further groups are bad)
-        // creating a new group is also possible - create group when other ducks nearby (dont want leader alone)
-        // should help balance group sizes
+        if (lowestIndex != -1) {
+            GlobalArray.joinGroup(lowestIndex);
+        }
+        // create a group if there's ducks nearby
+        if (GlobalArray.groupId == -1 && rc.senseNearbyRobots(-1, rc.getTeam()).length > 3) {
+            GlobalArray.createGroup();
+        }
     }
     protected static void jailed() throws GameActionException {
         if (GlobalArray.groupId != -1) {

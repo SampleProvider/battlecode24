@@ -113,11 +113,8 @@ public class GlobalArray {
     protected static int intifyLocation(MapLocation loc) {
         return 0b1000000000000 | (loc.y << 6) | loc.x;
     }
-    protected static void updateLocation(int index, MapLocation loc) throws GameActionException {
-        int n = rc.readSharedArray(index);
-        if (!hasLocation(n) || !parseLocation(n).equals(loc)) {
-            rc.writeSharedArray(index, (n & 0b1110000000000000) | intifyLocation(loc));
-        }
+    protected static int updateLocation(int n, MapLocation loc) {
+        return (n & 0b1110000000000000) | intifyLocation(loc);
     }
 
     // flags

@@ -152,8 +152,9 @@ public strictfp class RobotPlayer {
                     else {
                         if (GlobalArray.groupLeader) {
                             Leader.run();
+                        } else {
+                            Follower.run();
                         }
-                        Follower.run();
                         Offensive.run();
                     }
                 }
