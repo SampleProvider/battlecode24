@@ -1,4 +1,4 @@
-package SPAARK_BetterGroups;
+package SPAARK_POIComms;
 
 import battlecode.common.*;
 

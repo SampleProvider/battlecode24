@@ -1,4 +1,4 @@
-package SPAARK_BetterGroups;
+package SPAARK_POIComms;
 
 import battlecode.common.*;
 
@@ -30,9 +30,6 @@ public class Offensive {
         MapLocation me = rc.getLocation();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         
-        // indicator thingy
-        rc.setIndicatorDot(me, 0, 255, Math.min((GlobalArray.groupId - 2) * 32, 255));
-
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             rc.pickupFlag(closestFlag.getLocation());
@@ -60,6 +57,8 @@ public class Offensive {
             GlobalArray.writeFlag(flag);
         }
         GlobalArray.checkFlags(opponentFlags);
+        // GlobalArray.updateSector();
+        Motion.updateBfsMap();
 
         // flagIndex: index of flag currently holding in global array
         if (flagIndex != -1) {
@@ -68,7 +67,7 @@ public class Offensive {
             MapLocation bestLoc = Motion.getClosest(spawnLocs);
             rc.setIndicatorDot(me, 255, 0, 0);
             rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
-            Motion.bugnavTowards(bestLoc, 1000);
+            Motion.bfsnav(bestLoc, 1000);
             rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex));
             if (!rc.hasFlag()) {
                 rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 1);
@@ -136,10 +135,9 @@ public class Offensive {
                     Motion.bugnavAround(target, 4, 20);
                 }
                 else {
-                    Motion.bugnavTowards(target);
+                    Motion.bfsnav(target);
                 }
                 rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
-                indicatorString.append(GlobalArray.groupId);
             }
             else {
                 boolean action = false;
@@ -148,7 +146,7 @@ public class Offensive {
                     MapInfo[] info = rc.senseNearbyMapInfos();
                     for (MapInfo i : info) {
                         if (i.getCrumbs() > 0) {
-                            Motion.bugnavTowards(i.getMapLocation());
+                            Motion.bfsnav(i.getMapLocation());
                             indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                             action = true;
                             break;
@@ -219,7 +217,7 @@ public class Offensive {
                                         rc.writeSharedArray(GlobalArray.GROUP_INSTRUCTIONS + GlobalArray.groupId - GlobalArray.GROUP_OFFSET, GlobalArray.intifyTarget(closestStolenFlagIndex));
                                     }
                                     else {
-                                        Motion.bugnavTowards(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
+                                        Motion.bfsnav(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
                                     }
                                 }
                                 // Motion.moveRandomly();
@@ -258,6 +256,7 @@ public class Offensive {
             }
         }
 
+        // GlobalArray.updateSector();
         Attack.attack();
         Attack.heal();
     }

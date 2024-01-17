@@ -1,4 +1,4 @@
-package SPAARK_BetterGroups;
+package SPAARK_POIComms;
 
 import battlecode.common.*;
 
@@ -59,6 +59,7 @@ public class Defensive {
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
                 // Motion.moveRandomly();
                 for (int i = 0; i < 2; i++) {
+                    // MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     Direction buildDir = me.directionTo(closestRobot.getLocation());
                     if (rng.nextInt(3) == 0) {
                         buildDir = buildDir.rotateLeft();
@@ -95,20 +96,67 @@ public class Defensive {
             } else {
                 MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
-                Motion.bugnavTowards(targetLoc, 0);
-                me = rc.getLocation();
-                if (me.equals(targetLoc)) {
-                    // dont bother placing traps around nothing
-                    FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
-                    if (flags.length > 0) {
-                        // camping
-                        for (int j = 0; j < 8; j++) {
-                            MapLocation buildLoc = me.add(DIRECTIONS[j]);
-                            if (rc.canFill(buildLoc)) {
-                                rc.fill(buildLoc);
+                if (GlobalArray.id < 3) {
+                    Motion.bugnavTowards(targetLoc, 0);
+                    me = rc.getLocation();
+                    if (me.equals(targetLoc)) {
+                        // dont bother placing traps around nothing
+                        FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
+                        if (flags.length > 0) {
+                            // camping
+                            for (int j = 0; j < 8; j++) {
+                                MapLocation buildLoc = me.add(DIRECTIONS[j]);
+                                if (rc.canFill(buildLoc)) {
+                                    rc.fill(buildLoc);
+                                }
+                                // if (j % 2 == 0) {
+                                if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                    rc.build(TrapType.WATER, buildLoc);
+                                }
+                                // }
+                                // else {
+                                //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
+                                //         rc.build(TrapType.EXPLOSIVE, buildLoc);
+                                //     }
+                                // }
                             }
-                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                rc.build(TrapType.WATER, buildLoc);
+                        }
+                    }
+                } else {
+                    // patrolling i guess
+                    Motion.bugnavAround(targetLoc, 9, 25);
+                    me = rc.getLocation();
+                    FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+                    // also dont place traps around nothing
+                    if (flags.length > 0) {
+                        MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                        preemptiveTraps: for (MapLocation oppFlag : hiddenFlags) {
+                            if (me.directionTo(oppFlag).equals(me.directionTo(targetLoc).opposite())) {
+                                MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
+                                for (Direction d : DIRECTIONS) {
+                                    // dont obstruct traps of camping duck
+                                    if (buildLoc.add(d).equals(targetLoc)) continue preemptiveTraps;
+                                }
+                                MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
+                                if (rng.nextBoolean()) {
+                                    placeTrap: {
+                                        for (MapInfo info : nearbyTraps) {
+                                            if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                        }
+                                        if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                            rc.build(TrapType.WATER, buildLoc);
+                                        }
+                                    }
+                                } else {
+                                    placeTrap: {
+                                        for (MapInfo info : nearbyTraps) {
+                                            if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                                        }
+                                        if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                            rc.build(TrapType.STUN, buildLoc);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -118,10 +166,12 @@ public class Defensive {
             Motion.spreadRandomly();
         }
 
+        GlobalArray.updateSector();
+
         Attack.attack();
         Attack.heal();
     }
     protected static void jailed() throws GameActionException {
-        // probably should start spamming stuff into POI
+
     }
 }
