@@ -19,11 +19,11 @@ public class GlobalArray {
      * 0-2: Ally flag ids
      * 3-5: Ally flag default locations
      * 6-8: Ally flag current locations
-     * 9-11: Ally flag number of robots and robot direction
+     * 9-11: Ally flag info
      * 12-14: Opponent flag ids
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
-     * 21-23: Opponent flag infos
+     * 21-23: Opponent flag info
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
      * 26-50: Sectors
