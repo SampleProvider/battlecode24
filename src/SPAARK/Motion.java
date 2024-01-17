@@ -989,13 +989,14 @@ public class Motion {
         bfsMap = new long[height + 2];
         bfsCurr = new long[height + 2];
         bfsDist = new long[(height + 2) * MAX_PATH_LENGTH];
-        bitmask = (1 << width) - 1;
+        bitmask = (long1 << width) - 1;
     }
-    protected static int step = 0;
+    protected static int step = 1;
     protected static int stepOffset;
     protected static int width;
     protected static int height;
-    protected static int recalculationNeeded;
+    protected static long long1 = 1;
+    protected static int recalculationNeeded = MAX_PATH_LENGTH;
     protected static void updateBfsMap() throws GameActionException {
         MapInfo[] map = rc.senseNearbyMapInfos();
         for (MapInfo m : map) {
@@ -1003,7 +1004,8 @@ public class Motion {
                 int loc = m.getMapLocation().y + 1;
                 int subloc = m.getMapLocation().x;
                 if (((bfsMap[loc] >> subloc) & 1) == 0) {
-                    bfsMap[loc] = bfsMap[loc] | (1 << subloc);
+                    bfsMap[loc] |= (long1 << subloc);
+                    rc.setIndicatorDot(m.getMapLocation(), 0, 255, 255);
                     for (int i = step - 1; i >= 0; i--) {
                         if (((bfsDist[i * (height + 2) + loc] >> subloc) & 1) != 1) {
                             recalculationNeeded = Math.min(i, recalculationNeeded);
@@ -1025,8 +1027,8 @@ public class Motion {
                 bfsDist[i] = 0;
                 bfsCurr[i] = 0;
             }
-            bfsDist[dest.y + 1] = 1 << (dest.x);
-            bfsCurr[dest.y + 1] = 1 << (dest.x);
+            bfsDist[dest.y + 1] = long1 << (dest.x);
+            bfsCurr[dest.y + 1] = long1 << (dest.x);
             step = 1;
         }
 
@@ -1042,7 +1044,7 @@ public class Motion {
         }
         recalculationNeeded = MAX_PATH_LENGTH;
         
-        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 10000) {
+        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 15000) {
             stepOffset = step * (height + 2);
             switch (height) {
                 case 30:
@@ -1136,23 +1138,52 @@ public class Motion {
                 MotionCodeGen.bfs59();
                 break;
                 case 60:
-                int a = Clock.getBytecodesLeft();
                 MotionCodeGen.bfs60();
-                indicatorString.append(a - Clock.getBytecodesLeft());
                 break;
             }
-            
+            // var cod = "";
+            // for (var i = 30; i <= 60; i++) {
+            //     cod += "public static void bfs" + i + "() {\n";
+            //     for (var j = 1; j <= i; j++) {
+            //         cod += "Motion.bfsCurr[z] = Motion.bfsCurr[z] | (Motion.bfsCurr[z] >> 1) | (Motion.bfsCurr[z] << 1);\n".replaceAll("z", j);
+            //     }
+            //     for (var j = 1; j <= i; j++) {
+            //         cod += "Motion.bfsDist[Motion.stepOffset + z] = (Motion.bfsCurr[z] | Motion.bfsCurr[y] | Motion.bfsCurr[x]) & (Motion.bitmask ^ Motion.bfsMap[z]);\n".replaceAll("z", j).replaceAll("y", j - 1).replaceAll("x", j + 1);
+            //     }
+            //     for (var j = 1; j <= i; j++) {
+            //         //cod += "Motion.bfsDist[Motion.stepOffset + z] &= Motion.bitmask ^ Motion.bfsMap[z];\n".replaceAll("z", j);
+            //     }
+            //     for (var j = 1; j <= i; j++) {
+            //         cod += "Motion.bfsCurr[z] = Motion.bfsDist[Motion.stepOffset + z];\n".replaceAll("z", j);
+            //     }
+            //     cod += "}\n";
+            // }
+            // console.log(cod);
             step += 1;
         }
 
-        // int i = rc.getRoundNum() % width;
-        // for (int i = 0; i < width; i++) {
-        //     for (int j = 0; j < height; j++) {
-        //         if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> i) & 1) == 0) {
-        //             rc.setIndicatorDot(new MapLocation(i, j), 0, 0, 0);
-        //         }
-        //         else {
-        //             rc.setIndicatorDot(new MapLocation(i, j), 255, 255, 255);
+        // int b = rc.getRoundNum() % width;
+        // if (rc.getRoundNum() == 201) {
+        //     for (int i = 0; i < width; i++) {
+        //         b = i;
+        //         for (int j = 0; j < height; j++) {
+        //             // if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> i) & 1) == 0) {
+        //             if (((bfsDist[(99) * (height + 2) + j + 1] >> b) & 1) == 0) {
+        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 0, 0);
+        //                 }
+        //                 else {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 0, 0);
+        //                 }
+        //             }
+        //             else {
+        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 255, 255);
+        //                 }
+        //                 else {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 255, 0);
+        //                 }
+        //             }
         //         }
         //     }
         // }
