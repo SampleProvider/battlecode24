@@ -20,12 +20,6 @@ public strictfp class RobotPlayer {
         Direction.NORTHWEST,
     };
 
-    protected static int mode = -1;
-
-    protected final static int HEALER = 0;
-    protected final static int ATTACKER = 1;
-    protected final static int BUILDER = 2;
-
     protected static int PREPARE_ROUND;
 
     public static void run(RobotController rc) throws GameActionException {
@@ -42,19 +36,21 @@ public strictfp class RobotPlayer {
         Healer.rng = rng;
         Builder.rc = rc;
         Builder.rng = rng;
+        Turtle.rc = rc;
+        Turtle.rng = rng;
 
         GlobalArray.init();
 
         Clock.yield();
 
-        PREPARE_ROUND = GameConstants.SETUP_ROUNDS + 10 - Math.max(rc.getMapHeight(), rc.getMapWidth());
+        PREPARE_ROUND = GameConstants.SETUP_ROUNDS - Math.max(rc.getMapHeight(), rc.getMapWidth()) - 50;
 
         while (true) {
             turnCount += 1;
 
             try {
                 spawn: if (!rc.isSpawned()) {
-                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         MapLocation[] spawns = rc.getAllySpawnLocations();
                         int numSpawns = 0;
                         MapLocation spawnLoc = new MapLocation(-1, -1);
@@ -69,7 +65,17 @@ public strictfp class RobotPlayer {
                         if (numSpawns > 0) {
                             rc.spawn(spawnLoc);
                         }
-                    }
+                    // } else {
+                    //     MapLocation[] spawns = rc.getAllySpawnLocations();
+                    //     MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
+                    //     for (MapLocation s : spawns) {
+                    //         if (s.distanceSquaredTo(flag) < 10) {
+                    //             if (rc.canSpawn(s)) {
+                    //                 rc.spawn(s);
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;
@@ -80,12 +86,14 @@ public strictfp class RobotPlayer {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
                     }
-                    else if (mode == HEALER) {
+                    else if (Turtle.isHealer()) {
                         Healer.jailed();
-                    } else if (mode == ATTACKER) {
+                    } else if (Turtle.isAttacker()) {
                         Attacker.jailed();
-                    } else {
+                    } else if (Turtle.isBuilder()) {
                         Builder.jailed();
+                    } else {
+
                     }
                 }
                 else {
@@ -101,13 +109,16 @@ public strictfp class RobotPlayer {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
-                    else if (mode == HEALER) {
-                        Healer.jailed();
-                    } else if (mode == ATTACKER) {
-                        Attacker.jailed();
+                    else if (Turtle.isHealer()) {
+                        Healer.run();
+                    } else if (Turtle.isAttacker()) {
+                        Attacker.run();
+                    } else if (Turtle.isBuilder()) {
+                        Builder.run();
                     } else {
-                        Builder.jailed();
+
                     }
+                    
                 }
                 rc.setIndicatorString(indicatorString.toString());
 
