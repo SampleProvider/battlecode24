@@ -9,9 +9,7 @@ public class Attacker {
     protected static StringBuilder indicatorString;
 
     protected static Random rng;
-
-    protected static boolean hasFoundFlag = false;
-
+    
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
         Direction.SOUTH,
