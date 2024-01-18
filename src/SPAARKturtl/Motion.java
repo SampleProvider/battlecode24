@@ -1,4 +1,4 @@
-package SPAARK_POIComms;
+package SPAARKturtl;
 
 import battlecode.common.*;
 
@@ -757,7 +757,10 @@ public class Motion {
                 }
                 // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
-                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == rc.getTeam()) {
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 1 && rc.getTeam() == Team.A) {
+                        weight += 100;
+                    }
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 2 && rc.getTeam() == Team.B) {
                         weight += 100;
                     }
                 }
@@ -842,7 +845,7 @@ public class Motion {
             if (bestDir != null) {
                 if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                    build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
                         MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
                         for (MapInfo m : mapInfo) {
                             if (m.getTrapType() != TrapType.NONE) {
@@ -850,7 +853,7 @@ public class Motion {
                             }
                         }
                         if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                            rc.build(TrapType.STUN, buildLoc);
                         }
                     }
                 }
