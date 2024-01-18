@@ -771,10 +771,7 @@ public class Motion {
                 }
                 // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
-                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 1 && rc.getTeam() == Team.A) {
-                        weight += 100;
-                    }
-                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 2 && rc.getTeam() == Team.B) {
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == rc.getTeam()) {
                         weight += 100;
                     }
                 }
@@ -866,9 +863,9 @@ public class Motion {
                                 break build;
                             }
                         }
-                        if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
+                        // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
                             rc.build(TrapType.STUN, buildLoc);
-                        }
+                        // }
                     }
                 }
                 moveWithAction(bestDir);

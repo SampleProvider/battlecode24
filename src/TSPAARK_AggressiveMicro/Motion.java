@@ -750,10 +750,7 @@ public class Motion {
                 }
                 // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
-                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 1 && rc.getTeam() == Team.A) {
-                        weight += 100;
-                    }
-                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == 2 && rc.getTeam() == Team.B) {
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeam() == rc.getTeam()) {
                         weight += 100;
                     }
                 }
