@@ -7,15 +7,26 @@ public class GlobalArray {
     protected static StringBuilder indicatorString;
 
     protected static int id;
+    /*
+     * 0-2: Flag 0 builders
+     * 3-9: Flag 0 attackers
+     * 10-15: Flag 0 healers
+     * 16-18: Flag 1 builders
+     * 19-25: Flag 1 attackers
+     * 26-31: Flag 1 healers
+     * 32-34: Flag 2 builders
+     * 35-41: Flag 2 attackers
+     * 42-47: Flag 2 healers
+     * 48-49: idk
+     */
 
     /*
      * 0-2: Ally flag ids
      * 3-5: Ally flag default locations
      * 6-8: Ally flag current locations
      * 9-11: Ally flag info
-     * 24: Flag target (setup only)
-     * 25: Gathering point (setup only)
-     * 26-29: Corners to guard
+     * 12-14: Ally flag distance from dam (setup only)
+     * 24: Flag target
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */
@@ -41,8 +52,9 @@ public class GlobalArray {
     protected static final int ALLY_FLAG_DEF_LOC = 3;
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
+    protected static final int SETUP_FLAG_DISTANCE = 12;
     protected static final int SETUP_FLAG_TARGET = 24;
-    protected static final int SETUP_GATHER_LOC = 25;
+    protected static final int SETUP_DAM_LOC = 25;
     protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
