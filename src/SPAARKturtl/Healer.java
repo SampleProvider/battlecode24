@@ -34,7 +34,7 @@ public class Healer {
             int maxDangerIndex = -1;
             for (int i = 0; i < dangers.length; i++) {
                 if (i == GlobalArray.flag) continue;
-                if (dangers[i] > 995 + (GlobalArray.id % 16 - 10) && dangers[i] > dangers[GlobalArray.flag] && dangers[i] > maxDanger) {
+                if (dangers[i] > 997 + (GlobalArray.id % 16 - 10) && dangers[i] > dangers[GlobalArray.flag] && dangers[i] > maxDanger) {
                     maxDanger = dangers[i];
                     maxDangerIndex = i;
                 }

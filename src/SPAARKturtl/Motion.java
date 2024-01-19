@@ -198,6 +198,54 @@ public class Motion {
             }
         }
     }
+
+    protected static void spreadRandomlyWaterWall() throws GameActionException {
+        boolean stuck = true;
+        for (Direction d : DIRECTIONS) {
+            if (rc.canMove(d)) {
+                stuck = false;
+            }
+        }
+        if (stuck) {
+            return;
+        }
+        if (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            RobotInfo[] robotInfo = rc.senseNearbyRobots(20, rc.getTeam());
+            MapLocation target = me;
+            for (RobotInfo r : robotInfo) {
+                target = target.add(me.directionTo(r.getLocation()).opposite());
+            }
+            if (target.equals(me)) {
+                // just keep moving in the same direction as before if there's no robots nearby
+                if (rc.getRoundNum() % 3 == 0 || lastRandomSpread == null) {
+                    moveRandomly(); // occasionally move randomly to avoid getting stuck
+                } else if (rng.nextInt(20) == 1) {
+                    // don't get stuck in corners
+                    lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
+                    moveRandomly();
+                } else {
+                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
+                    if (rc.canMove(direction)) {
+                        rc.move(direction);
+                        lastRandomSpread = lastRandomSpread.add(direction);
+                        lastRandomDir = direction;
+                    } else {
+                        moveRandomly();
+                    }
+                }
+            } else {
+                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+                if (rc.canMove(direction)) {
+                    rc.move(direction);
+                    lastRandomSpread = target;
+                    lastRandomDir = direction;
+                } else {
+                    moveRandomly();
+                }
+            }
+        }
+    }
     
     // bugnav helpers
     protected static boolean lastBlocked = false;
@@ -479,6 +527,230 @@ public class Motion {
                     }
                 }
                 if (water >= 3) {
+                    rc.fill(me.add(direction));
+                    return Direction.CENTER;
+                }
+            }
+        }
+        if (rc.canMove(lastDir.opposite())) {
+            return lastDir.opposite();
+        }
+        return Direction.CENTER;
+    }
+    protected static Direction bug2HelperWaterWall(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
+        Direction direction = me.directionTo(dest);
+        if (me.equals(dest)) {
+            if (mode == AROUND) {
+                direction = Direction.EAST;
+            }
+            else {
+                return Direction.CENTER;
+            }
+        }
+        if (mode == AWAY) {
+            direction = direction.opposite();
+        }
+        else if (mode == AROUND) {
+            if (me.distanceSquaredTo(dest) < minRadiusSquared) {
+                direction = direction.opposite();
+            }
+            else if (me.distanceSquaredTo(dest) <= maxRadiusSquared) {
+                direction = direction.rotateLeft().rotateLeft();
+                if (circleDirection == COUNTER_CLOCKWISE) {
+                    direction = direction.opposite();
+                }
+            }
+            lastDir = Direction.CENTER;
+        }
+
+        boolean stuck = true;
+        for (int i = 0; i < 3; i++) {
+            if (!visitedList.toString().contains(me + " " + i + " ")) {
+                visitedList.append(me + " " + i + " ");
+                stuck = false;
+                break;
+            }
+        }
+        if (stuck) {
+            moveRandomly();
+            visitedList = new StringBuilder();
+            return Direction.CENTER;
+        }
+
+        if (optimalDir != Direction.CENTER && mode != AROUND) {
+            if (rc.canMove(optimalDir) && lastDir != optimalDir.opposite()) {
+                optimalDir = Direction.CENTER;
+                rotation = NONE;
+                visitedList = new StringBuilder();
+            }
+            else {
+                direction = optimalDir;
+            }
+        }
+
+        // indicatorString.append("CIRCLE: " + circleDirection);
+        // indicatorString.append("DIR: " + direction);
+        // indicatorString.append("OFF: " + rc.onTheMap(me.add(direction)));
+        
+        if (lastDir != direction.opposite()) {
+            if (rc.canMove(direction)) {
+                // if (!lastBlocked) {
+                //     rotation = NONE;
+                // }
+                // lastBlocked = false;
+                // boolean touchingTheWallBefore = false;
+                // for (Direction d : DIRECTIONS) {
+                //     MapLocation translatedMapLocation = me.add(d);
+                //     if (rc.onTheMap(translatedMapLocation)) {
+                //         if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                //             touchingTheWallBefore = true;
+                //             break;
+                //         }
+                //     }
+                // }
+                // if (touchingTheWallBefore) {
+                //     rotation = NONE;
+                // }
+                return direction;
+            }
+            // else if (rc.canFill(me.add(direction))) {
+            //     rc.fill(me.add(direction));
+            //     return Direction.CENTER;
+            // }
+        }
+        else if (rc.canMove(direction)) {
+            Direction dir;
+            if (rotation == CLOCKWISE) {
+                dir = direction.rotateRight();
+            }
+            else {
+                dir = direction.rotateLeft();
+            }
+            if (!rc.onTheMap(me.add(dir))) {
+                // boolean touchingTheWallBefore = false;
+                // for (Direction d : DIRECTIONS) {
+                //     MapLocation translatedMapLocation = me.add(d);
+                //     if (rc.onTheMap(translatedMapLocation)) {
+                //         if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                //             touchingTheWallBefore = true;
+                //             break;
+                //         }
+                //     }
+                // }
+                // if (touchingTheWallBefore) {
+                //     rotation = NONE;
+                // }
+                rotation *= -1;
+                return direction;
+            }
+        }
+        if (!rc.onTheMap(me.add(direction))) {
+            if (mode == AROUND) {
+                circleDirection *= -1;
+                direction = direction.opposite();
+                indicatorString.append("FLIPPED");
+            }
+            else {
+                direction = me.directionTo(dest);
+            }
+            if (rc.canMove(direction)) {
+                return direction;
+            }
+            // else if (rc.canFill(me.add(direction))) {
+            //     rc.fill(me.add(direction));
+            //     return Direction.CENTER;
+            // }
+        }
+
+        if (optimalDir == Direction.CENTER) {
+            optimalDir = direction;
+        }
+        
+        indicatorString.append("ROTATION=" + rotation + " ");
+        indicatorString.append("OPTIMAL=" + optimalDir + " ");
+        if (rotation == NONE) {
+            int[] simulated = simulateMovement(me, dest);
+    
+            int clockwiseDist = simulated[0];
+            int counterClockwiseDist = simulated[2];
+            boolean clockwiseStuck = simulated[1] == 1;
+            boolean counterClockwiseStuck = simulated[3] == 1;
+            
+            indicatorString.append("DIST=" + clockwiseDist + " " + counterClockwiseDist);
+            int tempMode = mode;
+            if (mode == AROUND) {
+                if (clockwiseDist < minRadiusSquared) {
+                    if (counterClockwiseDist < minRadiusSquared) {
+                        tempMode = AWAY;
+                    }
+                    else {
+                        tempMode = AWAY;
+                    }
+                }
+                else {
+                    if (counterClockwiseDist < minRadiusSquared) {
+                        tempMode = AWAY;
+                    }
+                    else {
+                        tempMode = TOWARDS;
+                    }
+                }
+            }
+            if (clockwiseStuck) {
+                rotation = COUNTER_CLOCKWISE;
+            }
+            else if (counterClockwiseStuck) {
+                rotation = CLOCKWISE;
+            }
+            else if (tempMode == TOWARDS) {
+                if (clockwiseDist < counterClockwiseDist) {
+                    rotation = CLOCKWISE;
+                }
+                else {
+                    rotation = COUNTER_CLOCKWISE;
+                }
+            }
+            else if (tempMode == AWAY) {
+                if (clockwiseDist < counterClockwiseDist) {
+                    rotation = COUNTER_CLOCKWISE;
+                }
+                else {
+                    rotation = CLOCKWISE;
+                }
+            }
+        }
+        lastBlocked = true;
+
+        for (int i = 0; i < 7; i++) {
+            if (rotation == CLOCKWISE) {
+                direction = direction.rotateRight();
+            }
+            else {
+                direction = direction.rotateLeft();
+            }
+            // if (rc.onTheMap(me.add(direction)) && rc.senseMapInfo(me.add(direction)).isPassable() && lastDir != direction.opposite()) {
+            //     if (rc.canMove(direction)) {
+            //         return direction;
+            //     }
+            //     return Direction.CENTER;
+            // }
+            if (rc.canMove(direction) && lastDir != direction.opposite()) {
+                if (rc.canMove(direction)) {
+                    return direction;
+                }
+                return Direction.CENTER;
+            }
+            else if (rc.canFill(me.add(direction))) {
+                int water = 0;
+                for (Direction d : DIRECTIONS) {
+                    MapLocation translatedMapLocation = me.add(d);
+                    if (rc.onTheMap(translatedMapLocation)) {
+                        if (!rc.senseMapInfo(translatedMapLocation).isPassable()) {
+                            water += 1;
+                        }
+                    }
+                }
+                if (water >= 4) {
                     rc.fill(me.add(direction));
                     return Direction.CENTER;
                 }

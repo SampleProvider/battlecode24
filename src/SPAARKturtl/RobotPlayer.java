@@ -50,7 +50,7 @@ public strictfp class RobotPlayer {
 
             try {
                 spawn: if (!rc.isSpawned()) {
-                    // if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         MapLocation[] spawns = rc.getAllySpawnLocations();
                         int numSpawns = 0;
                         MapLocation spawnLoc = new MapLocation(-1, -1);
@@ -65,17 +65,17 @@ public strictfp class RobotPlayer {
                         if (numSpawns > 0) {
                             rc.spawn(spawnLoc);
                         }
-                    // } else {
-                    //     MapLocation[] spawns = rc.getAllySpawnLocations();
-                    //     MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
-                    //     for (MapLocation s : spawns) {
-                    //         if (s.distanceSquaredTo(flag) < 10) {
-                    //             if (rc.canSpawn(s)) {
-                    //                 rc.spawn(s);
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    } else {
+                        MapLocation[] spawns = rc.getAllySpawnLocations();
+                        MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
+                        for (MapLocation s : spawns) {
+                            if (s.distanceSquaredTo(flag) < 10) {
+                                if (rc.canSpawn(s)) {
+                                    rc.spawn(s);
+                                }
+                            }
+                        }
+                    }
                 }
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;

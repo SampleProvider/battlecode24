@@ -70,6 +70,13 @@ public class Setup {
             if (found) {
                 rc.writeSharedArray(GlobalArray.SETUP_FLAG_DISTANCE + flagIndex, 0);
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 3, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 6, GlobalArray.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
+                // System.out.println(flagInit);
+                // System.out.println(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1));
+                // System.out.println(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y));
+                // System.out.println(new MapLocation( flagInit.x, rc.getMapHeight() - flagInit.y - 1));
             }
             return found;
         }
@@ -79,10 +86,10 @@ public class Setup {
     protected static void moveFlag() throws GameActionException {
         MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
         MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
-        turnsPlacingFlag += 1;
-        if (turnsPlacingFlag > 90) {
-            toPlace = flagInit;
-        }
+        turnsPlacingFlag++;
+        // if (turnsPlacingFlag > 90) {
+        //     toPlace = flagInit;
+        // }
         if (flagOffset.x == -100) {
             switch (flagIndex) {
                 case 0:
@@ -121,7 +128,7 @@ public class Setup {
                 default:
             }
         }
-        Motion.bugnavTowards(toPlace, 500);
+        Motion.bugnavTowards(toPlace);
         MapLocation me = rc.getLocation();
         if (rc.canSenseLocation(toPlace)) {
             MapInfo tile = rc.senseMapInfo(toPlace);
@@ -175,11 +182,25 @@ public class Setup {
             MapInfo[] infos = rc.senseNearbyMapInfos();
             if (Turtle.isBuilder()) {
                 if (!getCrumbs(infos)) {
-                    Motion.moveRandomly();
+                    Motion.spreadRandomlyWaterWall();
                 }
             }
             if (!pickupFlag() && !getCrumbs(infos) && !rc.hasFlag()) { // try to get crumbs/flag
-                Motion.moveRandomly();
+                if (GlobalArray.id >= 3 && GlobalArray.id < 12) {
+                    //symmetry detection
+                    MapLocation guess = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS + GlobalArray.id - 3));
+                    Motion.bfsnav(guess);
+                    if (rc.canSenseLocation(guess)) {
+                        MapInfo info = rc.senseMapInfo(guess);
+                        if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
+                            //not this symmetry!
+                            rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << ((GlobalArray.id - 3) / 3));
+                            // System.out.println(rc.readSharedArray(GlobalArray.SYM));
+                        }
+                    }
+                } else {
+                    Motion.spreadRandomlyWaterWall();
+                }
             }
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
@@ -197,12 +218,12 @@ public class Setup {
                     }
                 }
             }
-        } else if (rc.getRoundNum() < 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
+        } else if (rc.getRoundNum() < 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos) && !rc.hasFlag()) {
-                    Motion.moveRandomly();
+                    Motion.spreadRandomlyWaterWall();
                     indicatorString.append("RANDOM;");
                 }
             } else {
@@ -215,7 +236,7 @@ public class Setup {
                     GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC+2))
                 };
                 for (int i = 0; i < defaultFlags.length; i++) {
-                    if (me.distanceSquaredTo(defaultFlags[i]) < 9) {
+                    if (rc.canSenseLocation(defaultFlags[i])) {
                         int dist = defaultFlags[i].distanceSquaredTo(damInit);
                         int best = rc.readSharedArray(GlobalArray.SETUP_FLAG_DISTANCE+i);
                         if (dist < best || best == 0) {
@@ -231,11 +252,11 @@ public class Setup {
                     dx += i.getDeltaX() * damSpreadWeights[i.getDirectionOrderNum()];
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
-                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
+                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy));
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
-        } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
+        } else if (rc.getRoundNum() == 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -269,11 +290,10 @@ public class Setup {
             if (rc.hasFlag()) {
                 moveFlag();
             } else if (Turtle.isBuilder()) {
+                //spam water
                 MapInfo[] info = rc.senseNearbyMapInfos();
 
-                MapLocation me = rc.getLocation();
                 Boolean nearDam = false;
-                RobotInfo[] bots = rc.senseNearbyRobots();
                 for (MapInfo i : info) {
                     if (i.isDam()) {
                         nearDam = true;
@@ -294,6 +314,12 @@ public class Setup {
                     } else {
                         Motion.moveRandomly();
                     }
+                    for (Direction d : DIRECTIONS) {
+                        MapLocation loc = rc.adjacentLocation(d);
+                        if (rc.canDig(loc) && (loc.x+loc.y)%2 == 0 && rc.getLevel(SkillType.BUILD) < 6) {
+                            rc.dig(loc);
+                        }
+                    }
                 }
             } else {
                 Motion.moveRandomly();
@@ -303,13 +329,22 @@ public class Setup {
             if (rc.hasFlag()) {
                 moveFlag();
             } else {
-                MapLocation[] flags = {
-                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC)),
-                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+1)),
-                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+2))
-                };
-                MapLocation avg = new MapLocation((flags[0].x+flags[1].x+flags[2].x)/3, (flags[0].y+flags[1].y+flags[2].y)/3);
-                Motion.bfsnav(avg);
+                // MapLocation[] flags = {
+                //     GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC)),
+                //     GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+1)),
+                //     GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+2))
+                // };
+                // MapLocation avg = new MapLocation((flags[0].x+flags[1].x+flags[2].x)/3, (flags[0].y+flags[1].y+flags[2].y)/3);
+                // Motion.bfsnav(avg);
+                Motion.bfsnav(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+GlobalArray.flag)));
+            }
+            if (Turtle.isBuilder()) {
+                for (Direction d : DIRECTIONS) {
+                    MapLocation loc = rc.adjacentLocation(d);
+                    if (rc.canDig(loc) && (loc.x+loc.y)%2 == 0 && rc.getLevel(SkillType.BUILD) < 6) {
+                        rc.dig(loc);
+                    }
+                }
             }
         }
     }

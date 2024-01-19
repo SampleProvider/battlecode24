@@ -33,7 +33,7 @@ public class Attacker {
         int maxDangerIndex = -1;
         for (int i = 0; i < dangers.length; i++) {
             if (i == GlobalArray.flag) continue;
-            if (dangers[i] > 993 && dangers[i] > dangers[GlobalArray.flag] && dangers[i] > maxDanger) {
+            if (dangers[i] > 997 && dangers[i] > dangers[GlobalArray.flag] && dangers[i] > maxDanger) {
                 maxDanger = dangers[i];
                 maxDangerIndex = i;
             }

@@ -21,11 +21,15 @@ public class GlobalArray {
      * 6-8: Ally flag current locations
      * 9-11: Ally flag info
      * 12-14: Ally flag distance from dam (setup only)
+     * 15-17: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
+     * 18-20: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
+     * 21-23: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
      * 24: Flag target
+     * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=6:HORZ, else unknown)
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */
-    /**
+    /*
      * Formatting:
      * 
      * Location:
@@ -48,8 +52,10 @@ public class GlobalArray {
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
     protected static final int SETUP_FLAG_DISTANCE = 12;
+    protected static final int SETUP_SYM_GUESS = 15;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_DAM_LOC = 25;
+    protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
@@ -195,9 +201,9 @@ public class GlobalArray {
         id = rc.readSharedArray(INIT_GLOBAL_ID_COUNTER);
         rc.writeSharedArray(INIT_GLOBAL_ID_COUNTER, id + 1);
         Motion.bfsInit();
-        if (id % 16 < 2 && id < 48) {
+        if (id % 16 < 1 && id < 48) {
             type = 0;
-        } else if (id % 16 < 10 && id < 48) {
+        } else if (id % 16 < 9 && id < 48) {
             type = 1;
         } else {
             type = 2;

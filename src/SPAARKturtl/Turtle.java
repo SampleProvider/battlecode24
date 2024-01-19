@@ -46,7 +46,7 @@ public class Turtle {
                     rc.move(me.directionTo(flag));
                 }
             } else {
-                Motion.bfsnav(flag);
+                Motion.bfsnav(getCloserToCenter(flag, 1), 0);
             }
         } else {
             //flagIndex == 0 (don't block spawn)
@@ -57,7 +57,7 @@ public class Turtle {
                     Motion.moveRandomly();
                 }
             } else {
-                Motion.bfsnav(flag);
+                Motion.bfsnav(getCloserToCenter(flag, 1), 0);
             }
         }
         if (me.distanceSquaredTo(flag) == 0) {
@@ -65,13 +65,48 @@ public class Turtle {
             int ctr = 1000;
             for (RobotInfo bot : bots) {
                 if (bot.getTeam() != rc.getTeam()) {
-                    ctr++;
+                    ctr += 3;
                 } else {
                     ctr--;
                 }
             }
-            System.out.println(flagIndex + " " + ctr);
+            // System.out.println(flagIndex + " " + ctr);
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_INFO+flagIndex, ctr);
         }
+    }
+
+    protected static MapLocation getCloserToCenter(MapLocation loc, int dis) throws GameActionException {
+        //get coord closer to the center, according to symmetry
+        int sym = rc.readSharedArray(GlobalArray.SYM) & 0b111;
+        int x = loc.x;
+        int y = loc.y;
+        if (sym == 0b110) {
+            //rot
+            if (loc.x < rc.getMapWidth()/2) {
+                x++;
+            } else if (loc.x > rc.getMapWidth()/2) {
+                x--;
+            }
+            if (loc.y < rc.getMapHeight()/2) {
+                y++;
+            } else if (loc.y > rc.getMapHeight()/2) {
+                y--;
+            }
+        } else if (sym == 0b101) {
+            //vert
+            if (loc.x < rc.getMapWidth()/2) {
+                x++;
+            } else if (loc.x > rc.getMapWidth()/2) {
+                x--;
+            }
+        } else if (sym == 0b011) {
+            if (loc.y < rc.getMapHeight()/2) {
+                y++;
+            } else if (loc.y > rc.getMapHeight()/2) {
+                y--;
+            }
+        }
+        //invalid symmetry doesn't get changed
+        return new MapLocation(x, y);
     }
 }
