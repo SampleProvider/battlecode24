@@ -22,28 +22,25 @@ public class Attacker {
     };
 
     protected static void run() throws GameActionException {
-        int flagIndex = GlobalArray.id / 16;
-        MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex));
+        MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.flag));
         MapLocation me = rc.getLocation();
-        if (me.distanceSquaredTo(flag) > 2) {
-            int[] dangers = {
-                rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO),
-                rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO+1),
-                rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO+2)
-            };
-            int maxDanger = 0;
-            int maxDangerIndex = -1;
-            for (int i = 0; i < dangers.length; i++) {
-                if (i == flagIndex) continue;
-                if (dangers[i] > 995 + (GlobalArray.id % 16 - 2) && dangers[i] > dangers[flagIndex] && dangers[i] > maxDanger) {
-                    maxDanger = dangers[i];
-                    maxDangerIndex = i;
-                }
+        int[] dangers = {
+            rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO),
+            rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO+1),
+            rc.readSharedArray(GlobalArray.ALLY_FLAG_INFO+2)
+        };
+        int maxDanger = 0;
+        int maxDangerIndex = -1;
+        for (int i = 0; i < dangers.length; i++) {
+            if (i == GlobalArray.flag) continue;
+            if (dangers[i] > 993 && dangers[i] > dangers[GlobalArray.flag] && dangers[i] > maxDanger) {
+                maxDanger = dangers[i];
+                maxDangerIndex = i;
             }
-            if (maxDangerIndex != -1) {
-                flagIndex = maxDangerIndex;
-                flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex));
-            }
+        }
+        if (maxDangerIndex != -1) {
+            GlobalArray.flag = maxDangerIndex;
+            flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.flag));
         }
         Turtle.circleFlag(flag);
         rc.setIndicatorLine(me, flag, 255, 0, 0);

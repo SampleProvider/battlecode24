@@ -7,17 +7,12 @@ public class GlobalArray {
     protected static StringBuilder indicatorString;
 
     protected static int id;
+    protected static int flag;
+    protected static int type;
     /*
-     * 0-2: Flag 0 builders
-     * 3-9: Flag 0 attackers
-     * 10-15: Flag 0 healers
-     * 16-18: Flag 1 builders
-     * 19-25: Flag 1 attackers
-     * 26-31: Flag 1 healers
-     * 32-34: Flag 2 builders
-     * 35-41: Flag 2 attackers
-     * 42-47: Flag 2 healers
-     * 48-49: idk
+     * 0: builder
+     * 1: attacker
+     * 2: healer
      */
 
     /*
@@ -200,5 +195,13 @@ public class GlobalArray {
         id = rc.readSharedArray(INIT_GLOBAL_ID_COUNTER);
         rc.writeSharedArray(INIT_GLOBAL_ID_COUNTER, id + 1);
         Motion.bfsInit();
+        if (id % 16 < 2 && id < 48) {
+            type = 0;
+        } else if (id % 16 < 10 && id < 48) {
+            type = 1;
+        } else {
+            type = 2;
+        }
+        flag = Math.min(id / 16, 2);
     }
 }

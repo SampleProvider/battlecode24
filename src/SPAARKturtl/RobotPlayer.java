@@ -43,7 +43,7 @@ public strictfp class RobotPlayer {
 
         Clock.yield();
 
-        PREPARE_ROUND = GameConstants.SETUP_ROUNDS - Math.max(rc.getMapHeight(), rc.getMapWidth()) - 50;
+        PREPARE_ROUND = GameConstants.SETUP_ROUNDS - Math.max(rc.getMapHeight(), rc.getMapWidth()) + 10;
 
         while (true) {
             turnCount += 1;
@@ -80,6 +80,10 @@ public strictfp class RobotPlayer {
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;
                 Attack.indicatorString = indicatorString;
+                Attacker.indicatorString = indicatorString;
+                Healer.indicatorString = indicatorString;
+                Builder.indicatorString = indicatorString;
+                Turtle.indicatorString = indicatorString;
                 GlobalArray.indicatorString = indicatorString;
                 Setup.indicatorString = indicatorString;
                 if (!rc.isSpawned()) {
@@ -121,7 +125,6 @@ public strictfp class RobotPlayer {
                     
                 }
                 rc.setIndicatorString(indicatorString.toString());
-
             }
             catch (GameActionException e) {
                 System.out.println("GameActionException");

@@ -22,8 +22,7 @@ public class Builder {
     };
 
     protected static void run() throws GameActionException {
-        int flagIndex = GlobalArray.id / 16;
-        MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex));
+        MapLocation flag = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + GlobalArray.flag));
         MapLocation me = rc.getLocation();
         Turtle.circleFlag(flag);
         for (Direction d : DIRECTIONS) {

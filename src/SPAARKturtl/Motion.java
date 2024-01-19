@@ -1212,10 +1212,10 @@ public class Motion {
                 if (rc.canMove(optimalDirection)) {
                     return optimalDirection;
                 }
-                else if (rc.canFill(me.add(optimalDirection))) {
-                    rc.fill(me.add(optimalDirection));
-                    return Direction.CENTER;
-                }
+                // else if (rc.canFill(me.add(optimalDirection))) {
+                //     rc.fill(me.add(optimalDirection));
+                //     return Direction.CENTER;
+                // }
             }
         }
         Direction optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0);

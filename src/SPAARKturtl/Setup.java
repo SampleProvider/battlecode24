@@ -271,25 +271,15 @@ public class Setup {
             } else if (Turtle.isBuilder()) {
                 MapInfo[] info = rc.senseNearbyMapInfos();
 
-                // MapLocation me = rc.getLocation();
-                // Boolean nearDam = false;
-                // RobotInfo[] bots = rc.senseNearbyRobots();
-                // for (MapInfo i : info) {
-                //     if (i.isDam()) {
-                //         nearDam = true;
-                //     }
-                // }
-                // if (nearDam) {
-
-                // } else {
-                //     int damLoc = rc.readSharedArray(GlobalArray.SETUP_DAM_LOC);
-                //     if (GlobalArray.hasLocation(damLoc)) {
-                //         Motion.bfsnav(GlobalArray.parseLocation(damLoc));
-                //     } else {
-                //         Motion.moveRandomly();
-                //     }
-                // }
-                if (!getCrumbs(info)) {
+                MapLocation me = rc.getLocation();
+                Boolean nearDam = false;
+                RobotInfo[] bots = rc.senseNearbyRobots();
+                for (MapInfo i : info) {
+                    if (i.isDam()) {
+                        nearDam = true;
+                    }
+                }
+                if (nearDam) {
                     Motion.moveRandomly();
                     for (Direction d : DIRECTIONS) {
                         MapLocation loc = rc.adjacentLocation(d);
@@ -297,22 +287,29 @@ public class Setup {
                             rc.dig(loc);
                         }
                     }
+                } else {
+                    int damLoc = rc.readSharedArray(GlobalArray.SETUP_DAM_LOC);
+                    if (GlobalArray.hasLocation(damLoc)) {
+                        Motion.bfsnav(GlobalArray.parseLocation(damLoc));
+                    } else {
+                        Motion.moveRandomly();
+                    }
                 }
             } else {
-                
+                Motion.moveRandomly();
             }
         } else {
             //Preparation
             if (rc.hasFlag()) {
                 moveFlag();
             } else {
-                if (GlobalArray.id < 16) {
-                    Motion.bugnavTowards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC)));
-                } else if (GlobalArray.id < 32) {
-                    Motion.bugnavTowards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+1)));
-                } else if (GlobalArray.id < 48) {
-                    Motion.bugnavTowards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+2)));
-                }
+                MapLocation[] flags = {
+                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC)),
+                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+1)),
+                    GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+2))
+                };
+                MapLocation avg = new MapLocation((flags[0].x+flags[1].x+flags[2].x)/3, (flags[0].y+flags[1].y+flags[2].y)/3);
+                Motion.bfsnav(avg);
             }
         }
     }

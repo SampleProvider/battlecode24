@@ -22,19 +22,19 @@ public class Turtle {
     };
 
     protected static Boolean isBuilder() throws GameActionException {
-        return GlobalArray.id % 16 < 2 && GlobalArray.id < 48;
+        return GlobalArray.type == 0;
     }
 
     protected static Boolean isAttacker() throws GameActionException {
-        return GlobalArray.id % 16 < 10 && !isBuilder() && GlobalArray.id < 48;
+        return GlobalArray.type == 1;
     }
 
     protected static Boolean isHealer() throws GameActionException {
-        return GlobalArray.id % 16 >= 10;
+        return GlobalArray.type == 2;
     }
 
     protected static int getFlagIndex() throws GameActionException {
-        return GlobalArray.id / 16;
+        return GlobalArray.flag;
     }
 
     protected static void circleFlag(MapLocation flag) throws GameActionException {
@@ -42,16 +42,22 @@ public class Turtle {
         int flagIndex = getFlagIndex();
         if (flagIndex != 0) {
             if (me.distanceSquaredTo(flag) <= 2) {
-
+                if (rc.canMove(me.directionTo(flag))) {
+                    rc.move(me.directionTo(flag));
+                }
             } else {
-                Motion.bugnavTowards(flag);
+                Motion.bfsnav(flag);
             }
         } else {
-            //flagIndex == 0
+            //flagIndex == 0 (don't block spawn)
             if (me.distanceSquaredTo(flag) <= 2 && me.distanceSquaredTo(flag) > 0) {
-                Motion.moveRandomly();
+                if (rc.canMove(me.directionTo(flag))) {
+                    rc.move(me.directionTo(flag));
+                } else {
+                    Motion.moveRandomly();
+                }
             } else {
-                Motion.bugnavTowards(flag);
+                Motion.bfsnav(flag);
             }
         }
         if (me.distanceSquaredTo(flag) == 0) {
