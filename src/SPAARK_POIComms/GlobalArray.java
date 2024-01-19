@@ -103,6 +103,7 @@ public class GlobalArray {
                     if (flag.isPickedUp()) {
                         MapLocation me = rc.getLocation();
                         rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, (1 << 14) | (1 << 13) | intifyLocation(flag.getLocation()));
+                        writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length);
                         // bug bug fix now
                         if (rc.getRoundNum() >= GameConstants.SETUP_ROUNDS) {
                             rc.writeSharedArray(ALLY_FLAG_INFO + i, ((flag.getLocation().y - me.y + 8) << 10) | ((flag.getLocation().x - me.x + 8) << 6) | Math.min(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length * 2 + 5, 64));
@@ -165,8 +166,32 @@ public class GlobalArray {
         }
     }
 
+    
     // new POI stuff
-    protected static void writePOI() throws GameActionException {
+    public static int getOpponentRobots(int n) {
+        return (n & 0b111111);
+    }
+    public static int setOpponentRobots(int n, int v) {
+        return (n & 0b1111111111000000) | v;
+    }
+    public static int getFriendlyRobots(int n) {
+        return ((n >> 6) & 0b111111);
+    }
+    public static int setFriendlyRobots(int n, int v) {
+        return (n & 0b1111000000111111) | (v << 6);
+    }
+
+    protected static void writePOI(MapLocation loc, int robots) throws GameActionException {
+        for (int i = 0; i < 10; i += 2) {
+            if (rc.readSharedArray(POI + i) == 0 || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(loc) <= 4) {
+                rc.writeSharedArray(POI + i, intifyLocation(loc));
+                rc.writeSharedArray(POI + i + 1, setOpponentRobots(rc.readSharedArray(POI + i + 1), robots));
+                indicatorString.append("WRITTEN POI " + rc.readSharedArray(POI + i + 1));
+                break;
+            }
+        }
+    }
+    protected static void updatePOI() throws GameActionException {
         RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
         RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
         if (opponentRobots.length - friendlyRobots.length > 0) {
@@ -178,34 +203,38 @@ public class GlobalArray {
             }
             x /= opponentRobots.length;
             y /= opponentRobots.length;
-            for (int i = 0; i < 10; i += 2) {
-                if (rc.readSharedArray(POI + i) == 0 || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(new MapLocation(x, y)) <= 4) {
-                    rc.writeSharedArray(POI + i, intifyLocation(new MapLocation(x, y)));
-                    rc.writeSharedArray(POI + i + 1, opponentRobots.length - friendlyRobots.length);
-                    break;
-                }
-            }
+            // writePOI(new MapLocation(x, y), Math.max(opponentRobots.length - friendlyRobots.length, 0));
+            writePOI(new MapLocation(x, y), opponentRobots.length);
         }
         else {
             for (int i = 0; i < 10; i += 2) {
                 if (rc.readSharedArray(POI + i) != 0 && parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(rc.getLocation()) <= 2) {
                     rc.writeSharedArray(POI + i, 0);
-                    // rc.writeSharedArray(POI + i + 1, opponentRobots.length - friendlyRobots.length);
+                    rc.writeSharedArray(POI + i + 1, 0);
                     break;
                 }
             }
         }
     }
+    protected static int lastPOI = -1;
     protected static int getBestPOI() throws GameActionException {
         MapLocation me = rc.getLocation();
+        if (lastPOI != -1) {
+            int lastN = rc.readSharedArray(POI + lastPOI + 1);
+            if (getFriendlyRobots(lastN) > 0) {
+                rc.writeSharedArray(POI + lastPOI + 1, setFriendlyRobots(lastN, getFriendlyRobots(lastN) - 1));
+            }
+        }
         MapLocation flag1 = parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC));
         MapLocation flag2 = parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + 1));
         MapLocation flag3 = parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + 2));
         int closestDist = -1;
-        int closestIndex = 0;
+        int closestIndex = -1;
         for (int i = 0; i < 10; i += 2) {
-            if (rc.readSharedArray(POI + i) != 0) {
-                MapLocation loc = parseLocation(rc.readSharedArray(POI + i));
+            int n = rc.readSharedArray(POI + i);
+            int n2 = rc.readSharedArray(POI + i + 1);
+            if (n != 0 && getOpponentRobots(n2) - getFriendlyRobots(n2) > 0) {
+                MapLocation loc = parseLocation(n);
                 if (closestDist == -1 || flag1.distanceSquaredTo(loc) < closestDist || flag2.distanceSquaredTo(loc) < closestDist || flag3.distanceSquaredTo(loc) < closestDist) {
                     closestIndex = i;
                     closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
@@ -213,8 +242,16 @@ public class GlobalArray {
                 break;
             }
         }
+        if (closestIndex != -1) {
+            lastPOI = closestIndex;
+            int n = rc.readSharedArray(POI + lastPOI + 1);
+            rc.writeSharedArray(POI + lastPOI + 1, setFriendlyRobots(n, getFriendlyRobots(n) + 1));
+            indicatorString.append(getFriendlyRobots(n) + " " + lastPOI + " " + n + " ");
+            if (rc.getRoundNum() < 220) {
+                // System.out.println(n + 1);
+            }
+        }
         return closestIndex;
-        // rc.writeSharedArray(POI + i + 1, opponentRobots.length - friendlyRobots.length);
     }
 
     protected static void init() throws GameActionException {

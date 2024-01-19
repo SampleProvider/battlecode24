@@ -58,7 +58,7 @@ public class Offensive {
         }
         // GlobalArray.checkFlags(opponentFlags);
         // GlobalArray.updateSector();
-        GlobalArray.writePOI();
+        GlobalArray.updatePOI();
         Motion.updateBfsMap();
 
         // flagIndex: index of flag currently holding in global array
@@ -78,7 +78,12 @@ public class Offensive {
         }
         else {
             // MapLocation target = GlobalArray.getGroupTarget(GlobalArray.groupId);
-            MapLocation target = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.POI + GlobalArray.getBestPOI()));
+            int best = GlobalArray.getBestPOI();
+            MapLocation target = new MapLocation(0, 0);
+            target = rc.getLocation();
+            if (best != -1) {
+                target = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.POI + best));
+            }
 
             boolean findingTarget = false;
 
@@ -140,7 +145,7 @@ public class Offensive {
                 //     Motion.bfsnav(target);
                 // }
                 Motion.bfsnav(target);
-                rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
+                rc.setIndicatorLine(rc.getLocation(), target, 255, 0, 255);
             }
             else {
                 boolean action = false;

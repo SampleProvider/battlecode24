@@ -52,7 +52,7 @@ public class Defensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
-        GlobalArray.writePOI();
+        GlobalArray.updatePOI();
         if (GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {

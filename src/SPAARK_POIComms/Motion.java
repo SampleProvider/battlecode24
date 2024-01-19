@@ -842,16 +842,16 @@ public class Motion {
             if (bestDir != null) {
                 if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
+                    build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
                         MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
                         for (MapInfo m : mapInfo) {
                             if (m.getTrapType() != TrapType.NONE) {
                                 break build;
                             }
                         }
-                        if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
-                        }
+                        // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        // }
                     }
                 }
                 moveWithAction(bestDir);
