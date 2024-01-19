@@ -4,7 +4,7 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-public class Motion {
+public class Motion1 {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 
@@ -58,62 +58,6 @@ public class Motion {
 
     protected static Direction lastRandomDir = Direction.CENTER;
     protected static MapLocation lastRandomSpread;
-
-    protected static MapLocation[] trapRange = new MapLocation[] {
-        new MapLocation(-2, 3),
-        new MapLocation(-1, 3),
-        new MapLocation(0, 3),
-        new MapLocation(1, 3),
-        new MapLocation(2, 3),
-        new MapLocation(-3, 2),
-        new MapLocation(-2, 2),
-        new MapLocation(-1, 2),
-        new MapLocation(0, 2),
-        new MapLocation(1, 2),
-        new MapLocation(2, 2),
-        new MapLocation(3, 2),
-        new MapLocation(-3, 1),
-        new MapLocation(-2, 1),
-        new MapLocation(-1, 1),
-        new MapLocation(0, 1),
-        new MapLocation(1, 1),
-        new MapLocation(2, 1),
-        new MapLocation(3, 1),
-        new MapLocation(-3, 0),
-        new MapLocation(-2, 0),
-        new MapLocation(-1, 0),
-        new MapLocation(0, 0),
-        new MapLocation(1, 0),
-        new MapLocation(2, 0),
-        new MapLocation(3, 0),
-        new MapLocation(-3, -1),
-        new MapLocation(-2, -1),
-        new MapLocation(-1, -1),
-        new MapLocation(0, -1),
-        new MapLocation(1, -1),
-        new MapLocation(2, -1),
-        new MapLocation(3, -1),
-        new MapLocation(-3, -2),
-        new MapLocation(-2, -2),
-        new MapLocation(-1, -2),
-        new MapLocation(0, -2),
-        new MapLocation(1, -2),
-        new MapLocation(2, -2),
-        new MapLocation(3, -2),
-        new MapLocation(-2, -3),
-        new MapLocation(-1, -3),
-        new MapLocation(0, -3),
-        new MapLocation(1, -3),
-        new MapLocation(2, -3),
-    };
-    protected static StringBuilder lastTraps = new StringBuilder(); // last turn's traps
-    protected static StringBuilder[] lastActivatedTraps = new StringBuilder[] {
-        new StringBuilder(),
-        new StringBuilder(),
-        new StringBuilder(),
-        new StringBuilder(),
-        new StringBuilder(),
-    }; // stores activations from 5 turns ago
 
     // common distance stuff
     protected static int getManhattanDistance(MapLocation a, MapLocation b) {
@@ -741,7 +685,7 @@ public class Motion {
                 d = rc.getLocation().directionTo(dest);
             }
             if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d, dest);
+                micro(d);
             }
             else if (rc.canMove(d)) {
                 rc.move(d);
@@ -759,7 +703,7 @@ public class Motion {
                 d = rc.getLocation().directionTo(dest);
             }
             if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d, dest);
+                micro(d);
             }
             else if (rc.canMove(d)) {
                 rc.move(d);
@@ -777,7 +721,7 @@ public class Motion {
                 d = rc.getLocation().directionTo(dest);
             }
             if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d, dest);
+                micro(d);
             }
             else if (rc.canMove(d)) {
                 rc.move(d);
@@ -787,644 +731,148 @@ public class Motion {
     }
 
     // micro strat used by bugnav
-    protected static boolean isStunned(MapLocation loc) {
-        if (lastActivatedTraps[0].toString().contains(loc + " ")) {
-            return true;
-        }
-        if (lastActivatedTraps[1].toString().contains(loc + " ")) {
-            return true;
-        }
-        if (lastActivatedTraps[2].toString().contains(loc + " ")) {
-            return true;
-        }
-        if (lastActivatedTraps[3].toString().contains(loc + " ")) {
-            return true;
-        }
-        if (lastActivatedTraps[4].toString().contains(loc + " ")) {
-            return true;
-        }
-        return false;
-    }
-    protected static int squared;
-    protected static MapLocation me;
-    protected static Direction d;
-    protected static double weight;
-    protected static double friendlyWeight;
-    protected static MapLocation relativeLoc;
-    protected static void micro2(Direction optimalDir, MapLocation dest) throws GameActionException {
-        int start = Clock.getBytecodesLeft();
-        me = rc.getLocation();
-        Direction bestDir = null;
-        double bestWeight = 0;
-        Direction bestFillDir = null;
-        double bestFillWeight = 0;
-        RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-        MapInfo[] mapInfo = rc.senseNearbyMapInfos();
-
-        StringBuilder activatedTraps = new StringBuilder();
-        StringBuilder traps = new StringBuilder();
-
-        lastActivatedTraps[4] = lastActivatedTraps[3];
-        lastActivatedTraps[3] = lastActivatedTraps[2];
-        lastActivatedTraps[2] = lastActivatedTraps[1];
-        lastActivatedTraps[1] = lastActivatedTraps[0];
-        lastActivatedTraps[0] = activatedTraps;
-
-        for (MapInfo m : mapInfo) {
-            if (m.getTrapType() == TrapType.STUN) {
-                traps.append(m.getMapLocation() + " ");
-            }
-            else {
-                if (lastTraps.toString().contains(m.getMapLocation() + " ")) {
-                    // oof the trap got activated time to go super aggressive
-                    activatedTraps.append(m.getMapLocation().translate(-2, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -3) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, -2) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, -1) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 0) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 1) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 2) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-2, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 3) + " ");
+    protected static void micro(Direction bugDir) throws GameActionException {
+        if (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            Direction bestDir = null;
+            int bestWeight = 0;
+            Direction bestFillDir = null;
+            int bestFillWeight = 0;
+            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+            for (Direction d : ALL_DIRECTIONS) {
+                if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
+                    continue;
                 }
-            }
-        }
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
-
-        for (Direction d : ALL_DIRECTIONS) {
-            if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
-                continue;
-            }
-            // incentivize moving towards target
-            weight = 0;
-            if (d.equals(optimalDir)) {
-                weight += 3;
-            }
-            if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
-                weight += 1;
-            }
-            if (rc.hasFlag() && d.equals(optimalDir.opposite()) || d.equals(optimalDir.opposite().rotateLeft()) || d.equals(optimalDir.opposite().rotateRight())) {
-                weight -= 2;
-            }
-            // really incentivize moving into spawn area
-            if (rc.hasFlag()) {
-                if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeamObject() == rc.getTeam()) {
-                    weight += 100;
+                // incentivize moving towards target
+                int weight = 0;
+                if (opponentRobots.length > 0) {
+                    if (d.equals(bugDir)) {
+                        weight += 1;
+                    }
+                    if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
+                        weight += 1;
+                    }
+                    if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
+                        weight -= 2;
+                    }
                 }
-            }
-
-            int actions = rc.isActionReady() ? 1 : 0;
-            // for (int j = 0; j < opponentRobots.length; j++) {
-            //     robot = opponentRobots[j];
-            int minHP = 1000;
-            for (RobotInfo robot : opponentRobots) {
-                relativeLoc = robot.getLocation().add(d.opposite());
-                squared = me.distanceSquaredTo(relativeLoc);
-                if (isStunned(robot.getLocation())) {
-                    // weight -= squared * 10;
-                    if (squared <= 4) {
+                // really incentivize moving into spawn area
+                if (rc.hasFlag()) {
+                    if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeamObject() == rc.getTeam()) {
                         weight += 100;
                     }
-                    // if (squared <= 2) {
-                    //     weight -= 1000000;
-                    // }
                 }
-                if (robot.getLocation().distanceSquaredTo(dest) > me.add(d).distanceSquaredTo(dest)) {
-                    weight -= 10000 * (Math.sqrt(robot.getLocation().distanceSquaredTo(dest)) - Math.sqrt(me.add(d).distanceSquaredTo(dest)));
-                    // weight -= squared * 100;
-                }
-                if (squared <= 2) {
-                    if (robot.hasFlag()) {
-                        weight += 60;
+                int actions = rc.isActionReady() ? 1 : 0;
+                for (RobotInfo robot : opponentRobots) {
+                    MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                    if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                        // attack micro - retreat when too close and move closer to attack
+                        if (actions == 0 || rc.getHealth() < 500) {
+                            weight -= 10;
+                            // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
+                            //     weight += 6;
+                            // }
+                        }
+                        else {
+                            actions -= 1;
+                            weight += 4;
+                        }
+                        if (rc.hasFlag()) {
+                            weight -= 30;
+                        }
+                        else if (robot.hasFlag()) {
+                            weight += 10;
+                        }
+                        // stop moving into robots when you have the flag buh
                     }
-                    else {
-                        // weight -= 6000;
+                    else if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                        // weight -= 3;
                     }
-                }
-                else if (squared <= 4) {
-                    // attack micro - retreat when too close and move closer to attack
-                    if (rc.getHealth() < 200) {
-                        weight -= 50;
-                    }
-                    // else if (actions == 1 && friendlyRobots.length > opponentRobots.length) {
-                    //     weight += 10;
-                    // }
-                    else if (actions == 1) {
-                        weight += 10;
-                        // actions -= 1;
-                        minHP = Math.min(robot.getHealth(), minHP);
-                    }
-                    else {
-                        weight -= 10;
-                    }
-                    // if (actions == 0 || rc.getHealth() < 500) {
-                    //     weight -= 10;
-                    // }
-                    // else {
-                    //     actions -= 1;
-                    //     weight += 4;
-                    // }
-                    if (robot.hasFlag()) {
-                        weight += 20;
-                    }
-                    else {
-                        // weight -= 20;
-                    }
-                }
-                else if (squared <= 10) {
-                    if (rc.getHealth() < 200) {
-                        weight -= 20;
-                    }
-                    // else if (friendlyRobots.length > opponentRobots.length) {
-                    //     weight += 10;
-                    // }
-                    else {
-                        // weight -= 10;
-                        weight += 10;
-                    }
-                    if (robot.hasFlag()) {
-                        weight += 20;
-                    }
-                    // if (rc.hasFlag()) {
-                    //     weight -= 20;
-                    // }
-                    // else if (robot.hasFlag()) {
-                    //     weight += 20;
-                    // }
-                }
-                else if (squared <= 13) {
-                    weight -= 1;
-                }
-                else if (squared <= 20) {
-                    weight -= 3;
-                }
-                else {
-                    weight -= 5;
-                }
-            }
-            weight -= minHP / 10;
-            // maybe be closer to friendly robots
-            double diffX = dest.x - me.add(d).x;
-            double diffY = dest.y - me.add(d).y;
-            double mag = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-            diffX /= mag;
-            diffY /= mag;
-            friendlyWeight = 0;
-            int closeRobots = 0;
-            for (RobotInfo robot : friendlyRobots) {
-                relativeLoc = robot.getLocation().add(d.opposite());
-                if (Math.max(Math.abs(diffX * (robot.getLocation().x - me.x)) + Math.abs(diffY * (robot.getLocation().y - me.y)), 2) == 2) {
-                    closeRobots += 1;
-                }
-                friendlyWeight -= Math.max(Math.abs(diffX * (relativeLoc.x - me.x)) + Math.abs(diffY * (relativeLoc.y - me.y)), 2) * 100;
-                friendlyWeight -= Math.max(Math.abs(-diffY * (relativeLoc.x - me.x)) + Math.abs(diffX * (relativeLoc.y - me.y)), 2) * 20;
-            }
-            // for (int j = 0; j < friendlyRobots.length; j++) {
-            //     robot = friendlyRobots[j];
-            //     relativeLoc = robot.getLocation().add(d.opposite());
-            //     // int relX = relativeLoc.x;
-            //     // int relY = relativeLoc.y;
-
-            //     // having robots sideways is fine, having robots in front or behind is bad
-            //     // a blob is pretty bad because the inner robots are useless
-            //     // int longitudinalDist = diffX * relX + diffY * relY;
-            //     // int transverseDist = -diffY * relX + diffX * relY;
-
-            //     friendlyWeight -= Math.max(diffX * relativeLoc.x + diffY * relativeLoc.y, 1) * 10;
-            //     friendlyWeight -= Math.max(-diffY * relativeLoc.x + diffX * relativeLoc.y, 1) * 2;
-            //     // if (rc.canSenseLocation(relativeLoc)) {
-            //     //     friendlyWeight += 1;
-            //     // }
-            //     // if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
-            //     //     friendlyWeight += 1;
-            //     // }
-            // }
-            // weight += Math.min(friendlyWeight, 4);
-            if (opponentRobots.length > 0 && closeRobots < 5) {
-            // if (rc.getRoundNum() % 3 == 0) {
-                weight += friendlyWeight;
-            }
-            // prefer not filling?
-            if (rc.canFill(me.add(d))) {
-                if (bestFillDir == null) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
-                }
-                else if (bestFillWeight < weight) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
-                }
-            }
-            else {
-                if (bestDir == null) {
-                    bestDir = d;
-                    bestWeight = weight;
-                }
-                else if (bestWeight < weight) {
-                    bestDir = d;
-                    bestWeight = weight;
-                }
-            }
-        }
-        lastTraps = traps;
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
-        if (!rc.isSpawned()) {
-            return;
-        }
-        // trap micro
-        if (bestDir != null) {
-            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
-                MapLocation buildLoc = rc.getLocation().add(bestDir);
-                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    MapInfo[] mapInfo2 = rc.senseNearbyMapInfos(buildLoc, 8);
-                    for (MapInfo m : mapInfo2) {
-                        if (m.getTrapType() == TrapType.STUN) {
-                            break build;
+                    if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                        if (rc.hasFlag()) {
+                            weight -= 20;
+                        }
+                        else if (robot.hasFlag()) {
+                            weight += 20;
                         }
                     }
-                    rc.build(TrapType.STUN, buildLoc);
-                    // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                    //     rc.build(TrapType.STUN, buildLoc);
-                    // }
+                    // REALLY DONT BE THAT CLOSE
+                    if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                        // weight -= 16;
+                        if (robot.hasFlag()) {
+                            weight += 20;
+                        }
+                    }
                 }
-            }
-            moveWithAction(bestDir);
-            lastDir = bestDir;
-        }
-        else if (bestFillDir != null) {
-            if (Clock.getBytecodesLeft() < 1000) {
-                Clock.yield();
-            }
-            if (rc.canFill(me.add(bestFillDir))) {
-                rc.fill(me.add(bestFillDir));
-            }
-        }
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
-    }
-    protected static void micro(Direction optimalDir, MapLocation dest) throws GameActionException {
-        int start = Clock.getBytecodesLeft();
-        me = rc.getLocation();
-        Direction bestDir = null;
-        double bestWeight = 0;
-        Direction bestFillDir = null;
-        double bestFillWeight = 0;
-        RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-        MapInfo[] mapInfo = rc.senseNearbyMapInfos();
-
-        StringBuilder activatedTraps = new StringBuilder();
-        StringBuilder traps = new StringBuilder();
-
-        lastActivatedTraps[4] = lastActivatedTraps[3];
-        lastActivatedTraps[3] = lastActivatedTraps[2];
-        lastActivatedTraps[2] = lastActivatedTraps[1];
-        lastActivatedTraps[1] = lastActivatedTraps[0];
-        lastActivatedTraps[0] = activatedTraps;
-
-        for (MapInfo m : mapInfo) {
-            if (m.getTrapType() == TrapType.STUN) {
-                traps.append(m.getMapLocation() + " ");
-            }
-            else {
-                if (lastTraps.toString().contains(m.getMapLocation() + " ")) {
-                    // oof the trap got activated time to go super aggressive
-                    activatedTraps.append(m.getMapLocation().translate(-2, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -3) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, -2) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, -1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, -1) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 0) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 0) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 1) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 1) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-3, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-2, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 2) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(3, 2) + " ");
-                    
-                    activatedTraps.append(m.getMapLocation().translate(-2, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(-1, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(0, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(1, 3) + " ");
-                    activatedTraps.append(m.getMapLocation().translate(2, 3) + " ");
+                // maybe be closer to friendly robots
+                int friendlyWeight = 0;
+                for (RobotInfo robot : friendlyRobots) {
+                    MapLocation relativeLoc = robot.getLocation().add(d.opposite());
+                    if (rc.canSenseLocation(relativeLoc)) {
+                        friendlyWeight += 1;
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
+                        friendlyWeight += 1;
+                    }
                 }
-            }
-        }
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
-        boolean attacked = Attack.attack();
-        for (Direction d : ALL_DIRECTIONS) {
-            if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
-                continue;
-            }
-            // incentivize moving towards target
-            weight = 0;
-            if (d.equals(optimalDir)) {
-                weight += 3;
-                if (rc.hasFlag()) {
-                    weight += 10000000;
-                }
-            }
-            if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
-                weight += 1;
-            }
-            // if (rc.hasFlag() && d.equals(optimalDir.opposite()) || d.equals(optimalDir.opposite().rotateLeft()) || d.equals(optimalDir.opposite().rotateRight())) {
-            //     weight -= 2;
-            // }
-            // really incentivize moving into spawn area
-            if (rc.hasFlag()) {
-                if (rc.senseMapInfo(me.add(d)).getSpawnZoneTeamObject() == rc.getTeam()) {
-                    weight += 100;
-                }
-            }
-
-            int actions = rc.isActionReady() ? 1 : 0;
-            // for (int j = 0; j < opponentRobots.length; j++) {
-            //     robot = opponentRobots[j];
-            int minHP = 1000;
-            for (RobotInfo robot : opponentRobots) {
-                relativeLoc = robot.getLocation().add(d.opposite());
-                squared = me.distanceSquaredTo(relativeLoc);
-                if (attacked || rc.getHealth() < 500 || opponentRobots.length > friendlyRobots.length) {
-                    weight += squared * 10;
-                }
-                else {
-                    weight -= squared * 10;
-                }
-                // if (friendlyRobots.length > opponentRobots.length) {
-                //     weight -= squared;
-                // }
-                // else {
-                //     weight += squared;
-                // }
-                // if (isStunned(robot.getLocation())) {
-                //     // weight -= squared * 10;
-                //     if (squared <= 4) {
-                //         weight += 100;
-                //     }
-                //     // if (squared <= 2) {
-                //     //     weight -= 1000000;
-                //     // }
-                // }
-                // if (robot.getLocation().distanceSquaredTo(dest) > me.add(d).distanceSquaredTo(dest)) {
-                //     weight -= 10000 * (Math.sqrt(robot.getLocation().distanceSquaredTo(dest)) - Math.sqrt(me.add(d).distanceSquaredTo(dest)));
-                //     // weight -= squared * 100;
-                // }
-                // if (squared <= 2) {
-                //     if (robot.hasFlag()) {
-                //         weight += 60;
-                //     }
-                //     else {
-                //         // weight -= 6000;
-                //     }
-                // }
-                // else if (squared <= 4) {
-                //     // attack micro - retreat when too close and move closer to attack
-                //     if (rc.getHealth() < 200) {
-                //         weight -= 50;
-                //     }
-                //     // else if (actions == 1 && friendlyRobots.length > opponentRobots.length) {
-                //     //     weight += 10;
-                //     // }
-                //     else if (actions == 1) {
-                //         weight += 10;
-                //         // actions -= 1;
-                //         minHP = Math.min(robot.getHealth(), minHP);
-                //     }
-                //     else {
-                //         weight -= 10;
-                //     }
-                //     // if (actions == 0 || rc.getHealth() < 500) {
-                //     //     weight -= 10;
-                //     // }
-                //     // else {
-                //     //     actions -= 1;
-                //     //     weight += 4;
-                //     // }
-                //     if (robot.hasFlag()) {
-                //         weight += 20;
-                //     }
-                //     else {
-                //         // weight -= 20;
-                //     }
-                // }
-                // else if (squared <= 10) {
-                //     if (rc.getHealth() < 200) {
-                //         weight -= 20;
-                //     }
-                //     // else if (friendlyRobots.length > opponentRobots.length) {
-                //     //     weight += 10;
-                //     // }
-                //     else {
-                //         // weight -= 10;
-                //         weight += 10;
-                //     }
-                //     if (robot.hasFlag()) {
-                //         weight += 20;
-                //     }
-                //     // if (rc.hasFlag()) {
-                //     //     weight -= 20;
-                //     // }
-                //     // else if (robot.hasFlag()) {
-                //     //     weight += 20;
-                //     // }
-                // }
-                // else if (squared <= 13) {
-                //     weight -= 1;
-                // }
-                // else if (squared <= 20) {
-                //     weight -= 3;
-                // }
-                // else {
-                //     weight -= 5;
-                // }
-            }
-            weight -= minHP / 10;
-            // maybe be closer to friendly robots
-            double diffX = dest.x - me.add(d).x;
-            double diffY = dest.y - me.add(d).y;
-            double mag = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-            diffX /= mag;
-            diffY /= mag;
-            friendlyWeight = 0;
-            int closeRobots = 0;
-            for (RobotInfo robot : friendlyRobots) {
-                relativeLoc = robot.getLocation().add(d.opposite());
-                if (Math.max(Math.abs(diffX * (robot.getLocation().x - me.x)) + Math.abs(diffY * (robot.getLocation().y - me.y)), 2) == 2) {
-                    closeRobots += 1;
-                }
-                friendlyWeight -= Math.max(Math.abs(diffX * (relativeLoc.x - me.x)) + Math.abs(diffY * (relativeLoc.y - me.y)), 2) * 100;
-                friendlyWeight -= Math.max(Math.abs(-diffY * (relativeLoc.x - me.x)) + Math.abs(diffX * (relativeLoc.y - me.y)), 2) * 20;
-            }
-            // for (int j = 0; j < friendlyRobots.length; j++) {
-            //     robot = friendlyRobots[j];
-            //     relativeLoc = robot.getLocation().add(d.opposite());
-            //     // int relX = relativeLoc.x;
-            //     // int relY = relativeLoc.y;
-
-            //     // having robots sideways is fine, having robots in front or behind is bad
-            //     // a blob is pretty bad because the inner robots are useless
-            //     // int longitudinalDist = diffX * relX + diffY * relY;
-            //     // int transverseDist = -diffY * relX + diffX * relY;
-
-            //     friendlyWeight -= Math.max(diffX * relativeLoc.x + diffY * relativeLoc.y, 1) * 10;
-            //     friendlyWeight -= Math.max(-diffY * relativeLoc.x + diffX * relativeLoc.y, 1) * 2;
-            //     // if (rc.canSenseLocation(relativeLoc)) {
-            //     //     friendlyWeight += 1;
-            //     // }
-            //     // if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
-            //     //     friendlyWeight += 1;
-            //     // }
-            // }
-            // weight += Math.min(friendlyWeight, 4);
-            if (opponentRobots.length > 0) {
-            // if (rc.getRoundNum() % 3 == 0) {
+                weight += Math.min(friendlyWeight, 4);
                 // weight += friendlyWeight;
-            }
-            // prefer not filling?
-            if (rc.canFill(me.add(d))) {
-                if (bestFillDir == null) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
-                }
-                else if (bestFillWeight < weight) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
-                }
-            }
-            else {
-                if (bestDir == null) {
-                    bestDir = d;
-                    bestWeight = weight;
-                }
-                else if (bestWeight < weight) {
-                    bestDir = d;
-                    bestWeight = weight;
-                }
-            }
-        }
-        lastTraps = traps;
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
-        if (!rc.isSpawned()) {
-            return;
-        }
-        // trap micro
-        if (bestDir != null) {
-            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
-                MapLocation buildLoc = rc.getLocation().add(bestDir);
-                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    MapInfo[] mapInfo2 = rc.senseNearbyMapInfos(buildLoc, 8);
-                    for (MapInfo m : mapInfo2) {
-                        if (m.getTrapType() == TrapType.STUN) {
-                            break build;
-                        }
+                // prefer not filling?
+                if (rc.canFill(me.add(d))) {
+                    if (bestFillDir == null) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
                     }
-                    rc.build(TrapType.STUN, buildLoc);
-                    // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                    //     rc.build(TrapType.STUN, buildLoc);
-                    // }
+                    else if (bestFillWeight < weight) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                }
+                else {
+                    if (bestDir == null) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
+                    else if (bestWeight < weight) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
+                }
+                if (Clock.getBytecodesLeft() < 5000) {
+                    break;
                 }
             }
-            // moveWithAction(bestDir);
-            Attack.heal();
-            if (rc.canMove(bestDir)) {
-                rc.move(bestDir);
+            // trap micro
+            if (bestDir != null) {
+                if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
+                    MapLocation buildLoc = rc.getLocation().add(bestDir);
+                    build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                        MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
+                        for (MapInfo m : mapInfo) {
+                            if (m.getTrapType() != TrapType.NONE) {
+                                break build;
+                            }
+                        }
+                        // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
+                            rc.build(TrapType.STUN, buildLoc);
+                        // }
+                    }
+                }
+                moveWithAction(bestDir);
                 lastDir = bestDir;
             }
-            Attack.attack();
-            Attack.heal();
-        }
-        else if (bestFillDir != null) {
-            if (Clock.getBytecodesLeft() < 1000) {
-                Clock.yield();
-            }
-            if (rc.canFill(me.add(bestFillDir))) {
+            else if (bestFillDir != null) {
                 rc.fill(me.add(bestFillDir));
             }
         }
-        indicatorString.append(start - Clock.getBytecodesLeft() + " ");
     }
-    
     protected static void moveWithAction(Direction dir) throws GameActionException {
         if (rc.isActionReady()) {
             MapLocation me = rc.getLocation();
             MapLocation newMe = rc.getLocation().add(dir);
             
-            RobotInfo[] opponentRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
+            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             RobotInfo robot = null;
             for (RobotInfo r : opponentRobots) {
                 if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
@@ -1447,18 +895,15 @@ public class Motion {
                 else if (robot.getHealth() > r.getHealth()) {
                     robot = r;
                 }
-                else if (robot.getHealth() == r.getHealth() && robot.getLocation().distanceSquaredTo(me) > r.getLocation().distanceSquaredTo(me)) {
+                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
                     robot = r;
                 }
             }
 
             if (robot == null) {
-                RobotInfo[] friendlyRobots = rc.senseNearbyRobots(10, rc.getTeam().opponent());
+                RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                 for (RobotInfo r : friendlyRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
-                        continue;
-                    }
-                    if (r.getID() == rc.getID()) {
                         continue;
                     }
                     if (robot == null) {
@@ -1484,9 +929,6 @@ public class Motion {
                 }
             }
 
-            if (Clock.getBytecodesLeft() < 1000) {
-                Clock.yield();
-            }
             if (robot != null) {
                 if (robot.getTeam().equals(rc.getTeam())) {
                     while (rc.canHeal(robot.getLocation())) {
@@ -1500,10 +942,8 @@ public class Motion {
                 }
             }
 
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                lastDir = dir;
-            }
+            rc.move(dir);
+            lastDir = dir;
 
             if (robot != null) {
                 if (robot.getTeam().equals(rc.getTeam())) {
@@ -1519,13 +959,8 @@ public class Motion {
             }
         }
         else {
-            if (Clock.getBytecodesLeft() < 1000) {
-                Clock.yield();
-            }
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                lastDir = dir;
-            }
+            rc.move(dir);
+            lastDir = dir;
         }
     }
 
@@ -1569,7 +1004,21 @@ public class Motion {
             }
         }
     }
-    protected static void bfs() throws GameActionException {
+    protected static Direction bfs(MapLocation dest) throws GameActionException {
+        indicatorString.append(Clock.getBytecodesLeft() + " ");
+
+        MapLocation me = rc.getLocation();
+
+        if (!dest.equals(bfsDest)) {
+            bfsDest = dest;
+            for (int i = 1; i <= height; i++) {
+                bfsDist[i] = 0;
+                bfsCurr[i] = 0;
+            }
+            bfsDist[dest.y + 1] = long1 << (dest.x);
+            bfsCurr[dest.y + 1] = long1 << (dest.x);
+            step = 1;
+        }
 
         if (recalculationNeeded != MAX_PATH_LENGTH && recalculationNeeded < step) { 
             step = recalculationNeeded;
@@ -1583,7 +1032,7 @@ public class Motion {
         }
         recalculationNeeded = MAX_PATH_LENGTH;
         
-        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 10000) {
+        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 15000) {
             stepOffset = step * (height + 2);
             switch (height) {
                 case 30:
@@ -1727,20 +1176,6 @@ public class Motion {
         //     }
         // }
         indicatorString.append("STEP=" + step);
-    }
-    protected static Direction getBfsDirection(MapLocation dest) throws GameActionException {
-        MapLocation me = rc.getLocation();
-
-        if (!dest.equals(bfsDest)) {
-            bfsDest = dest;
-            for (int i = 1; i <= height; i++) {
-                bfsDist[i] = 0;
-                bfsCurr[i] = 0;
-            }
-            bfsDist[dest.y + 1] = long1 << (dest.x);
-            bfsCurr[dest.y + 1] = long1 << (dest.x);
-            step = 1;
-        }
 
         boolean[] directions = new boolean[9];
         for (int i = 1; i < step; i++) {
@@ -1804,22 +1239,17 @@ public class Motion {
     }
     protected static void bfsnav(MapLocation dest, int retreatHP) throws GameActionException {
         if (rc.isMovementReady()) {
-            indicatorString.append(Clock.getBytecodesLeft() + " ");
-            Direction d = getBfsDirection(dest);
-            indicatorString.append(Clock.getBytecodesLeft() + " ");
+            Direction d = bfs(dest);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
-            micro(d, dest);
-            lastDir = d;
-            bfs();
-            // if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-            //     micro(d, dest);
-            // }
-            // else if (rc.canMove(d)) {
-            //     rc.move(d);
-            //     lastDir = d;
-            // }
+            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+                micro(d);
+            }
+            else if (rc.canMove(d)) {
+                rc.move(d);
+                lastDir = d;
+            }
         }
     }
 }

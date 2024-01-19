@@ -39,11 +39,16 @@ public strictfp class RobotPlayer {
         Offensive.rng = rng;
         Defensive.rc = rc;
         Defensive.rng = rng;
+        Scout.rc = rc;
+        Scout.rng = rng;
 
         GlobalArray.init();
         
         if (GlobalArray.id < 3) {
             mode = DEFENSIVE;
+        }
+        else if (GlobalArray.id < 6) {
+            mode = SCOUT;
         }
 
         Clock.yield();
@@ -104,12 +109,16 @@ public strictfp class RobotPlayer {
                 Setup.indicatorString = indicatorString;
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
+                Scout.indicatorString = indicatorString;
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
                     }
                     else if (mode == DEFENSIVE) {
                         Defensive.jailed();
+                    }
+                    else if (mode == SCOUT) {
+                        Scout.jailed();
                     }
                     else {
                         Offensive.jailed();
@@ -130,6 +139,9 @@ public strictfp class RobotPlayer {
                     }
                     else if (mode == DEFENSIVE) {
                         Defensive.run();
+                    }
+                    else if (mode == SCOUT) {
+                        Scout.run();
                     }
                     else {
                         Offensive.run();

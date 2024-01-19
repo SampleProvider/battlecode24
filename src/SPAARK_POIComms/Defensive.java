@@ -71,7 +71,7 @@ public class Defensive {
                     MapLocation buildLoc = me.add(buildDir);
                     if (rng.nextInt(3) == 0) {
                         if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                            // rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                         // MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                         // placeTrap: {
@@ -110,11 +110,11 @@ public class Defensive {
                                 if (rc.canFill(buildLoc)) {
                                     rc.fill(buildLoc);
                                 }
-                                // if (j % 2 == 0) {
+                                if (j % 2 == 0) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
                                     rc.build(TrapType.WATER, buildLoc);
                                 }
-                                // }
+                                }
                                 // else {
                                 //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
                                 //         rc.build(TrapType.EXPLOSIVE, buildLoc);

@@ -140,7 +140,7 @@ public class Offensive {
                 else {
                     Motion.bfsnav(target);
                 }
-                rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
+                // rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
             }
             else {
                 boolean action = false;
