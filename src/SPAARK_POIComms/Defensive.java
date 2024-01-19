@@ -52,6 +52,7 @@ public class Defensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
+        GlobalArray.checkFlags(friendlyFlags, opponentFlags);
         GlobalArray.updatePOI();
         if (GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
@@ -86,10 +87,10 @@ public class Defensive {
                         MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                         placeTrap: {
                             for (MapInfo info : nearbyTraps) {
-                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
+                                if (info.getTrapType() == TrapType.STUN) break placeTrap; 
                             }
-                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                rc.build(TrapType.WATER, buildLoc);
+                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                                rc.build(TrapType.STUN, buildLoc);
                             }
                         }
                     }
@@ -112,7 +113,7 @@ public class Defensive {
                                 }
                                 if (j % 2 == 0) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                    rc.build(TrapType.WATER, buildLoc);
+                                    // rc.build(TrapType.WATER, buildLoc);
                                 }
                                 }
                                 // else {

@@ -153,12 +153,12 @@ public strictfp class RobotPlayer {
             catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
-                rc.resign();
+                // rc.resign();
             }
             catch (Exception e) {
                 System.out.println("Exception");
                 e.printStackTrace();
-                rc.resign();
+                // rc.resign();
             }
             finally {
                 Clock.yield();

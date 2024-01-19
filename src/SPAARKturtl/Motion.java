@@ -537,7 +537,7 @@ public class Motion {
         }
         return Direction.CENTER;
     }
-    protected static Direction bug2HelperWaterWall(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared) throws GameActionException {
+    protected static Direction bug2HelperWaterWall(MapLocation me, MapLocation dest, int mode, int minRadiusSquared, int maxRadiusSquared, boolean fillWater) throws GameActionException {
         Direction direction = me.directionTo(dest);
         if (me.equals(dest)) {
             if (mode == AROUND) {
@@ -613,10 +613,10 @@ public class Motion {
                 // }
                 return direction;
             }
-            // else if (rc.canFill(me.add(direction))) {
-            //     rc.fill(me.add(direction));
-            //     return Direction.CENTER;
-            // }
+            else if (rc.canFill(me.add(direction)) && fillWater) {
+                rc.fill(me.add(direction));
+                return Direction.CENTER;
+            }
         }
         else if (rc.canMove(direction)) {
             Direction dir;

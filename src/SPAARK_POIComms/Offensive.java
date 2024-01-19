@@ -56,7 +56,7 @@ public class Offensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
-        // GlobalArray.checkFlags(opponentFlags);
+        GlobalArray.checkFlags(friendlyFlags, opponentFlags);
         // GlobalArray.updateSector();
         GlobalArray.updatePOI();
         Motion.updateBfsMap();
@@ -102,29 +102,28 @@ public class Offensive {
                 if (target == null && closestFlag != null) {
                     target = closestFlag.getLocation();
                 }
-                if (rc.getRoundNum() % 2 >= 0) {
-                    if (target == null) {
-                        MapLocation closestStoredFlag = null;
-                        for (int i = 0; i <= 2; i++) {
-                            int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
-                            int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
-                            if (GlobalArray.hasLocation(n)) {
-                                MapLocation loc = GlobalArray.parseLocation(n);
-                                if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
-                                    closestStoredFlag = loc;
-                                }
+                if (target == null) {
+                    MapLocation closestStoredFlag = null;
+                    for (int i = 0; i <= 2; i++) {
+                        int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
+                        int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
+                        if (GlobalArray.hasLocation(n)) {
+                            MapLocation loc = GlobalArray.parseLocation(n);
+                            if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
+                                closestStoredFlag = loc;
                             }
                         }
-                        if (closestStoredFlag != null) {
-                            target = closestStoredFlag;
-                        }
                     }
-                    if (target == null) {
-                        MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                        if (hiddenFlags.length > 0) {
-                            MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
-                            target = closestHiddenFlag;
-                        }
+                    if (closestStoredFlag != null) {
+                        Motion.bugnavAround(closestStoredFlag, 4, 10);
+                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 255, 0, 255);
+                    }
+                }
+                if (target == null) {
+                    MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                    if (hiddenFlags.length > 0) {
+                        MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
+                        target = closestHiddenFlag;
                     }
                 }
             

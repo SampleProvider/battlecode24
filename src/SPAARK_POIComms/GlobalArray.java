@@ -154,6 +154,27 @@ public class GlobalArray {
     protected static void checkFlags(FlagInfo[] friendlyFlags, FlagInfo[] opponentFlags) throws GameActionException {
         // detect if flags were reset
         for (int i = 0; i <= 2; i++) {
+            int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
+            if (hasLocation(n)) {
+                if (rc.canSenseLocation(parseLocation(n))) {
+                    boolean found = false;
+                    for (FlagInfo flag : friendlyFlags) {
+                        if (flag.getLocation().equals(parseLocation(n)) && flag.getID() == rc.readSharedArray(OPPO_FLAG_ID + i)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        if (parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + i)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
+                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, 0);
+                        }
+                        else {
+                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, rc.readSharedArray(ALLY_FLAG_DEF_LOC + i));
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = 0; i <= 2; i++) {
             int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
             if (hasLocation(n)) {
                 if (rc.canSenseLocation(parseLocation(n))) {
@@ -198,6 +219,9 @@ public class GlobalArray {
                 // if (rc.getRoundNum() == 470) {
                     // System.out.println("WRITE " + i + " " + rc.readSharedArray(POI + i + 1) + " " + parseLocation(rc.readSharedArray(POI + i)) + " " + loc);
                 // }
+                if (getFlag(rc.readSharedArray(POI + i + 1)) != flag) {
+                    continue;
+                }
                 rc.setIndicatorLine(rc.getLocation(), loc, 0, 255, 255);
                 rc.writeSharedArray(POI + i, intifyLocation(loc));
                 rc.writeSharedArray(POI + i + 1, (flag << 13) | setOpponentRobots(rc.readSharedArray(POI + i + 1), robots));
@@ -231,11 +255,20 @@ public class GlobalArray {
             // writePOI(new MapLocation(x, y), Math.max(opponentRobots.length - friendlyRobots.length, 0));
             writePOI(new MapLocation(x, y), opponentRobots.length, 0);
         }
-        else if (opponentRobots.length * 2 - friendlyRobots.length <= 0) {
+        else if (opponentRobots.length - friendlyRobots.length <= 0) {
             for (int i = 0; i < 30; i += 2) {
-                if (hasLocation(rc.readSharedArray(POI + i)) && parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(rc.getLocation()) <= 2) {
-                    rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
-                    rc.writeSharedArray(POI + i + 1, 0);
+                if (hasLocation(rc.readSharedArray(POI + i)) && parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(rc.getLocation()) <= 8) {
+                    if (isFlag(rc.readSharedArray(POI + i + 1))) {
+                        int index = getFlag(rc.readSharedArray(POI + i + 1));
+                        if (!hasLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)) || parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + index)))) {
+                            rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
+                            rc.writeSharedArray(POI + i + 1, 0);
+                        }
+                    }
+                    else {
+                        rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
+                        rc.writeSharedArray(POI + i + 1, 0);
+                    }
                     // System.out.println("DELETED " + i);
                 }
             }
@@ -259,6 +292,7 @@ public class GlobalArray {
         int closestDist = -1;
         int closestIndex = -1;
         boolean closestIsFlag = false;
+        int closestNeededRobots = 0;
         for (int i = 0; i < 30; i += 2) {
             int n = rc.readSharedArray(POI + i);
             int n2 = rc.readSharedArray(POI + i + 1);
@@ -274,6 +308,7 @@ public class GlobalArray {
                             if (dist > closestDist) {
                                 closestIndex = i;
                                 closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                                closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                             }
                         }
                     }
@@ -282,12 +317,15 @@ public class GlobalArray {
                     if (isFlag(n2)) {
                         closestIndex = i;
                         closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                        closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         closestIsFlag = true;
                     }
                     else {
-                        if (closestDist == -1 || flag1.distanceSquaredTo(loc) < closestDist || flag2.distanceSquaredTo(loc) < closestDist || flag3.distanceSquaredTo(loc) < closestDist) {
+                        int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
+                        if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
                             closestIndex = i;
-                            closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                            closestDist = 
+                            closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         }
                     }
                 }
