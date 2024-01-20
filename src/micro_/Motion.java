@@ -772,6 +772,7 @@ public class Motion {
                 else {
                     int totalDist = 0;
                     int minDist = 0;
+                    int criticalHP = 200 + (rc.getMapWidth() * rc.getMapHeight()) / 18;
                     for (RobotInfo robot : opponentRobots) {
                         MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                         int squared = me.distanceSquaredTo(relativeLoc);
@@ -779,7 +780,7 @@ public class Motion {
                         minDist = Math.min(minDist, squared);
                         if (squared <= 4) {
                             // attack micro - retreat when too close and move closer to attack
-                            if (actions == 0 || rc.getHealth() < 300) {
+                            if (actions == 0 || rc.getHealth() < criticalHP) {
                                 weight -= 10;
                                 // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                                 //     weight += 6;
@@ -795,7 +796,7 @@ public class Motion {
                             // stop moving into robots when you have the flag buh
                         }
                         else if (squared <= 10) {
-                            if (rc.getHealth() < 300) {
+                            if (rc.getHealth() < criticalHP) {
                                 // weight -= 3;
                                 weight -= 8;
                             }
