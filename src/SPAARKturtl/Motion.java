@@ -613,7 +613,7 @@ public class Motion {
                 // }
                 return direction;
             }
-            else if (rc.canFill(me.add(direction)) && fillWater) {
+            else if (rc.canFill(me.add(direction)) && ((me.add(direction).x + me.add(direction).y) % 2 == 1 || fillWater)) {
                 rc.fill(me.add(direction));
                 return Direction.CENTER;
             }
@@ -740,7 +740,7 @@ public class Motion {
                 }
                 return Direction.CENTER;
             }
-            else if (rc.canFill(me.add(direction))) {
+            else if (rc.canFill(me.add(direction)) && ((me.add(direction).x + me.add(direction).y) % 2 == 1 || fillWater)) {
                 int water = 0;
                 for (Direction d : DIRECTIONS) {
                     MapLocation translatedMapLocation = me.add(d);
