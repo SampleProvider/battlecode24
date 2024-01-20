@@ -164,7 +164,7 @@ public class Setup {
             flagIndex = -1;
         }
         else {
-            rc.setIndicatorLine(me, toPlace, 0, 255, 0);
+            // rc.setIndicatorLine(me, toPlace, 0, 255, 0);
             indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
         }
@@ -211,7 +211,7 @@ public class Setup {
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
                 Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy));
-                rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
+                // rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
         } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
@@ -252,7 +252,7 @@ public class Setup {
             } else if (GlobalArray.id < 6) {
                 MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
                 Motion.bugnavTowards(flagCarrier);
-                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
+                // rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;");
             } else {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -267,7 +267,7 @@ public class Setup {
             } else if (GlobalArray.id < 6) {
                 MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
                 Motion.bugnavTowards(flagCarrier);
-                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
+                // rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;" + GlobalArray.id);
             } else {
                 MapInfo[] info = rc.senseNearbyMapInfos();
@@ -294,7 +294,7 @@ public class Setup {
                     if (GlobalArray.hasLocation(damLoc)) {
                         Motion.bugnavTowards(GlobalArray.parseLocation(damLoc));
                         indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                        rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
+                        // rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
                     } else {
                         Motion.moveRandomly();
                         indicatorString.append("RANDOM;");
@@ -354,7 +354,7 @@ public class Setup {
             }
         }
         if (GlobalArray.id < 6) {
-            rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
+            // rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }
     protected static void jailed() throws GameActionException {

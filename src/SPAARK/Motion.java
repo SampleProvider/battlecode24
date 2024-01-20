@@ -991,7 +991,7 @@ public class Motion {
                 int subloc = m.getMapLocation().x;
                 if (((bfsMap[loc] >> subloc) & 1) == 0) {
                     bfsMap[loc] |= (long1 << subloc);
-                    rc.setIndicatorDot(m.getMapLocation(), 0, 255, 255);
+                    rc.setIndicatorDot(m.getMapLocation(), 255, 255, 255);
                     for (int i = step - 1; i >= 0; i--) {
                         if (((bfsDist[i * (height + 2) + loc] >> subloc) & 1) != 1) {
                             recalculationNeeded = Math.min(i, recalculationNeeded);

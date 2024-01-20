@@ -106,7 +106,7 @@ public class Offensive {
                     MapLocation closestStoredFlag = null;
                     for (int i = 0; i <= 2; i++) {
                         int n = rc.readSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + i);
-                        int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
+                        // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
                         if (GlobalArray.hasLocation(n)) {
                             MapLocation loc = GlobalArray.parseLocation(n);
                             if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
@@ -116,7 +116,7 @@ public class Offensive {
                     }
                     if (closestStoredFlag != null) {
                         Motion.bugnavAround(closestStoredFlag, 4, 10);
-                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 255, 0, 255);
+                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 0, 0, 255);
                     }
                 }
                 if (target == null) {
@@ -129,7 +129,7 @@ public class Offensive {
             
                 if (target != null) {
                     Motion.bfsnav(target);
-                    rc.setIndicatorLine(rc.getLocation(), target, 255, 0, 255);
+                    rc.setIndicatorLine(rc.getLocation(), target, 0, 0, 255);
                 }
             }
 

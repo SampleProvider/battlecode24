@@ -25,11 +25,11 @@ public class Defensive {
 
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
-        rc.setIndicatorDot(me, 255, 0, 255);
+        // rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
             Motion.bugnavTowards(targetLoc);
-            rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
+            // rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
                 FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
@@ -95,7 +95,7 @@ public class Defensive {
                 }
             } else {
                 MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
-                rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
+                // rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (GlobalArray.id < 3) {
                     Motion.bugnavTowards(targetLoc, 0);
                     me = rc.getLocation();
