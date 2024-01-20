@@ -1,4 +1,4 @@
-package SPAARK_POIComms;
+package SPAARKJAN18;
 
 import battlecode.common.*;
 
@@ -52,8 +52,6 @@ public class Defensive {
         for (FlagInfo flag : opponentFlags) {
             GlobalArray.writeFlag(flag);
         }
-        GlobalArray.checkFlags(friendlyFlags, opponentFlags);
-        GlobalArray.updatePOI();
         if (GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {
@@ -72,7 +70,7 @@ public class Defensive {
                     MapLocation buildLoc = me.add(buildDir);
                     if (rng.nextInt(3) == 0) {
                         if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
-                            // rc.build(TrapType.EXPLOSIVE, buildLoc);
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
                         }
                         // MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                         // placeTrap: {
@@ -87,10 +85,10 @@ public class Defensive {
                         MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                         placeTrap: {
                             for (MapInfo info : nearbyTraps) {
-                                if (info.getTrapType() == TrapType.STUN) break placeTrap; 
+                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
                             }
-                            if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                                rc.build(TrapType.STUN, buildLoc);
+                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
+                                rc.build(TrapType.WATER, buildLoc);
                             }
                         }
                     }
@@ -111,11 +109,11 @@ public class Defensive {
                                 if (rc.canFill(buildLoc)) {
                                     rc.fill(buildLoc);
                                 }
-                                if (j % 2 == 0) {
+                                // if (j % 2 == 0) {
                                 if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                    // rc.build(TrapType.WATER, buildLoc);
+                                    rc.build(TrapType.WATER, buildLoc);
                                 }
-                                }
+                                // }
                                 // else {
                                 //     if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc) && rc.getRoundNum() > 100) {
                                 //         rc.build(TrapType.EXPLOSIVE, buildLoc);
@@ -168,7 +166,7 @@ public class Defensive {
             Motion.spreadRandomly();
         }
 
-        // GlobalArray.updateSector();
+        GlobalArray.updateSector();
 
         Attack.attack();
         Attack.heal();

@@ -1,4 +1,4 @@
-package SPAARK_POIComms;
+package SPAARKJAN18;
 
 import battlecode.common.*;
 
@@ -6,7 +6,7 @@ public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
-    protected static boolean attack() throws GameActionException {
+    protected static void attack() throws GameActionException {
         RobotInfo[] opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
@@ -17,17 +17,16 @@ public class Attack {
                     while (robot != null && rc.canAttack(robot.getLocation())) {
                         rc.attack(robot.getLocation());
                     }
-                    return true;
+                    continue;
                 }
                 else {
-                    return false;
+                    return;
                 }
             }
             else {
-                return false;
+                return;
             }
         }
-        return false;
     }
     protected static void heal() throws GameActionException {
         RobotInfo[] friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());

@@ -1,10 +1,10 @@
-package SPAARK_POIComms;
+package SPAARKJAN18;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
-public class Motion1 {
+public class Motion {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 
@@ -126,6 +126,20 @@ public class Motion1 {
             }
         }
         return closest;
+    }
+
+    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        MapLocation safest = a[0];
+        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
+        for (MapLocation loc : a) {
+            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
+            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
+                safest = loc;
+                robots = r;
+            }
+        }
+        return safest;
     }
 
     // basic random movement
@@ -746,16 +760,14 @@ public class Motion1 {
                 }
                 // incentivize moving towards target
                 int weight = 0;
-                if (opponentRobots.length > 0) {
-                    if (d.equals(bugDir)) {
-                        weight += 1;
-                    }
-                    if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
-                        weight += 1;
-                    }
-                    if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
-                        weight -= 2;
-                    }
+                if (d.equals(bugDir)) {
+                    weight += 1;
+                }
+                if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
+                    weight += 1;
+                }
+                if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
+                    weight -= 2;
                 }
                 // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
@@ -787,7 +799,7 @@ public class Motion1 {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        // weight -= 3;
+                        weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {
@@ -799,7 +811,7 @@ public class Motion1 {
                     }
                     // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                        // weight -= 16;
+                        weight -= 16;
                         if (robot.hasFlag()) {
                             weight += 20;
                         }
@@ -838,9 +850,6 @@ public class Motion1 {
                         bestDir = d;
                         bestWeight = weight;
                     }
-                }
-                if (Clock.getBytecodesLeft() < 5000) {
-                    break;
                 }
             }
             // trap micro

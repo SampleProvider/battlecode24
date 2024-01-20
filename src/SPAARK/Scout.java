@@ -22,8 +22,8 @@ public class Scout {
     };
     protected static int flagIndex = -1;
     
-    protected static int targetSector = -1;
-    protected static int fullMappingSector = -1;
+    protected static MapLocation target = null;
+    protected static int targetTurns = 0;
     
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
@@ -59,83 +59,16 @@ public class Scout {
             GlobalArray.writeFlag(flag);
         }
 
-        String updatedSectors = GlobalArray.updateSector();
+        GlobalArray.updatePOI();
         Motion.updateBfsMap();
 
-        if (flagIndex != -1) {
-            // navigate back to spawn
-            MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation bestLoc = Motion.getSafest(spawnLocs);
-            rc.setIndicatorDot(me, 255, 0, 0);
-            rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
-            Motion.bfsnav(bestLoc, 1000);
-            if (!rc.hasFlag()) {
-                rc.writeSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex, 0);
-                rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, 0);
-                flagIndex = -1;
-            }
+        if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
+            targetTurns = 0;
+            target = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
         }
-        else {
-            Boolean action = false;
+        targetTurns += 1;
 
-            // go to flag!
-            if (!action) {
-                if (closestFlag != null) {
-                    Motion.bfsnav(closestFlag.getLocation());
-                    action = true;
-                }
-            }
-            // crumb stuff if not already done
-            if (!action) {
-                MapInfo[] info = rc.senseNearbyMapInfos();
-                for (MapInfo i : info) {
-                    if (i.getCrumbs() > 0) {
-                        Motion.bfsnav(i.getMapLocation());
-                        indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
-                        action = true;
-                        break;
-                    }
-                }
-            }
-            if (!action) {
-                // go to sectors that haven't been updated recently
-                if (updatedSectors.contains(String.valueOf(targetSector) + "A")) {
-                    targetSector = -1;
-                }
-                if (targetSector == -1) {
-                    int currentSector = GlobalArray.locationToSector(me);
-                    int x = currentSector % GlobalArray.SECTOR_SIZE;
-                    int y = currentSector / GlobalArray.SECTOR_SIZE;
-                    int maxTime = -1;
-                    for (int i = Math.max(y - 1, 0); i <= Math.min(y + 1, 4); i++) {
-                        for (int j = Math.max(x - 1, 0); j <= Math.min(x + 1, 4); j++) {
-                            if (i == y && j == x) {
-                                continue;
-                            }
-                            int time = GlobalArray.getTimeSinceLastExplored(rc.readSharedArray(GlobalArray.SECTOR_START + i * 5 + j));
-                            if (time > maxTime) {
-                                maxTime = time;
-                                targetSector = i * 5 + j;
-                            }
-                        }
-                    }
-                }
-                rc.setIndicatorLine(me, GlobalArray.sectorToLocation(targetSector), 0, 0, 255);
-                Motion.bfsnav(GlobalArray.sectorToLocation(targetSector));
-            }
-        }
-
-
-        opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
-        friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
-        for (FlagInfo flag : friendlyFlags) {
-            GlobalArray.writeFlag(flag);
-        }
-        for (FlagInfo flag : opponentFlags) {
-            GlobalArray.writeFlag(flag);
-        }
-
-        GlobalArray.updateSector();
+        Motion.bfsnav(target);
 
         Attack.attack();
         Attack.heal();
@@ -145,6 +78,5 @@ public class Scout {
             rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex));
             flagIndex = -1;
         }
-        targetSector = -1;
     }
 }

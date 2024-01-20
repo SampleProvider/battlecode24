@@ -43,7 +43,7 @@ public class Setup {
     protected static Boolean getCrumbs(MapInfo[] info) throws GameActionException {
         for (MapInfo i : info) {
             if (i.getCrumbs() > 0) {
-                Motion.bugnavTowards(i.getMapLocation());
+                Motion.bugnavTowards(i.getMapLocation(), 500);
                 indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                 return true;
             }
@@ -122,7 +122,7 @@ public class Setup {
                 default:
             }
         }
-        Motion.bugnavTowards(toPlace);
+        Motion.bugnavTowards(toPlace, 500);
         MapLocation me = rc.getLocation();
         if (rc.canSenseLocation(toPlace)) {
             MapInfo tile = rc.senseMapInfo(toPlace);
@@ -210,7 +210,7 @@ public class Setup {
                     dx += i.getDeltaX() * damSpreadWeights[i.getDirectionOrderNum()];
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
-                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy));
+                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
@@ -292,7 +292,7 @@ public class Setup {
                 if (!nearDam) {
                     //if we aren't near the dam, then go to the meeting point
                     if (GlobalArray.hasLocation(damLoc)) {
-                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc));
+                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
                         indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
                         rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
                     } else {

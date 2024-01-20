@@ -1,10 +1,10 @@
-package SPAARK_POIComms;
+package SPAARK;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
-public class Motion {
+public class Motion1 {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 
@@ -746,14 +746,16 @@ public class Motion {
                 }
                 // incentivize moving towards target
                 int weight = 0;
-                if (d.equals(bugDir)) {
-                    weight += 1;
-                }
-                if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
-                    weight += 1;
-                }
-                if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
-                    weight -= 2;
+                if (opponentRobots.length > 0) {
+                    if (d.equals(bugDir)) {
+                        weight += 1;
+                    }
+                    if (d.equals(bugDir.rotateLeft()) || d.equals(bugDir.rotateRight())) {
+                        weight += 1;
+                    }
+                    if (rc.hasFlag() && d.equals(bugDir.opposite()) || d.equals(bugDir.opposite().rotateLeft()) || d.equals(bugDir.opposite().rotateRight())) {
+                        weight -= 2;
+                    }
                 }
                 // really incentivize moving into spawn area
                 if (rc.hasFlag()) {
@@ -766,7 +768,7 @@ public class Motion {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
                         // attack micro - retreat when too close and move closer to attack
-                        if (actions == 0 || rc.getHealth() < 300) {
+                        if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
                             // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                             //     weight += 6;
@@ -785,10 +787,7 @@ public class Motion {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        if (rc.getHealth() < 300) {
-                            // weight -= 3;
-                            weight -= 8;
-                        }
+                        // weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {
@@ -800,7 +799,7 @@ public class Motion {
                     }
                     // REALLY DONT BE THAT CLOSE
                     if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                        weight -= 16;
+                        // weight -= 16;
                         if (robot.hasFlag()) {
                             weight += 20;
                         }
@@ -839,6 +838,9 @@ public class Motion {
                         bestDir = d;
                         bestWeight = weight;
                     }
+                }
+                if (Clock.getBytecodesLeft() < 5000) {
+                    break;
                 }
             }
             // trap micro

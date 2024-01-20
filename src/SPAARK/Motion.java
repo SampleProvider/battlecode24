@@ -128,20 +128,6 @@ public class Motion {
         return closest;
     }
 
-    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
-        MapLocation me = rc.getLocation();
-        MapLocation safest = a[0];
-        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
-        for (MapLocation loc : a) {
-            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
-            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
-                safest = loc;
-                robots = r;
-            }
-        }
-        return safest;
-    }
-
     // basic random movement
     protected static void moveRandomly() throws GameActionException {
         boolean stuck = true;
@@ -780,7 +766,7 @@ public class Motion {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
                         // attack micro - retreat when too close and move closer to attack
-                        if (actions == 0 || rc.getHealth() < 500) {
+                        if (actions == 0 || rc.getHealth() < 300) {
                             weight -= 10;
                             // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                             //     weight += 6;
@@ -799,7 +785,10 @@ public class Motion {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        weight -= 3;
+                        if (rc.getHealth() < 300) {
+                            // weight -= 3;
+                            weight -= 8;
+                        }
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {

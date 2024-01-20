@@ -6,7 +6,7 @@ public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
-    protected static void attack() throws GameActionException {
+    protected static boolean attack() throws GameActionException {
         RobotInfo[] opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
@@ -17,16 +17,17 @@ public class Attack {
                     while (robot != null && rc.canAttack(robot.getLocation())) {
                         rc.attack(robot.getLocation());
                     }
-                    continue;
+                    return true;
                 }
                 else {
-                    return;
+                    return false;
                 }
             }
             else {
-                return;
+                return false;
             }
         }
+        return false;
     }
     protected static void heal() throws GameActionException {
         RobotInfo[] friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());

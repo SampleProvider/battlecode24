@@ -41,24 +41,14 @@ public strictfp class RobotPlayer {
         Defensive.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
-        Leader.rc = rc;
-        Leader.rng = rng;
-        Follower.rc = rc;
-        Follower.rng = rng;
 
         GlobalArray.init();
         
-        if (GlobalArray.groupId == 0) {
+        if (GlobalArray.id < 3) {
             mode = DEFENSIVE;
-        } else if (GlobalArray.groupId == 1) {
-            mode = SCOUT;
         }
-        if (GlobalArray.id == 5) {
-            GlobalArray.groupLeader = false;
-            GlobalArray.groupId = 0;
-            mode = DEFENSIVE;
-        } else if (GlobalArray.id == 6) {
-            GlobalArray.groupLeader = true;
+        else if (GlobalArray.id < 6) {
+            mode = SCOUT;
         }
 
         Clock.yield();
@@ -120,12 +110,6 @@ public strictfp class RobotPlayer {
                 Offensive.indicatorString = indicatorString;
                 Defensive.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
-                Leader.indicatorString = indicatorString;
-                Follower.indicatorString = indicatorString;
-                if (GlobalArray.id == 0) {
-                    GlobalArray.incrementSectorTime();
-                    GlobalArray.allocateGroups();
-                }
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
@@ -137,10 +121,6 @@ public strictfp class RobotPlayer {
                         Scout.jailed();
                     }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.jailed();
-                        }
-                        Follower.jailed();
                         Offensive.jailed();
                     }
                 }
@@ -164,10 +144,6 @@ public strictfp class RobotPlayer {
                         Scout.run();
                     }
                     else {
-                        if (GlobalArray.groupLeader) {
-                            Leader.run();
-                        }
-                        Follower.run();
                         Offensive.run();
                     }
                 }
