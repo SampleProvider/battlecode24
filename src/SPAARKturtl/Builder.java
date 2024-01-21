@@ -27,8 +27,11 @@ public class Builder {
         Turtle.circleFlag(flag);
         for (Direction d : DIRECTIONS) {
             MapLocation loc = rc.adjacentLocation(d);
-            if (rc.canBuild(TrapType.STUN, loc) && (loc.x+loc.y)%2 == 1) {
+            if (rc.canBuild(TrapType.STUN, loc) && (loc.x+loc.y)%2 == 1 && loc.distanceSquaredTo(Turtle.getCloserToAxis(flag, 2)) < 10) {
                 rc.build(TrapType.STUN, loc);
+            }
+            if (rc.canDig(loc) && (loc.x+loc.y)%2 == 0 && loc.distanceSquaredTo(Turtle.getCloserToAxis(flag, 2)) < 25) {
+                rc.dig(loc);
             }
         }
         rc.setIndicatorLine(me, flag, 128, 0, 128);

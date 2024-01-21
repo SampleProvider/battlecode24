@@ -895,6 +895,18 @@ public class Motion {
         return Direction.CENTER;
         // indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
     }
+    protected static Direction bug2around(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, Boolean fillWater) throws GameActionException {
+        while (rc.isMovementReady()) {
+            MapLocation me = rc.getLocation();
+            Direction d = bug2Helper(me, dest, AROUND, minRadiusSquared, maxRadiusSquared, false);
+            if (d == Direction.CENTER) {
+                break;
+            }
+            return d;
+        }
+        return Direction.CENTER;
+        // indicatorString.append("BUG-LD=" + DIRABBREV[lastDir.getDirectionOrderNum()] + "; BUG-CW=" + rotation + "; ");
+    }
     protected static void bug2retreat() throws GameActionException {
         while (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
@@ -1025,6 +1037,24 @@ public class Motion {
     protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP) throws GameActionException {
         if (rc.isMovementReady()) {
             Direction d = bug2around(dest, minRadiusSquared, maxRadiusSquared);
+            if (d == Direction.CENTER) {
+                d = rc.getLocation().directionTo(dest);
+            }
+            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+                micro(d);
+            }
+            else if (rc.canMove(d)) {
+                rc.move(d);
+                lastDir = d;
+            }
+        }
+    }
+    protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, Boolean fillWater) throws GameActionException {
+        bugnavAround(dest, minRadiusSquared, maxRadiusSquared, DEFAULT_RETREAT_HP, fillWater);
+    }
+    protected static void bugnavAround(MapLocation dest, int minRadiusSquared, int maxRadiusSquared, int retreatHP, Boolean fillWater) throws GameActionException {
+        if (rc.isMovementReady()) {
+            Direction d = bug2around(dest, minRadiusSquared, maxRadiusSquared, fillWater);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }

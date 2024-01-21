@@ -164,6 +164,7 @@ public class Setup {
         if (rc.canDropFlag(toPlace)) {
             rc.dropFlag(toPlace);
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
+            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
             flagIndex = -1;
         }
         else {
@@ -172,29 +173,44 @@ public class Setup {
             rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
         }
     }
+
+    protected static void guessSymmetry() throws GameActionException {
+        int curSymmetry = rc.readSharedArray(GlobalArray.SYM);
+        if (curSymmetry == 0b110 || curSymmetry == 0b101 || curSymmetry == 0b011) {
+            //already done
+            return;
+        }
+        MapLocation[] guesses = {
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+1)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+2)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+3)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+4)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+5)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+6)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+7)),
+            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+8)),
+        };
+        for (int i = 0; i < guesses.length; i++) {
+            if (rc.canSenseLocation(guesses[i])) {
+                MapInfo info = rc.senseMapInfo(guesses[i]);
+                if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
+                    //wrong symmetry buh
+                    rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << (i / 3));
+                }
+            }
+        }
+    }
     
     protected static void run() throws GameActionException {
         if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
             if (!pickupFlag() && !getCrumbs(infos) && !rc.hasFlag()) { // try to get crumbs/flag
-                if (GlobalArray.id >= 7 && GlobalArray.id < 16) {
-                    //symmetry detection
-                    MapLocation guess = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS + GlobalArray.id - 7));
-                    Motion.bfsnav(guess);
-                    System.out.println(guess);
-                    if (rc.canSenseLocation(guess)) {
-                        MapInfo info = rc.senseMapInfo(guess);
-                        if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
-                            //not this symmetry!
-                            rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << ((GlobalArray.id - 7) / 3));
-                            System.out.println(rc.readSharedArray(GlobalArray.SYM));
-                        }
-                    }
-                } else {
-                    Motion.spreadRandomly();
-                }
+                guessSymmetry();
+                Motion.spreadRandomly();
             }
+
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
             if (!rc.hasFlag()) {
@@ -212,7 +228,7 @@ public class Setup {
                     }
                 }
             }
-        } else if (rc.getRoundNum() < 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
+        } else if (rc.getRoundNum() < 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -232,11 +248,12 @@ public class Setup {
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
-        } else if (rc.getRoundNum() == 2*Math.max(rc.getMapHeight(), rc.getMapWidth()) - Math.max(rc.getMapHeight(), rc.getMapWidth()) / 2) {
+        } else if (rc.getRoundNum() == 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos) && !rc.hasFlag()) {
+                    guessSymmetry();
                     Motion.spreadRandomly();
                 }
             } else {
@@ -288,6 +305,7 @@ public class Setup {
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;" + GlobalArray.id);
             } else {
+                guessSymmetry();
                 MapInfo[] info = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
                 if (!GlobalArray.hasLocation(damLoc)) {

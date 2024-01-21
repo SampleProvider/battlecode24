@@ -1,4 +1,4 @@
-package SPAARK3;
+package TSPAARKJAN20;
 
 import battlecode.common.*;
 
@@ -135,7 +135,7 @@ public class GlobalArray {
                     }
                     if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS) {
                         if (flag.isPickedUp() || !flag.getLocation().equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
-                            writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length, i + 1);
+                            writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length + 10, i + 1);
                             // writePOI(flag.getLocation(), 50);
                         }
                     }
@@ -228,22 +228,21 @@ public class GlobalArray {
 
     protected static void writePOI(MapLocation loc, int robots, int flag) throws GameActionException {
         for (int i = 0; i < 30; i += 2) {
-            boolean empty = (!hasLocation(rc.readSharedArray(POI + i)) && rc.getRoundNum() >= rc.readSharedArray(POI + i));
-            if (empty || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(loc) <= 8) {
+            if ((!hasLocation(rc.readSharedArray(POI + i)) && rc.getRoundNum() >= rc.readSharedArray(POI + i)) || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(loc) <= 8) {
                 // if (rc.getRoundNum() == 470) {
                     // System.out.println("WRITE " + i + " " + rc.readSharedArray(POI + i + 1) + " " + parseLocation(rc.readSharedArray(POI + i)) + " " + loc);
                 // }
-                if (!empty && getFlag(rc.readSharedArray(POI + i + 1)) != flag) {
+                if (getFlag(rc.readSharedArray(POI + i + 1)) != flag) {
                     continue;
                 }
                 rc.setIndicatorLine(rc.getLocation(), loc, 0, 255, 255);
                 rc.writeSharedArray(POI + i, intifyLocation(loc));
-                rc.writeSharedArray(POI + i + 1, (flag << 12) | setOpponentRobots(rc.readSharedArray(POI + i + 1), robots));
+                rc.writeSharedArray(POI + i + 1, (flag << 13) | setOpponentRobots(rc.readSharedArray(POI + i + 1), robots));
                 for (int j = 0; j < 30; j += 2) {
                     if (j == i) {
                         continue;
                     }
-                    if (hasLocation(rc.readSharedArray(POI + j)) && parseLocation(rc.readSharedArray(POI + j)).distanceSquaredTo(loc) <= 8 && getFlag(rc.readSharedArray(POI + j + 1)) == flag) {
+                    if (hasLocation(rc.readSharedArray(POI + j)) && parseLocation(rc.readSharedArray(POI + j)).distanceSquaredTo(loc) <= 8) {
                         rc.writeSharedArray(POI + j + 1, 0);
                         if (rc.getRoundNum() == 470) {
                             // System.out.println("RESET " + j);
@@ -273,8 +272,8 @@ public class GlobalArray {
             for (int i = 0; i < 30; i += 2) {
                 if (hasLocation(rc.readSharedArray(POI + i)) && parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(rc.getLocation()) <= 8) {
                     if (isFlag(rc.readSharedArray(POI + i + 1))) {
-                        int index = getFlag(rc.readSharedArray(POI + i + 1)) - 1;
-                        if (!hasLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)) || (parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + index))) && !isFlagInDanger(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)))) {
+                        int index = getFlag(rc.readSharedArray(POI + i + 1));
+                        if (!hasLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)) || parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + index)))) {
                             rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
                             rc.writeSharedArray(POI + i + 1, 0);
                         }

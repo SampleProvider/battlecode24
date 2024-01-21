@@ -46,7 +46,7 @@ public class Turtle {
                     rc.move(me.directionTo(flag));
                 }
             } else {
-                Motion.bugnavTowards(getCloserToCenter(flag, 1), 0, false);
+                Motion.bugnavAround(getCloserToAxis(flag, 2), 0, 8, false);
             }
         } else {
             //flagIndex == 0 (don't block spawn)
@@ -57,7 +57,7 @@ public class Turtle {
                     Motion.moveRandomly();
                 }
             } else {
-                Motion.bugnavTowards(getCloserToCenter(flag, 1), 0, false);
+                Motion.bugnavAround(getCloserToAxis(flag, 2), 0, 8,  false);
             }
         }
         if (me.distanceSquaredTo(flag) == 0) {
@@ -75,35 +75,25 @@ public class Turtle {
         }
     }
 
-    protected static MapLocation getCloserToCenter(MapLocation loc, int dis) throws GameActionException {
+    protected static MapLocation getCloserToAxis(MapLocation loc, int dis) throws GameActionException {
         //get coord closer to the center, according to symmetry
         int sym = rc.readSharedArray(GlobalArray.SYM) & 0b111;
         int x = loc.x;
         int y = loc.y;
-        if (sym == 0b110) {
-            //rot
+        if ((sym & 0b100) > 0) {
+            //NOT horz
             if (loc.x < rc.getMapWidth()/2) {
-                x++;
+                x += dis;
             } else if (loc.x > rc.getMapWidth()/2) {
-                x--;
+                x -= dis;
             }
+        }
+        if ((sym & 0b010) > 0) {
+            //NOT vert
             if (loc.y < rc.getMapHeight()/2) {
-                y++;
+                y += dis;
             } else if (loc.y > rc.getMapHeight()/2) {
-                y--;
-            }
-        } else if (sym == 0b101) {
-            //vert
-            if (loc.x < rc.getMapWidth()/2) {
-                x++;
-            } else if (loc.x > rc.getMapWidth()/2) {
-                x--;
-            }
-        } else if (sym == 0b011) {
-            if (loc.y < rc.getMapHeight()/2) {
-                y++;
-            } else if (loc.y > rc.getMapHeight()/2) {
-                y--;
+                y -= dis;
             }
         }
         //invalid symmetry doesn't get changed
