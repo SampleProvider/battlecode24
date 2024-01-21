@@ -73,10 +73,6 @@ public class Setup {
                 rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
                 rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 3, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
                 rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 6, GlobalArray.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
-                // System.out.println(flagInit);
-                // System.out.println(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1));
-                // System.out.println(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y));
-                // System.out.println(new MapLocation( flagInit.x, rc.getMapHeight() - flagInit.y - 1));
             }
             return found;
         }
@@ -195,7 +191,6 @@ public class Setup {
                         if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
                             //not this symmetry!
                             rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << ((GlobalArray.id - 3) / 3));
-                            // System.out.println(rc.readSharedArray(GlobalArray.SYM));
                         }
                     }
                 } else {
@@ -310,7 +305,7 @@ public class Setup {
                 } else {
                     int damLoc = rc.readSharedArray(GlobalArray.SETUP_DAM_LOC);
                     if (GlobalArray.hasLocation(damLoc)) {
-                        Motion.bfsnav(GlobalArray.parseLocation(damLoc));
+                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), false);
                     } else {
                         Motion.moveRandomly();
                     }
@@ -336,7 +331,7 @@ public class Setup {
                 // };
                 // MapLocation avg = new MapLocation((flags[0].x+flags[1].x+flags[2].x)/3, (flags[0].y+flags[1].y+flags[2].y)/3);
                 // Motion.bfsnav(avg);
-                Motion.bfsnav(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+GlobalArray.flag)));
+                Motion.bugnavTowards(GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC+GlobalArray.flag)), false);
             }
             if (Turtle.isBuilder()) {
                 for (Direction d : DIRECTIONS) {

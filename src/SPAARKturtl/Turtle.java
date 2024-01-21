@@ -46,7 +46,7 @@ public class Turtle {
                     rc.move(me.directionTo(flag));
                 }
             } else {
-                Motion.bfsnav(getCloserToCenter(flag, 1), 0);
+                Motion.bugnavTowards(getCloserToCenter(flag, 1), 0, false);
             }
         } else {
             //flagIndex == 0 (don't block spawn)
@@ -57,7 +57,7 @@ public class Turtle {
                     Motion.moveRandomly();
                 }
             } else {
-                Motion.bfsnav(getCloserToCenter(flag, 1), 0);
+                Motion.bugnavTowards(getCloserToCenter(flag, 1), 0, false);
             }
         }
         if (me.distanceSquaredTo(flag) == 0) {
