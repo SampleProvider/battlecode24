@@ -135,7 +135,8 @@ public class GlobalArray {
                     }
                     if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS) {
                         if (flag.isPickedUp() || !flag.getLocation().equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
-                            writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length, i + 1);
+                            // writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length, i + 1);
+                            writePOI(flag.getLocation(), 5, i + 1);
                             // writePOI(flag.getLocation(), 50);
                         }
                     }
