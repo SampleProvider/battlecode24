@@ -11,7 +11,6 @@ public class Attack {
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
                 RobotInfo robot = getPrioritizedOpponentRobot(opponentRobots);
-                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 100, 0, 0);
                 if (rc.canAttack(robot.getLocation())) {
                     indicatorString.append("ATK-" + robot.getLocation().toString() + "; ");
                     while (robot != null && rc.canAttack(robot.getLocation())) {
@@ -34,7 +33,6 @@ public class Attack {
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot(friendlyRobots);
-                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 0, 100, 0);
                 if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {

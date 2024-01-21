@@ -68,6 +68,7 @@ public class Scout {
         }
         targetTurns += 1;
 
+        rc.setIndicatorLine(me, target, 0, 255, 0);
         Motion.bfsnav(target);
 
         Attack.attack();

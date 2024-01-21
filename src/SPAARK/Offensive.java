@@ -116,7 +116,7 @@ public class Offensive {
                     }
                     if (closestStoredFlag != null) {
                         Motion.bugnavAround(closestStoredFlag, 4, 10);
-                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 0, 0, 255);
+                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 200, 200, 200);
                     }
                 }
                 if (target == null) {
@@ -129,7 +129,7 @@ public class Offensive {
             
                 if (target != null) {
                     Motion.bfsnav(target);
-                    rc.setIndicatorLine(rc.getLocation(), target, 0, 0, 255);
+                    rc.setIndicatorLine(rc.getLocation(), target, 255, 255, 255);
                 }
             }
 

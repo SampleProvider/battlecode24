@@ -19,9 +19,7 @@ public class GlobalArray {
      * 21-23: Opponent flag info
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
-     * REPLACE WITH POI SYSTEM AHND DUCKS INDIVIDUALLY PICK TARGETS
-     * LOCATION/INDEX, DUCK ALLOCATION COUNTER
-     * SWARMING DONE IN MICRO
+     * 26-55: Points of Interest
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */
@@ -29,17 +27,26 @@ public class GlobalArray {
      * Formatting:
      * 
      * Location:
-     * bit 1-6: X
-     * bit 7-12: Y
-     * bit 13: Presence indicator
+     *   bit 1-6: X
+     *   bit 7-12: Y
+     *   bit 13: Presence indicator
      * 
      * Flags:
-     * bit 14: Flag picked up
+     *   bit 14: Flag picked up
      * 
      * Flag Info:
-     * bit 1-6: Number of opponent robots
-     * bit 7-10: X of robot direction (which direction the robot with the flag is going)
-     * bit 11-14: Y of robot direction
+     *   bit 1-6: Number of opponent robots
+     *   bit 7-10: X of robot direction (which direction the robot with the flag is going)
+     *   bit 11-14: Y of robot direction
+     * 
+     * POI:
+     * Pairs of indices
+     * 1:
+     *   bit 1-6: Number of opponent robots
+     *   bit 7-12: Number of friendly robots
+     *   bit 13-15: Flag index
+     * 2:
+     *   maitian go write this or soemthing
      */
     protected static final int ALLY_FLAG_ID = 0;
     protected static final int ALLY_FLAG_DEF_LOC = 3;
