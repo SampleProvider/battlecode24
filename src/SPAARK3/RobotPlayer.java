@@ -1,4 +1,4 @@
-package micro_2;
+package SPAARK3;
 
 import battlecode.common.*;
 

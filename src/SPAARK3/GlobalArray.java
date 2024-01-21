@@ -1,4 +1,4 @@
-package micro_2;
+package SPAARK3;
 
 import battlecode.common.*;
 
@@ -19,9 +19,11 @@ public class GlobalArray {
      * 21-23: Opponent flag info
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
-     * REPLACE WITH POI SYSTEM AHND DUCKS INDIVIDUALLY PICK TARGETS
-     * LOCATION/INDEX, DUCK ALLOCATION COUNTER
-     * SWARMING DONE IN MICRO
+     * 26-28: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
+     * 29-31: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
+     * 32-34: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
+     * 26-55: Points of Interest
+     * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ, else unknown)
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */
@@ -29,17 +31,26 @@ public class GlobalArray {
      * Formatting:
      * 
      * Location:
-     * bit 1-6: X
-     * bit 7-12: Y
-     * bit 13: Presence indicator
+     *   bit 1-6: X
+     *   bit 7-12: Y
+     *   bit 13: Presence indicator
      * 
      * Flags:
-     * bit 14: Flag picked up
+     *   bit 14: Flag picked up
      * 
      * Flag Info:
-     * bit 1-6: Number of opponent robots
-     * bit 7-10: X of robot direction (which direction the robot with the flag is going)
-     * bit 11-14: Y of robot direction
+     *   bit 1-6: Number of opponent robots
+     *   bit 7-10: X of robot direction (which direction the robot with the flag is going)
+     *   bit 11-14: Y of robot direction
+     * 
+     * POI:
+     * Pairs of indices
+     * 1:
+     *   bit 1-6: Number of opponent robots
+     *   bit 7-12: Number of friendly robots
+     *   bit 13-15: Flag index
+     * 2:
+     *   maitian go write this or soemthing
      */
     protected static final int ALLY_FLAG_ID = 0;
     protected static final int ALLY_FLAG_DEF_LOC = 3;
@@ -51,7 +62,9 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_INFO = 21;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
+    protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
+    protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 
@@ -122,7 +135,8 @@ public class GlobalArray {
                     }
                     if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS) {
                         if (flag.isPickedUp() || !flag.getLocation().equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
-                            writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length + 5, i + 1);
+                            writePOI(flag.getLocation(), rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length, i + 1);
+                            // writePOI(flag.getLocation(), 50);
                         }
                     }
                     break;
@@ -158,7 +172,7 @@ public class GlobalArray {
                 if (rc.canSenseLocation(parseLocation(n))) {
                     boolean found = false;
                     for (FlagInfo flag : friendlyFlags) {
-                        if (flag.getLocation().equals(parseLocation(n)) && flag.getID() == rc.readSharedArray(ALLY_FLAG_ID + i)) {
+                        if (flag.getLocation().equals(parseLocation(n)) && flag.getID() == rc.readSharedArray(OPPO_FLAG_ID + i)) {
                             found = true;
                         }
                     }
@@ -276,7 +290,7 @@ public class GlobalArray {
     }
     protected static int lastPOI = -1;
     protected static MapLocation getBestPOI() throws GameActionException {
-        MapLocation me = rc.getLocation();
+        // MapLocation me = rc.getLocation();
         if (lastPOI != -1 && hasLocation(rc.readSharedArray(POI + lastPOI))) {
             int lastN = rc.readSharedArray(POI + lastPOI + 1);
             if (getFriendlyRobots(lastN) > 0) {
@@ -301,40 +315,34 @@ public class GlobalArray {
                     // System.out.println(i);
                 }
                 MapLocation loc = parseLocation(n);
-                int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
-                if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 3) < 0) {
-                    closestIndex = i;
-                    closestDist = 
-                    closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                if (closestIsFlag) {
+                    if (isFlag(n2)) {
+                        if (closestDist == -1) {
+                            int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                            if (dist > closestDist) {
+                                closestIndex = i;
+                                closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                                closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                            }
+                        }
+                    }
                 }
-                // if (closestIsFlag) {
-                //     if (isFlag(n2)) {
-                //         if (closestDist == -1) {
-                //             int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
-                //             if (dist > closestDist) {
-                //                 closestIndex = i;
-                //                 closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
-                //                 closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
-                //             }
-                //         }
-                //     }
-                // }
-                // else {
-                //     if (isFlag(n2)) {
-                //         closestIndex = i;
-                //         closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
-                //         closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
-                //         closestIsFlag = true;
-                //     }
-                //     else {
-                //         int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
-                //         if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
-                //             closestIndex = i;
-                //             closestDist = 
-                //             closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
-                //         }
-                //     }
-                // }
+                else {
+                    if (isFlag(n2)) {
+                        closestIndex = i;
+                        closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                        closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                        closestIsFlag = true;
+                    }
+                    else {
+                        int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
+                        if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
+                            closestIndex = i;
+                            closestDist = 
+                            closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                        }
+                    }
+                }
                 break;
             }
         }

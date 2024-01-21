@@ -1,4 +1,4 @@
-package micro_2;
+package SPAARK3;
 
 import battlecode.common.*;
 
@@ -83,15 +83,6 @@ public class Defensive {
                         //         rc.build(TrapType.STUN, buildLoc);
                         //     }
                         // }
-                        MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
-                        placeTrap: {
-                            for (MapInfo info : nearbyTraps) {
-                                if (info.getTrapType() == TrapType.WATER) break placeTrap; 
-                            }
-                            if (rc.canBuild(TrapType.WATER, buildLoc)) {
-                                rc.build(TrapType.WATER, buildLoc);
-                            }
-                        }
                     } else {
                         MapInfo[] nearbyTraps = rc.senseNearbyMapInfos(buildLoc, 4);
                         placeTrap: {
