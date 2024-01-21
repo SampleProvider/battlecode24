@@ -2,6 +2,7 @@
 
 /matches
 /client
+gradle.properties
 
 ###### GRADLE ######
 
