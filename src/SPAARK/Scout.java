@@ -28,7 +28,7 @@ public class Scout {
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
 
-        rc.setIndicatorDot(me, 0, 0, 255);
+        rc.setIndicatorDot(me, 0, 255, 0);
 
         // try to sneak flags back (call for help?)
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -68,6 +68,7 @@ public class Scout {
         }
         targetTurns += 1;
 
+        rc.setIndicatorLine(me, target, 0, 255, 0);
         Motion.bfsnav(target);
 
         Attack.attack();

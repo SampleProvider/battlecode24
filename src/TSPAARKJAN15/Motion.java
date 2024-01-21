@@ -1,4 +1,4 @@
-package SPAARK;
+package TSPAARKJAN15;
 
 import battlecode.common.*;
 
@@ -126,6 +126,20 @@ public class Motion {
             }
         }
         return closest;
+    }
+
+    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        MapLocation safest = a[0];
+        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
+        for (MapLocation loc : a) {
+            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
+            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
+                safest = loc;
+                robots = r;
+            }
+        }
+        return safest;
     }
 
     // basic random movement
@@ -766,7 +780,7 @@ public class Motion {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
                         // attack micro - retreat when too close and move closer to attack
-                        if (actions == 0 || rc.getHealth() < 300) {
+                        if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
                             // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                             //     weight += 6;
@@ -785,10 +799,7 @@ public class Motion {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        if (rc.getHealth() < 300) {
-                            // weight -= 3;
-                            weight -= 8;
-                        }
+                        weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {
@@ -845,16 +856,16 @@ public class Motion {
             if (bestDir != null) {
                 if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
                     MapLocation buildLoc = rc.getLocation().add(bestDir);
-                    build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
+                    build: if (rc.canBuild(TrapType.EXPLOSIVE, buildLoc)) {
                         MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
                         for (MapInfo m : mapInfo) {
                             if (m.getTrapType() != TrapType.NONE) {
                                 break build;
                             }
                         }
-                        // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                            rc.build(TrapType.STUN, buildLoc);
-                        // }
+                        if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
+                            rc.build(TrapType.EXPLOSIVE, buildLoc);
+                        }
                     }
                 }
                 moveWithAction(bestDir);
@@ -959,295 +970,6 @@ public class Motion {
         else {
             rc.move(dir);
             lastDir = dir;
-        }
-    }
-
-    protected static MapLocation bfsDest;
-    protected static long[] bfsMap;
-    protected static long[] bfsDist;
-    protected static long[] bfsCurr;
-    protected static long bitmask;
-    // protected static StringBuilder bfsQueue = new StringBuilder();
-    protected static final int MAX_PATH_LENGTH = 100;
-    protected static void bfsInit() {
-        width = rc.getMapWidth();
-        height = rc.getMapHeight();
-        bfsMap = new long[height + 2];
-        bfsCurr = new long[height + 2];
-        bfsDist = new long[(height + 2) * MAX_PATH_LENGTH];
-        bitmask = (long1 << width) - 1;
-    }
-    protected static int step = 1;
-    protected static int stepOffset;
-    protected static int width;
-    protected static int height;
-    protected static long long1 = 1;
-    protected static int recalculationNeeded = MAX_PATH_LENGTH;
-    protected static void updateBfsMap() throws GameActionException {
-        MapInfo[] map = rc.senseNearbyMapInfos();
-        for (MapInfo m : map) {
-            if (m.isWall()) {
-                int loc = m.getMapLocation().y + 1;
-                int subloc = m.getMapLocation().x;
-                if (((bfsMap[loc] >> subloc) & 1) == 0) {
-                    bfsMap[loc] |= (long1 << subloc);
-                    rc.setIndicatorDot(m.getMapLocation(), 255, 255, 255);
-                    for (int i = step - 1; i >= 0; i--) {
-                        if (((bfsDist[i * (height + 2) + loc] >> subloc) & 1) != 1) {
-                            recalculationNeeded = Math.min(i, recalculationNeeded);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    protected static Direction bfs(MapLocation dest) throws GameActionException {
-        indicatorString.append(Clock.getBytecodesLeft() + " ");
-
-        MapLocation me = rc.getLocation();
-
-        if (!dest.equals(bfsDest)) {
-            bfsDest = dest;
-            for (int i = 1; i <= height; i++) {
-                bfsDist[i] = 0;
-                bfsCurr[i] = 0;
-            }
-            bfsDist[dest.y + 1] = long1 << (dest.x);
-            bfsCurr[dest.y + 1] = long1 << (dest.x);
-            step = 1;
-        }
-
-        if (recalculationNeeded != MAX_PATH_LENGTH && recalculationNeeded < step) { 
-            step = recalculationNeeded;
-            for (int i = 1; i <= height; i++) {
-                // bfsDist[i] = 0;
-                // bfsCurr[i] = 0;
-                bfsCurr[i] = bfsDist[step * (height + 2) + i];
-            }
-            step += 1;
-            indicatorString.append("RECALCULATING;");
-        }
-        recalculationNeeded = MAX_PATH_LENGTH;
-        
-        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 15000) {
-            stepOffset = step * (height + 2);
-            switch (height) {
-                case 30:
-                MotionCodeGen.bfs30();
-                break;
-                case 31:
-                MotionCodeGen.bfs31();
-                break;
-                case 32:
-                MotionCodeGen.bfs32();
-                break;
-                case 33:
-                MotionCodeGen.bfs33();
-                break;
-                case 34:
-                MotionCodeGen.bfs34();
-                break;
-                case 35:
-                MotionCodeGen.bfs35();
-                break;
-                case 36:
-                MotionCodeGen.bfs36();
-                break;
-                case 37:
-                MotionCodeGen.bfs37();
-                break;
-                case 38:
-                MotionCodeGen.bfs38();
-                break;
-                case 39:
-                MotionCodeGen.bfs39();
-                break;
-                case 40:
-                MotionCodeGen.bfs40();
-                break;
-                case 41:
-                MotionCodeGen.bfs41();
-                break;
-                case 42:
-                MotionCodeGen.bfs42();
-                break;
-                case 43:
-                MotionCodeGen.bfs43();
-                break;
-                case 44:
-                MotionCodeGen.bfs44();
-                break;
-                case 45:
-                MotionCodeGen.bfs45();
-                break;
-                case 46:
-                MotionCodeGen.bfs46();
-                break;
-                case 47:
-                MotionCodeGen.bfs47();
-                break;
-                case 48:
-                MotionCodeGen.bfs48();
-                break;
-                case 49:
-                MotionCodeGen.bfs49();
-                break;
-                case 50:
-                MotionCodeGen.bfs50();
-                break;
-                case 51:
-                MotionCodeGen.bfs51();
-                break;
-                case 52:
-                MotionCodeGen.bfs52();
-                break;
-                case 53:
-                MotionCodeGen.bfs53();
-                break;
-                case 54:
-                MotionCodeGen.bfs54();
-                break;
-                case 55:
-                MotionCodeGen.bfs55();
-                break;
-                case 56:
-                MotionCodeGen.bfs56();
-                break;
-                case 57:
-                MotionCodeGen.bfs57();
-                break;
-                case 58:
-                MotionCodeGen.bfs58();
-                break;
-                case 59:
-                MotionCodeGen.bfs59();
-                break;
-                case 60:
-                MotionCodeGen.bfs60();
-                break;
-            }
-            // var cod = "";
-            // for (var i = 30; i <= 60; i++) {
-            //     cod += "public static void bfs" + i + "() {\n";
-            //     for (var j = 1; j <= i; j++) {
-            //         cod += "Motion.bfsCurr[z] = Motion.bfsCurr[z] | (Motion.bfsCurr[z] >> 1) | (Motion.bfsCurr[z] << 1);\n".replaceAll("z", j);
-            //     }
-            //     for (var j = 1; j <= i; j++) {
-            //         cod += "Motion.bfsDist[Motion.stepOffset + z] = (Motion.bfsCurr[z] | Motion.bfsCurr[y] | Motion.bfsCurr[x]) & (Motion.bitmask ^ Motion.bfsMap[z]);\n".replaceAll("z", j).replaceAll("y", j - 1).replaceAll("x", j + 1);
-            //     }
-            //     for (var j = 1; j <= i; j++) {
-            //         //cod += "Motion.bfsDist[Motion.stepOffset + z] &= Motion.bitmask ^ Motion.bfsMap[z];\n".replaceAll("z", j);
-            //     }
-            //     for (var j = 1; j <= i; j++) {
-            //         cod += "Motion.bfsCurr[z] = Motion.bfsDist[Motion.stepOffset + z];\n".replaceAll("z", j);
-            //     }
-            //     cod += "}\n";
-            // }
-            // console.log(cod);
-            step += 1;
-        }
-
-        // int b = rc.getRoundNum() % width;
-        // if (rc.getRoundNum() == 201) {
-        //     for (int i = 0; i < width; i++) {
-        //         b = i;
-        //         for (int j = 0; j < height; j++) {
-        //             // if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> i) & 1) == 0) {
-        //             if (((bfsDist[(99) * (height + 2) + j + 1] >> b) & 1) == 0) {
-        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
-        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 0, 0);
-        //                 }
-        //                 else {
-        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 0, 0);
-        //                 }
-        //             }
-        //             else {
-        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
-        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 255, 255);
-        //                 }
-        //                 else {
-        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 255, 0);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        indicatorString.append("STEP=" + step);
-
-        boolean[] directions = new boolean[9];
-        for (int i = 1; i < step; i++) {
-            if (((bfsDist[i * (height + 2) + 1 + me.y] >> me.x) & 1) == 1) {
-                if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
-                    directions[7] = true;
-                }
-                if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y + 1] >> me.x) & 1) == 1) {
-                    directions[3] = true;
-                }
-                if (me.x > 0) {
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y] >> (me.x - 1)) & 1) == 1) {
-                        directions[1] = true;
-                    }
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y - 1] >> (me.x - 1)) & 1) == 1) {
-                        directions[8] = true;
-                    }
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y + 1] >> (me.x - 1)) & 1) == 1) {
-                        directions[2] = true;
-                    }
-                }
-                if (me.x < width - 1) {
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y] >> (me.x + 1)) & 1) == 1) {
-                        directions[5] = true;
-                    }
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y - 1] >> (me.x + 1)) & 1) == 1) {
-                        directions[6] = true;
-                    }
-                    if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y + 1] >> (me.x + 1)) & 1) == 1) {
-                        directions[4] = true;
-                    }
-                }
-                break;
-            }
-        }
-        for (int i = 1; i <= 8; i++) {
-            if (directions[i]) {
-                Direction optimalDirection = Direction.DIRECTION_ORDER[i];
-                if (rc.canMove(optimalDirection)) {
-                    return optimalDirection;
-                }
-                else if (rc.canFill(me.add(optimalDirection))) {
-                    rc.fill(me.add(optimalDirection));
-                    return Direction.CENTER;
-                }
-            }
-        }
-        Direction optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0);
-        if (rc.canMove(optimalDirection)) {
-            return optimalDirection;
-        }
-        else if (rc.canFill(me.add(optimalDirection))) {
-            rc.fill(me.add(optimalDirection));
-            return Direction.CENTER;
-        }
-        return Direction.CENTER;
-    }
-
-    protected static void bfsnav(MapLocation dest) throws GameActionException {
-        bfsnav(dest, DEFAULT_RETREAT_HP);
-    }
-    protected static void bfsnav(MapLocation dest, int retreatHP) throws GameActionException {
-        if (rc.isMovementReady()) {
-            Direction d = bfs(dest);
-            if (d == Direction.CENTER) {
-                d = rc.getLocation().directionTo(dest);
-            }
-            if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-                micro(d);
-            }
-            else if (rc.canMove(d)) {
-                rc.move(d);
-                lastDir = d;
-            }
         }
     }
 }

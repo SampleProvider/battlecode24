@@ -1,4 +1,4 @@
-package SPAARK;
+package TSPAARK_Groups;
 
 import battlecode.common.*;
 
@@ -126,6 +126,20 @@ public class Motion {
             }
         }
         return closest;
+    }
+
+    protected static MapLocation getSafest(MapLocation[] a) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        MapLocation safest = a[0];
+        int robots = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(a[0])));
+        for (MapLocation loc : a) {
+            int r = GlobalArray.getNumberOfOpponentRobots(rc.readSharedArray(GlobalArray.locationToSector(loc)));
+            if (r < robots && me.distanceSquaredTo(loc) < me.distanceSquaredTo(a[0]) * 2) {
+                safest = loc;
+                robots = r;
+            }
+        }
+        return safest;
     }
 
     // basic random movement
@@ -766,7 +780,7 @@ public class Motion {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
                         // attack micro - retreat when too close and move closer to attack
-                        if (actions == 0 || rc.getHealth() < 300) {
+                        if (actions == 0 || rc.getHealth() < 500) {
                             weight -= 10;
                             // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                             //     weight += 6;
@@ -785,10 +799,7 @@ public class Motion {
                         // stop moving into robots when you have the flag buh
                     }
                     else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                        if (rc.getHealth() < 300) {
-                            // weight -= 3;
-                            weight -= 8;
-                        }
+                        weight -= 3;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 10) {
                         if (rc.hasFlag()) {
@@ -991,7 +1002,7 @@ public class Motion {
                 int subloc = m.getMapLocation().x;
                 if (((bfsMap[loc] >> subloc) & 1) == 0) {
                     bfsMap[loc] |= (long1 << subloc);
-                    rc.setIndicatorDot(m.getMapLocation(), 255, 255, 255);
+                    // rc.setIndicatorDot(m.getMapLocation(), 0, 255, 255);
                     for (int i = step - 1; i >= 0; i--) {
                         if (((bfsDist[i * (height + 2) + loc] >> subloc) & 1) != 1) {
                             recalculationNeeded = Math.min(i, recalculationNeeded);

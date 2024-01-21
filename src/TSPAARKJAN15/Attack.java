@@ -1,4 +1,4 @@
-package SPAARK;
+package TSPAARKJAN15;
 
 import battlecode.common.*;
 
@@ -6,33 +6,34 @@ public class Attack {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 
-    protected static boolean attack() throws GameActionException {
+    protected static void attack() throws GameActionException {
         RobotInfo[] opponentRobots = rc.senseNearbyRobots(4, rc.getTeam().opponent());
         while (rc.isActionReady()) {
             if (opponentRobots.length > 0) {
                 RobotInfo robot = getPrioritizedOpponentRobot(opponentRobots);
+                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 100, 0, 0);
                 if (rc.canAttack(robot.getLocation())) {
                     indicatorString.append("ATK-" + robot.getLocation().toString() + "; ");
                     while (robot != null && rc.canAttack(robot.getLocation())) {
                         rc.attack(robot.getLocation());
                     }
-                    return true;
+                    continue;
                 }
                 else {
-                    return false;
+                    return;
                 }
             }
             else {
-                return false;
+                return;
             }
         }
-        return false;
     }
     protected static void heal() throws GameActionException {
         RobotInfo[] friendlyRobots = rc.senseNearbyRobots(4, rc.getTeam());
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot(friendlyRobots);
+                // rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 0, 100, 0);
                 if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {

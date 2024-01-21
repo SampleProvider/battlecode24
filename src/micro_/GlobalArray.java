@@ -276,7 +276,7 @@ public class GlobalArray {
     }
     protected static int lastPOI = -1;
     protected static MapLocation getBestPOI() throws GameActionException {
-        MapLocation me = rc.getLocation();
+        // MapLocation me = rc.getLocation();
         if (lastPOI != -1 && hasLocation(rc.readSharedArray(POI + lastPOI))) {
             int lastN = rc.readSharedArray(POI + lastPOI + 1);
             if (getFriendlyRobots(lastN) > 0) {
