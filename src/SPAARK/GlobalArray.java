@@ -19,7 +19,11 @@ public class GlobalArray {
      * 21-23: Opponent flag info
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
+     * 26-28: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
+     * 29-31: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
+     * 32-34: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
      * 26-55: Points of Interest
+     * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ, else unknown)
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */
@@ -58,7 +62,9 @@ public class GlobalArray {
     protected static final int OPPO_FLAG_INFO = 21;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
+    protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
+    protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
     protected static final int INIT_GLOBAL_ID_COUNTER = 63;
 

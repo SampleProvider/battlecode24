@@ -25,7 +25,7 @@ public class GlobalArray {
      * 18-20: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
      * 21-23: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
      * 24: Flag target
-     * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=6:HORZ, else unknown)
+     * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ, else unknown)
      * 63: Global id counter (first round only)
      * 63: Flag target heuristic (setup only)
     */

@@ -71,6 +71,9 @@ public class Setup {
             if (found) {
                 rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget);
                 rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 3, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
+                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 6, GlobalArray.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
             }
             return found;
         }
@@ -175,7 +178,22 @@ public class Setup {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
             if (!pickupFlag() && !getCrumbs(infos) && !rc.hasFlag()) { // try to get crumbs/flag
-                Motion.spreadRandomly();
+                if (GlobalArray.id >= 7 && GlobalArray.id < 16) {
+                    //symmetry detection
+                    MapLocation guess = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS + GlobalArray.id - 7));
+                    Motion.bfsnav(guess);
+                    System.out.println(guess);
+                    if (rc.canSenseLocation(guess)) {
+                        MapInfo info = rc.senseMapInfo(guess);
+                        if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
+                            //not this symmetry!
+                            rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << ((GlobalArray.id - 7) / 3));
+                            System.out.println(rc.readSharedArray(GlobalArray.SYM));
+                        }
+                    }
+                } else {
+                    Motion.spreadRandomly();
+                }
             }
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
