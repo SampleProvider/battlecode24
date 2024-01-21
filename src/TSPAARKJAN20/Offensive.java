@@ -163,7 +163,7 @@ public class Offensive {
         }
 
         // GlobalArray.updateSector();
-        Attack.attack();
+        // Attack.attack();
         Attack.heal();
     }
     protected static void jailed() throws GameActionException {

@@ -762,10 +762,12 @@ public class Motion {
                     }
                 }
                 int actions = rc.isActionReady() ? 1 : 0;
+                int minHP = 1000;
                 for (RobotInfo robot : opponentRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (me.distanceSquaredTo(relativeLoc) <= 4) {
                         // attack micro - retreat when too close and move closer to attack
+                        minHP = Math.min(minHP, robot.getHealth());
                         if (actions == 0 || rc.getHealth() < 300) {
                             weight -= 10;
                             // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
@@ -805,6 +807,9 @@ public class Motion {
                             weight += 20;
                         }
                     }
+                }
+                if (rc.getHealth() > minHP) {
+                    weight += 20;
                 }
                 // maybe be closer to friendly robots
                 int friendlyWeight = 0;
