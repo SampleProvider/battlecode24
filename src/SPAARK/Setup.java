@@ -44,7 +44,7 @@ public class Setup {
     protected static Boolean getCrumbs(MapInfo[] info) throws GameActionException {
         for (MapInfo i : info) {
             if (i.getCrumbs() > 0 && !i.isWall() && !i.isDam()) {
-                Motion.bugnavTowards(i.getMapLocation(), 500);
+                Motion.bfsnav(i.getMapLocation());
                 indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
                 return true;
             }
