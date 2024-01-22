@@ -53,13 +53,13 @@ public class Scout {
 
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
-            GlobalArray.writeFlag(flag);
+            Comms.writeFlag(flag);
         }
         for (FlagInfo flag : opponentFlags) {
-            GlobalArray.writeFlag(flag);
+            Comms.writeFlag(flag);
         }
 
-        GlobalArray.updatePOI();
+        Comms.updatePOI();
         Motion.updateBfsMap();
 
         if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
@@ -71,12 +71,12 @@ public class Scout {
         rc.setIndicatorLine(me, target, 0, 255, 0);
         Motion.bfsnav(target);
 
-        Attack.attack();
-        Attack.heal();
+        Atk.attack();
+        Atk.heal();
     }
     protected static void jailed() throws GameActionException {
         if (flagIndex != -1) {
-            rc.writeSharedArray(GlobalArray.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + flagIndex));
+            rc.writeSharedArray(Comms.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(Comms.OPPO_FLAG_DEF_LOC + flagIndex));
             flagIndex = -1;
         }
     }

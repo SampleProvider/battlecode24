@@ -2,7 +2,7 @@ package SPAARK;
 
 import battlecode.common.*;
 
-public class Attack {
+public class Atk {
     public static RobotController rc;
     public static StringBuilder indicatorString;
 

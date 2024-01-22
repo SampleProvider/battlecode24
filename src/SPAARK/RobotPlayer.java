@@ -31,23 +31,23 @@ public strictfp class RobotPlayer {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
         Motion.rng = rng;
-        Attack.rc = rc;
-        GlobalArray.rc = rc;
+        Atk.rc = rc;
+        Comms.rc = rc;
         Setup.rc = rc;
         Setup.rng = rng;
-        Offensive.rc = rc;
-        Offensive.rng = rng;
-        Defensive.rc = rc;
-        Defensive.rng = rng;
+        Offense.rc = rc;
+        Offense.rng = rng;
+        Defense.rc = rc;
+        Defense.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
 
-        GlobalArray.init();
+        Comms.init();
         
-        if (GlobalArray.id < 3) {
+        if (Comms.id < 3) {
             mode = DEFENSIVE;
         }
-        else if (GlobalArray.id < 6) {
+        else if (Comms.id < 6) {
             mode = SCOUT;
         }
 
@@ -61,8 +61,8 @@ public strictfp class RobotPlayer {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (mode == DEFENSIVE) {
-                        if (GlobalArray.id < 6) {
-                            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)))) {
+                        if (Comms.id < 6) {
+                            if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)))) {
                                 break spawn; // labels moment
                             }
                             for (int i = 0; i < 27; i++) {
@@ -70,7 +70,7 @@ public strictfp class RobotPlayer {
                                     spawnLocs[i] = new MapLocation(-1000, -1000);
                                 }
                             }
-                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id)));
+                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
                             if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
                                 rc.spawn(bestSpawnLoc);
                                 break spawn;
@@ -104,24 +104,24 @@ public strictfp class RobotPlayer {
                 }
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;
-                Attack.indicatorString = indicatorString;
-                GlobalArray.indicatorString = indicatorString;
+                Atk.indicatorString = indicatorString;
+                Comms.indicatorString = indicatorString;
                 Setup.indicatorString = indicatorString;
-                Offensive.indicatorString = indicatorString;
-                Defensive.indicatorString = indicatorString;
+                Offense.indicatorString = indicatorString;
+                Defense.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
                     }
                     else if (mode == DEFENSIVE) {
-                        Defensive.jailed();
+                        Defense.jailed();
                     }
                     else if (mode == SCOUT) {
                         Scout.jailed();
                     }
                     else {
-                        Offensive.jailed();
+                        Offense.jailed();
                     }
                 }
                 else {
@@ -138,13 +138,13 @@ public strictfp class RobotPlayer {
                         Setup.run();
                     }
                     else if (mode == DEFENSIVE) {
-                        Defensive.run();
+                        Defense.run();
                     }
                     else if (mode == SCOUT) {
                         Scout.run();
                     }
                     else {
-                        Offensive.run();
+                        Offense.run();
                     }
                 }
                 rc.setIndicatorString(indicatorString.toString());

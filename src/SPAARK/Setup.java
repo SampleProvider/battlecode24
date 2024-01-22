@@ -56,26 +56,26 @@ public class Setup {
     protected static Boolean pickupFlag() throws GameActionException {
         FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : flags) {
-            GlobalArray.writeFlag(flag);
+            Comms.writeFlag(flag);
         }
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
-        int flagtarget = rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET);
+        int flagtarget = rc.readSharedArray(Comms.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
             boolean found = false;
             for (int i = 0; i <= 2; i++) {
-                if (rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + i) == closestFlag.getID()) {
+                if (rc.readSharedArray(Comms.ALLY_FLAG_ID + i) == closestFlag.getID()) {
                     flagIndex = i;
                     found = true;
                 }
             }
             if (found) {
-                rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, flagtarget);
-                rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(flagInit));
-                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
-                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 3, GlobalArray.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
-                rc.writeSharedArray(GlobalArray.SETUP_SYM_GUESS + flagIndex + 6, GlobalArray.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
+                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, flagtarget);
+                rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(flagInit));
+                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
+                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 3, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
+                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 6, Comms.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
             }
             return found;
         }
@@ -83,7 +83,7 @@ public class Setup {
     }
 
     protected static void moveFlag() throws GameActionException {
-        MapLocation flagTarget = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_FLAG_TARGET));
+        MapLocation flagTarget = Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET));
         MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
         turnsPlacingFlag += 1;
         if (turnsPlacingFlag > 90) {
@@ -134,9 +134,9 @@ public class Setup {
             // testing if flag placement is valid because senseLegalStartingFlagPlacement is broken
             boolean valid = true;
             for (int i = 0; i <= 2; i++) {
-                int n = rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + i);
-                if (GlobalArray.hasLocation(n) && !GlobalArray.isFlagPickedUp(n)) {
-                    if (toPlace.distanceSquaredTo(GlobalArray.parseLocation(n)) < 36) {
+                int n = rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i);
+                if (Comms.hasLocation(n) && !Comms.isFlagPickedUp(n)) {
+                    if (toPlace.distanceSquaredTo(Comms.parseLocation(n)) < 36) {
                         valid = false;
                     }
                 }
@@ -165,40 +165,40 @@ public class Setup {
         }
         if (rc.canDropFlag(toPlace)) {
             rc.dropFlag(toPlace);
-            rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
-            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + flagIndex, GlobalArray.intifyLocation(toPlace));
+            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(toPlace));
+            rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(toPlace));
             flagIndex = -1;
         }
         else {
             rc.setIndicatorLine(me, toPlace, 0, 255, 0);
             indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-            rc.writeSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | GlobalArray.intifyLocation(rc.getLocation()));
+            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | Comms.intifyLocation(rc.getLocation()));
         }
     }
 
     protected static void guessSymmetry() throws GameActionException {
-        int curSymmetry = rc.readSharedArray(GlobalArray.SYM) & 0b111;
+        int curSymmetry = rc.readSharedArray(Comms.SYM) & 0b111;
         if (curSymmetry == 0b110 || curSymmetry == 0b101 || curSymmetry == 0b011) {
             //already done
             return;
         }
         MapLocation[] guesses = {
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+1)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+2)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+3)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+4)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+5)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+6)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+7)),
-            GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.SETUP_SYM_GUESS+8)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+1)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+2)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+3)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+4)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+5)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+6)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+7)),
+            Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+8)),
         };
         for (int i = 0; i < guesses.length; i++) {
             if (rc.canSenseLocation(guesses[i])) {
                 MapInfo info = rc.senseMapInfo(guesses[i]);
                 if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
                     //wrong symmetry buh
-                    rc.writeSharedArray(GlobalArray.SYM, rc.readSharedArray(GlobalArray.SYM) | 1 << (i / 3));
+                    rc.writeSharedArray(Comms.SYM, rc.readSharedArray(Comms.SYM) | 1 << (i / 3));
                 }
             }
         }
@@ -210,15 +210,15 @@ public class Setup {
     protected static Boolean checkSpawnZoneConnected() throws GameActionException {
         if (spawnFlagIndex == -1) return false;
         if (spawnFlagIndex == 1) {
-            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b101000) > 0) {
+            if ((rc.readSharedArray(Comms.SPAWN_CONNECTED) & 0b101000) > 0) {
                 return false;
             }
         } else if (spawnFlagIndex == 2) {
-            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b011000) > 0) {
+            if ((rc.readSharedArray(Comms.SPAWN_CONNECTED) & 0b011000) > 0) {
                 return false;
             }
         } else {
-            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b110000) > 0) {
+            if ((rc.readSharedArray(Comms.SPAWN_CONNECTED) & 0b110000) > 0) {
                 return false;
             }
         }
@@ -233,33 +233,33 @@ public class Setup {
         }
         for (int i = 0; i < 3; i++) {
             if (i == spawnFlagIndex) continue;
-            int flagLoc = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i);
-            if (GlobalArray.hasLocation(flagLoc)) {
-                MapLocation coord = GlobalArray.parseLocation(flagLoc);
+            int flagLoc = rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + i);
+            if (Comms.hasLocation(flagLoc)) {
+                MapLocation coord = Comms.parseLocation(flagLoc);
                 if (rc.canSenseLocation(coord)) {
                     Motion.bugnavTowards(coord);
                     if (rc.getLocation().distanceSquaredTo(coord) <= 2) {
                         //connected!
                         if (spawnFlagIndex == 1) {
                             if (i == 2) {
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 3);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 3);
                             } else {
                                 //i == 3
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 5);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 5);
                             }
                         } else if (spawnFlagIndex == 2) {
                             if (i == 3) {
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 4);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 4);
                             } else {
                                 //i == 1
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 3);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 3);
                             }
                         } else {
                             if (i == 1) {
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 5);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 5);
                             } else {
                                 //i == 2
-                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 4);
+                                rc.writeSharedArray(Comms.SPAWN_CONNECTED, rc.readSharedArray(Comms.SPAWN_CONNECTED) | 1 << 4);
                             }
                         }
                         turnsCheckingSpawnZoneConnected = 0;
@@ -279,8 +279,8 @@ public class Setup {
             if (spawnFlagIndex == -1) {
                 //set spawnFlagIndex
                 for (int i = 0; i < 3; i++) {
-                    int flagLoc = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i);
-                    if (GlobalArray.hasLocation(flagLoc) && me.distanceSquaredTo(GlobalArray.parseLocation(flagLoc)) < 5) {
+                    int flagLoc = rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + i);
+                    if (Comms.hasLocation(flagLoc) && me.distanceSquaredTo(Comms.parseLocation(flagLoc)) < 5) {
                         spawnFlagIndex = i;
                     }
                 }
@@ -299,9 +299,9 @@ public class Setup {
                         damInit = i.getMapLocation();
                         damSpreadWeights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] -= 100/me.distanceSquaredTo(i.getMapLocation());
 
-                        int meet = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
-                        if (!GlobalArray.hasLocation(meet)) {
-                            rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(damInit));
+                        int meet = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
+                        if (!Comms.hasLocation(meet)) {
+                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(damInit));
                         }
                     }
                 }
@@ -352,18 +352,18 @@ public class Setup {
                 weight = Math.min(weight, 65535);
 
                 //using setup flag target global array index
-                int best = rc.readSharedArray(GlobalArray.SETUP_FLAG_WEIGHT);
+                int best = rc.readSharedArray(Comms.SETUP_FLAG_WEIGHT);
                 if (best < weight) {
-                    rc.writeSharedArray(GlobalArray.SETUP_FLAG_WEIGHT, weight);
-                    rc.writeSharedArray(GlobalArray.SETUP_FLAG_TARGET, GlobalArray.intifyLocation(rc.getLocation()));
+                    rc.writeSharedArray(Comms.SETUP_FLAG_WEIGHT, weight);
+                    rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, Comms.intifyLocation(rc.getLocation()));
                 }
             }
         } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 210) {
             //move flag
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (GlobalArray.id < 6) {
-                MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+            } else if (Comms.id < 6) {
+                MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
                 Motion.bugnavTowards(flagCarrier);
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;");
@@ -377,19 +377,19 @@ public class Setup {
             //line up
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (GlobalArray.id < 6) {
-                MapLocation flagCarrier = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+            } else if (Comms.id < 6) {
+                MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
                 Motion.bugnavTowards(flagCarrier);
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
-                indicatorString.append("FOLLOW-FLAG;" + GlobalArray.id);
+                indicatorString.append("FOLLOW-FLAG;" + Comms.id);
             } else {
                 guessSymmetry();
                 MapInfo[] info = rc.senseNearbyMapInfos();
-                int damLoc = rc.readSharedArray(GlobalArray.SETUP_GATHER_LOC);
-                if (!GlobalArray.hasLocation(damLoc)) {
+                int damLoc = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
+                if (!Comms.hasLocation(damLoc)) {
                     for (MapInfo i : info) {
                         if (i.isDam()) {
-                            rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | 1 << 13);
+                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()) | 1 << 13);
                             break;
                         }
                     }
@@ -405,10 +405,10 @@ public class Setup {
                 }
                 if (!nearDam) {
                     //if we aren't near the dam, then go to the meeting point
-                    if (GlobalArray.hasLocation(damLoc)) {
-                        Motion.bugnavTowards(GlobalArray.parseLocation(damLoc), 500);
-                        indicatorString.append("MEET("+GlobalArray.parseLocation(damLoc).x+","+GlobalArray.parseLocation(damLoc).y+");");
-                        rc.setIndicatorLine(me, GlobalArray.parseLocation(damLoc), 255, 100, 0);
+                    if (Comms.hasLocation(damLoc)) {
+                        Motion.bugnavTowards(Comms.parseLocation(damLoc), 500);
+                        indicatorString.append("MEET("+Comms.parseLocation(damLoc).x+","+Comms.parseLocation(damLoc).y+");");
+                        rc.setIndicatorLine(me, Comms.parseLocation(damLoc), 255, 100, 0);
                     } else {
                         Motion.moveRandomly();
                         indicatorString.append("RANDOM;");
@@ -430,17 +430,17 @@ public class Setup {
                     botWeight = Math.max(botWeight, 0);
                     botWeight = Math.min(botWeight, 7);
                     int storedBotWeight = damLoc >> 13 & 0b111;
-                    if (!GlobalArray.hasLocation(damLoc) || botWeight > storedBotWeight) {
+                    if (!Comms.hasLocation(damLoc) || botWeight > storedBotWeight) {
                         //Changing meeting point if there are lots of enemy bots/not many friendly bots
                         for (MapInfo i : info) {
                             if (i.isDam()) {
-                                rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(i.getMapLocation()) | botWeight << 13);
+                                rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()) | botWeight << 13);
                                 break;
                             }
                         }
                     }
-                    if (me.distanceSquaredTo(GlobalArray.parseLocation(damLoc)) < 5) {
-                        rc.writeSharedArray(GlobalArray.SETUP_GATHER_LOC, GlobalArray.intifyLocation(GlobalArray.parseLocation(damLoc)) | botWeight << 13);
+                    if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) < 5) {
+                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(Comms.parseLocation(damLoc)) | botWeight << 13);
                     }
                     for (MapInfo i : info) {
                         if (i.isDam()) {
@@ -467,7 +467,7 @@ public class Setup {
                 }
             }
         }
-        if (GlobalArray.id < 6) {
+        if (Comms.id < 6) {
             rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }

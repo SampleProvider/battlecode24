@@ -2,7 +2,7 @@ package SPAARK;
 
 import battlecode.common.*;
 
-public class GlobalArray {
+public class Comms {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 

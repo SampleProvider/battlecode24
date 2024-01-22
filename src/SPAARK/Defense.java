@@ -4,7 +4,7 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-public class Defensive {
+public class Defense {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 
@@ -27,7 +27,7 @@ public class Defensive {
         MapLocation me = rc.getLocation();
         rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
-            MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+            MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
             Motion.bugnavTowards(targetLoc);
             rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
@@ -36,8 +36,8 @@ public class Defensive {
                 // if the flag is there the spawn point is valid
                 if (flags.length > 0) {
                     for (FlagInfo flag : flags) {
-                        if (flag.getLocation().equals(targetLoc) && flag.getID() == rc.readSharedArray(GlobalArray.ALLY_FLAG_ID + (GlobalArray.id % 3))) {
-                            rc.writeSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3), rc.readSharedArray(GlobalArray.ALLY_FLAG_CUR_LOC + (GlobalArray.id % 3)));
+                        if (flag.getLocation().equals(targetLoc) && flag.getID() == rc.readSharedArray(Comms.ALLY_FLAG_ID + (Comms.id % 3))) {
+                            rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3), rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
                             break;
                         }
                     }
@@ -47,14 +47,14 @@ public class Defensive {
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
-            GlobalArray.writeFlag(flag);
+            Comms.writeFlag(flag);
         }
         for (FlagInfo flag : opponentFlags) {
-            GlobalArray.writeFlag(flag);
+            Comms.writeFlag(flag);
         }
-        GlobalArray.checkFlags(friendlyFlags, opponentFlags);
-        GlobalArray.updatePOI();
-        if (GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
+        Comms.checkFlags(friendlyFlags, opponentFlags);
+        Comms.updatePOI();
+        if (Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id))) {
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
@@ -96,9 +96,9 @@ public class Defensive {
                     }
                 }
             } else {
-                MapLocation targetLoc = GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + (GlobalArray.id % 3)));
+                MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
-                if (GlobalArray.id < 3) {
+                if (Comms.id < 3) {
                     Motion.bugnavTowards(targetLoc, 0);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
@@ -170,8 +170,8 @@ public class Defensive {
 
         // GlobalArray.updateSector();
 
-        Attack.attack();
-        Attack.heal();
+        Atk.attack();
+        Atk.heal();
     }
     protected static void jailed() throws GameActionException {
 
