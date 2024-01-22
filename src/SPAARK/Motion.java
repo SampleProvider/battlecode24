@@ -1124,6 +1124,9 @@ public class Motion {
                         }
                         else if (robot.hasFlag()) {
                             weight += 10;
+                            if (opponentRobots.length < 3) {
+                                weight += 30;
+                            }
                         }
                         // stop moving into robots when you have the flag buh
                     }
