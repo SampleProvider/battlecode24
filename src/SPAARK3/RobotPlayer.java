@@ -1,8 +1,10 @@
-package SPAARK;
+package SPAARK3;
 
 import battlecode.common.*;
 
 import java.util.Random;
+
+import SPAARK2.GlobalArray;
 
 public strictfp class RobotPlayer {
     protected static int turnCount = 0;
