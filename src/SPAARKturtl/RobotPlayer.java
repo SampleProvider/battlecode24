@@ -101,13 +101,13 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    if (rc.getRoundNum() >= 600 && rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }
-                    if (rc.getRoundNum() >= 1200 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
-                    if (rc.getRoundNum() >= 1800 && rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
                         rc.buyGlobal(GlobalUpgrade.CAPTURING);
                     }
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
