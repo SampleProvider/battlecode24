@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARKwater;
 
 import battlecode.common.*;
 
