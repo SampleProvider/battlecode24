@@ -97,11 +97,11 @@ public strictfp class RobotPlayer {
                             }
                         }
                         MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                        // for (int i = 0; i < 3; i++) {
-                        //     if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
-                                
-                        //     }
-                        // }
+                        for (int i = 0; i < 3; i++) {
+                            if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
+                                bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
+                            }
+                        }
                         // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
                         if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
                             rc.spawn(bestSpawnLoc);
