@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK3;
 
 import battlecode.common.*;
 
@@ -1069,9 +1069,9 @@ public class Motion {
         if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
             Direction bestDir = null;
-            double bestWeight = 0;
+            int bestWeight = 0;
             Direction bestFillDir = null;
-            double bestFillWeight = 0;
+            int bestFillWeight = 0;
             RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
             for (Direction d : ALL_DIRECTIONS) {
@@ -1079,10 +1079,10 @@ public class Motion {
                     continue;
                 }
                 // incentivize moving towards target
-                double weight = 0;
+                int weight = 0;
                 if (rc.getHealth() > 500) {
                     if (d.equals(optimalDir)) {
-                        weight += 1.5;
+                        weight += 1;
                     }
                     if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                         weight += 1;
@@ -1367,7 +1367,7 @@ public class Motion {
         }
         recalculationNeeded = MAX_PATH_LENGTH;
         
-        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 5000) {
+        while (step < MAX_PATH_LENGTH && Clock.getBytecodesLeft() > 2000) {
             stepOffset = step * (height + 2);
             switch (height) {
                 case 30:
@@ -1485,30 +1485,30 @@ public class Motion {
             step += 1;
         }
 
-        int b = rc.getRoundNum() % width;
+        // int b = rc.getRoundNum() % width;
         // if (rc.getRoundNum() == 201) {
-            // for (int i = 0; i < width; i++) {
-            //     b = i;
-            //     for (int j = 0; j < height; j++) {
-            //         // if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> i) & 1) == 0) {
-            //         if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> b) & 1) == 0) {
-            //             if (((bfsMap[j + 1] >> b) & 1) == 0) {
-            //                 rc.setIndicatorDot(new MapLocation(b, j), 255, 0, 0);
-            //             }
-            //             else {
-            //                 rc.setIndicatorDot(new MapLocation(b, j), 0, 0, 0);
-            //             }
-            //         }
-            //         else {
-            //             if (((bfsMap[j + 1] >> b) & 1) == 0) {
-            //                 rc.setIndicatorDot(new MapLocation(b, j), 255, 255, 255);
-            //             }
-            //             else {
-            //                 rc.setIndicatorDot(new MapLocation(b, j), 0, 255, 0);
-            //             }
-            //         }
-            //     }
-            // }
+        //     for (int i = 0; i < width; i++) {
+        //         b = i;
+        //         for (int j = 0; j < height; j++) {
+        //             // if (((bfsDist[(rc.getRoundNum() % 100) * (height + 2) + j + 1] >> i) & 1) == 0) {
+        //             if (((bfsDist[(99) * (height + 2) + j + 1] >> b) & 1) == 0) {
+        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 0, 0);
+        //                 }
+        //                 else {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 0, 0);
+        //                 }
+        //             }
+        //             else {
+        //                 if (((bfsMap[j + 1] >> b) & 1) == 0) {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 255, 255, 255);
+        //                 }
+        //                 else {
+        //                     rc.setIndicatorDot(new MapLocation(b, j), 0, 255, 0);
+        //                 }
+        //             }
+        //         }
+        //     }
         // }
         indicatorString.append("STEP=" + step);
     }
@@ -1560,44 +1560,25 @@ public class Motion {
                 break;
             }
         }
-        Direction optimalDirection = Direction.CENTER;
-        Direction optimalFillDirection = Direction.CENTER;
-        int minDist = Integer.MAX_VALUE;
-        int minFillDist = Integer.MAX_VALUE;
         for (int i = 1; i <= 8; i++) {
             if (directions[i]) {
-                Direction dir = Direction.DIRECTION_ORDER[i];
-                if (rc.canMove(dir)) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
-                        optimalDirection = dir;
-                        minDist = me.add(dir).distanceSquaredTo(dest);
-                    }
+                Direction optimalDirection = Direction.DIRECTION_ORDER[i];
+                if (rc.canMove(optimalDirection)) {
+                    return optimalDirection;
                 }
-                else if (rc.canFill(me.add(dir))) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minFillDist) {
-                        optimalFillDirection = dir;
-                        minFillDist = me.add(dir).distanceSquaredTo(dest);
-                    }
+                else if (rc.canFill(me.add(optimalDirection))) {
+                    rc.fill(me.add(optimalDirection));
+                    return Direction.CENTER;
                 }
             }
         }
-        if (optimalDirection != Direction.CENTER) {
+        Direction optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0);
+        if (rc.canMove(optimalDirection)) {
             return optimalDirection;
         }
-        if (optimalDirection == Direction.CENTER && optimalFillDirection == Direction.CENTER) {
-            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0);
-            indicatorString.append("BUGNAV");
-
-            if (rc.canMove(optimalDirection)) {
-                return optimalDirection;
-            }
-            else if (rc.canFill(me.add(optimalDirection))) {
-                rc.fill(me.add(optimalDirection));
-                return Direction.CENTER;
-            }
-        }
-        if (rc.canFill(me.add(optimalFillDirection))) {
-            rc.fill(me.add(optimalFillDirection));
+        else if (rc.canFill(me.add(optimalDirection))) {
+            rc.fill(me.add(optimalDirection));
+            return Direction.CENTER;
         }
         return Direction.CENTER;
     }
@@ -1606,13 +1587,16 @@ public class Motion {
         bfsnav(dest, DEFAULT_RETREAT_HP);
     }
     protected static void bfsnav(MapLocation dest, int retreatHP) throws GameActionException {
-        indicatorString.append(Clock.getBytecodesLeft() + " ");
-        Direction d = getBfsDirection(dest);
         if (rc.isMovementReady()) {
+            indicatorString.append(Clock.getBytecodesLeft() + " ");
+            Direction d = getBfsDirection(dest);
+            indicatorString.append(Clock.getBytecodesLeft() + " ");
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
             micro(d, dest);
+            lastDir = d;
+            bfs();
             // if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
             //     micro(d, dest);
             // }
@@ -1621,7 +1605,5 @@ public class Motion {
             //     lastDir = d;
             // }
         }
-        bfs();
-        indicatorString.append(Clock.getBytecodesLeft() + " ");
     }
 }
