@@ -1572,23 +1572,22 @@ public class Motion {
     }
     protected static void bfsnav(MapLocation dest, int retreatHP) throws GameActionException {
         if (rc.isMovementReady()) {
-            bugnavTowards(dest, retreatHP, false);
-            // indicatorString.append(Clock.getBytecodesLeft() + " ");
-            // Direction d = getBfsDirection(dest);
-            // indicatorString.append(Clock.getBytecodesLeft() + " ");
-            // if (d == Direction.CENTER) {
-            //     d = rc.getLocation().directionTo(dest);
+            indicatorString.append(Clock.getBytecodesLeft() + " ");
+            Direction d = getBfsDirection(dest);
+            indicatorString.append(Clock.getBytecodesLeft() + " ");
+            if (d == Direction.CENTER) {
+                d = rc.getLocation().directionTo(dest);
+            }
+            micro(d, dest);
+            lastDir = d;
+            bfs();
+            // if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
+            //     micro(d, dest);
             // }
-            // micro(d, dest);
-            // lastDir = d;
-            // bfs();
-            // // if (rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length != 0 && rc.getHealth() <= retreatHP) {
-            // //     micro(d, dest);
-            // // }
-            // // else if (rc.canMove(d)) {
-            // //     rc.move(d);
-            // //     lastDir = d;
-            // // }
+            // else if (rc.canMove(d)) {
+            //     rc.move(d);
+            //     lastDir = d;
+            // }
         }
     }
 }

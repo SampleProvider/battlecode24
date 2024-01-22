@@ -56,9 +56,9 @@ public class Comms {
      * Bit 62:
      *   bit 1-3: symmetry
      *   bit 4-6: connectedness of spawn zones
-     *      bit 4 means spawn zones 1,2
-     *      bit 5 means spawn zones 2,3
-     *      bit 6 means spawn zones 3,1
+     *      bit 4 means spawn zones 0,1
+     *      bit 5 means spawn zones 1,2
+     *      bit 6 means spawn zones 2,0
      */
     protected static final int ALLY_FLAG_ID = 0;
     protected static final int ALLY_FLAG_DEF_LOC = 3;

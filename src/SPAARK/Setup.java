@@ -26,7 +26,6 @@ public class Setup {
     };
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
     protected static int turnsPlacingFlag = 0;
-    protected static MapLocation flagInit;
 
     protected static int[] damSpreadWeights = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     protected static MapLocation damInit;
@@ -61,7 +60,7 @@ public class Setup {
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
         int flagtarget = rc.readSharedArray(Comms.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            flagInit = closestFlag.getLocation();
+            MapLocation flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
             boolean found = false;
             for (int i = 0; i <= 2; i++) {
@@ -87,7 +86,57 @@ public class Setup {
         MapLocation toPlace = new MapLocation(flagTarget.x+flagOffset.x, flagTarget.y+flagOffset.y);
         turnsPlacingFlag += 1;
         if (turnsPlacingFlag > 90) {
-            toPlace = flagInit;
+            //taking too long
+            MapLocation me = rc.getLocation();
+            MapLocation closestConnectedSpawnLoc = null;
+            switch (flagIndex) {
+                case 0:
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 1));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 2));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 0));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 2));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    break;
+                case 2:
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 1));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 0b1) == 1) {
+                        MapLocation loc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + 0));
+                        if (closestConnectedSpawnLoc == null || me.distanceSquaredTo(closestConnectedSpawnLoc) < me.distanceSquaredTo(loc)) {
+                            closestConnectedSpawnLoc = loc;
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+            flagTarget = closestConnectedSpawnLoc;
+            turnsPlacingFlag = 0;
         }
         if (flagOffset.x == -100) {
             switch (flagIndex) {
