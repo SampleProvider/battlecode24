@@ -62,14 +62,15 @@ public class Scout {
         Comms.updatePOI();
         Motion.updateBfsMap();
 
-        if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
-            targetTurns = 0;
-            target = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
+        if (!Setup.getCrumbs(rc.senseNearbyMapInfos())) {
+            if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
+                targetTurns = 0;
+                target = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
+            }
+            targetTurns += 1;
+            rc.setIndicatorLine(me, target, 0, 255, 0);
+            Motion.bfsnav(target);
         }
-        targetTurns += 1;
-
-        rc.setIndicatorLine(me, target, 0, 255, 0);
-        Motion.bfsnav(target);
 
         Atk.attack();
         Atk.heal();
