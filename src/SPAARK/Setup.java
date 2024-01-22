@@ -9,6 +9,8 @@ public class Setup {
 
     protected static Random rng;
 
+    protected static int spawnFlagIndex = -1;
+
     protected static int flagIndex = -1;
     protected static MapLocation[] placementLocationsOne = {
         new MapLocation(0, 6),
@@ -175,7 +177,7 @@ public class Setup {
     }
 
     protected static void guessSymmetry() throws GameActionException {
-        int curSymmetry = rc.readSharedArray(GlobalArray.SYM);
+        int curSymmetry = rc.readSharedArray(GlobalArray.SYM) & 0b111;
         if (curSymmetry == 0b110 || curSymmetry == 0b101 || curSymmetry == 0b011) {
             //already done
             return;
@@ -201,16 +203,92 @@ public class Setup {
             }
         }
     }
+
+    protected static int turnsCheckingSpawnZoneConnected = 0;
+    protected static boolean checkSpawnZoneConnectedCooldown = false;
+
+    protected static Boolean checkSpawnZoneConnected() throws GameActionException {
+        if (spawnFlagIndex == -1) return false;
+        if (spawnFlagIndex == 1) {
+            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b101000) > 0) {
+                return false;
+            }
+        } else if (spawnFlagIndex == 2) {
+            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b011000) > 0) {
+                return false;
+            }
+        } else {
+            if ((rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) & 0b110000) > 0) {
+                return false;
+            }
+        }
+        turnsCheckingSpawnZoneConnected++;
+        if (turnsCheckingSpawnZoneConnected > 10 || checkSpawnZoneConnectedCooldown) {
+            checkSpawnZoneConnectedCooldown = true;
+            turnsCheckingSpawnZoneConnected -= 2;
+            if (turnsCheckingSpawnZoneConnected <= 0) {
+                checkSpawnZoneConnectedCooldown = false;
+            }
+            return false;
+        }
+        for (int i = 0; i < 3; i++) {
+            if (i == spawnFlagIndex) continue;
+            int flagLoc = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i);
+            if (GlobalArray.hasLocation(flagLoc)) {
+                MapLocation coord = GlobalArray.parseLocation(flagLoc);
+                if (rc.canSenseLocation(coord)) {
+                    Motion.bugnavTowards(coord);
+                    if (rc.getLocation().distanceSquaredTo(coord) <= 2) {
+                        //connected!
+                        if (spawnFlagIndex == 1) {
+                            if (i == 2) {
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 3);
+                            } else {
+                                //i == 3
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 5);
+                            }
+                        } else if (spawnFlagIndex == 2) {
+                            if (i == 3) {
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 4);
+                            } else {
+                                //i == 1
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 3);
+                            }
+                        } else {
+                            if (i == 1) {
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 5);
+                            } else {
+                                //i == 2
+                                rc.writeSharedArray(GlobalArray.SPAWN_CONNECTED, rc.readSharedArray(GlobalArray.SPAWN_CONNECTED) | 1 << 4);
+                            }
+                        }
+                        turnsCheckingSpawnZoneConnected = 0;
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
     protected static void run() throws GameActionException {
         if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
-            if (!pickupFlag() && !getCrumbs(infos) && !rc.hasFlag()) { // try to get crumbs/flag
+            MapLocation me = rc.getLocation();
+            if (spawnFlagIndex == -1) {
+                //set spawnFlagIndex
+                for (int i = 0; i < 3; i++) {
+                    int flagLoc = rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + i);
+                    if (GlobalArray.hasLocation(flagLoc) && me.distanceSquaredTo(GlobalArray.parseLocation(flagLoc)) < 5) {
+                        spawnFlagIndex = i;
+                    }
+                }
+            }
+            if (!pickupFlag() && !getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) { // try to get crumbs/flag
                 guessSymmetry();
                 Motion.spreadRandomly();
             }
-
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
             if (!rc.hasFlag()) {
@@ -232,7 +310,7 @@ public class Setup {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos) && !rc.hasFlag()) {
+                if (!getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) {
                     Motion.spreadRandomly();
                 }
             } else {
