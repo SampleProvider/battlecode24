@@ -58,7 +58,6 @@ public class Setup {
             Comms.writeFlag(flag);
         }
         FlagInfo closestFlag = Motion.getClosestFlag(flags, false);
-        int flagtarget = rc.readSharedArray(Comms.SETUP_FLAG_TARGET);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             MapLocation flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
@@ -70,7 +69,7 @@ public class Setup {
                 }
             }
             if (found) {
-                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, flagtarget);
+                rc.writeSharedArray(Comms.SETUP_FLAG_DIST + flagIndex, 65535);
                 rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(flagInit));
                 rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
                 rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 3, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
@@ -176,23 +175,22 @@ public class Setup {
                 default:
             }
         }
-        Motion.bfsnav(toPlace);
+        Motion.bugnavTowards(toPlace);
         MapLocation me = rc.getLocation();
         if (rc.canSenseLocation(toPlace)) {
             MapInfo tile = rc.senseMapInfo(toPlace);
             // testing if flag placement is valid because senseLegalStartingFlagPlacement is broken
-            boolean valid = true;
-            for (int i = 0; i <= 2; i++) {
-                int n = rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i);
-                if (Comms.hasLocation(n) && !Comms.isFlagPickedUp(n)) {
-                    if (toPlace.distanceSquaredTo(Comms.parseLocation(n)) < 36) {
-                        valid = false;
-                    }
-                }
-            }
-            if (!tile.isPassable() || !valid) {
-                // System.out.println(flagIndex+" "+toPlace.x+","+toPlace.y+" "+rc.senseLegalStartingFlagPlacement(toPlace)+" "+tile.isPassable());
-                indicatorString.append(flagIndex+" "+toPlace.x+","+toPlace.y+" "+valid+" "+tile.isPassable());
+            // well this is broken now too
+            // boolean valid = true;
+            // for (int i = 0; i <= 2; i++) {
+            //     int n = rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i);
+            //     if (Comms.hasLocation(n) && !Comms.isFlagPickedUp(n)) {
+            //         if (toPlace.distanceSquaredTo(Comms.parseLocation(n)) < 36) {
+            //             valid = false;
+            //         }
+            //     }
+            // }
+            if (!tile.isPassable()) {
                 indicatorString.append("FLAGINVALID;");
                 if (flagOffset.x < 0) {
                     flagOffset = new MapLocation(flagOffset.x - 1, flagOffset.y);
@@ -221,7 +219,7 @@ public class Setup {
         else {
             rc.setIndicatorLine(me, toPlace, 0, 255, 0);
             indicatorString.append("FLAG"+flagIndex+"->("+(flagTarget.x+flagOffset.x)+","+(flagTarget.y+flagOffset.y)+");");
-            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, (7 << 13) | Comms.intifyLocation(rc.getLocation()));
+            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
         }
     }
 
@@ -336,7 +334,19 @@ public class Setup {
             }
             if (!pickupFlag() && !getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) { // try to get crumbs/flag
                 guessSymmetry();
-                Motion.spreadRandomly();
+                Boolean nearDam = false;
+                MapLocation damTarget = new MapLocation(-1, -1);
+                for (MapInfo i : infos) {
+                    if (i.isDam()) {
+                        nearDam = true;
+                        damTarget = i.getMapLocation();
+                    }
+                }
+                if (nearDam) {
+                    Motion.bfsnav(damTarget);
+                } else {
+                    Motion.spreadRandomly();
+                }
             }
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
@@ -344,10 +354,15 @@ public class Setup {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 MapLocation me = rc.getLocation();
                 for (MapInfo i : infos) {
-                    if (i.isDam()) {
+                    if (i.getTeamTerritory() == rc.getTeam().opponent()) {
                         damInit = i.getMapLocation();
                         damSpreadWeights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] -= 100/me.distanceSquaredTo(i.getMapLocation());
-
+                    }
+                    if (i.isDam()) {
+                        if (damInit == null) {
+                            damInit = i.getMapLocation();
+                        }
+                        damSpreadWeights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getMapLocation());
                         int meet = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
                         if (!Comms.hasLocation(meet)) {
                             rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(damInit));
@@ -355,7 +370,7 @@ public class Setup {
                     }
                 }
             }
-        } else if (rc.getRoundNum() < 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
+        } else if (rc.getRoundNum() <= 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -372,44 +387,79 @@ public class Setup {
                     dx += i.getDeltaX() * damSpreadWeights[i.getDirectionOrderNum()];
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
-                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
-                rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
-                indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
-            }
-        } else if (rc.getRoundNum() == 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
-            if (damInit == null) {
-                //not running longest path
-                MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos) && !rc.hasFlag()) {
-                    guessSymmetry();
-                    Motion.spreadRandomly();
-                }
-            } else {
-                //longest path
-                //get closest spawn zone
-                int closestSpawn = Integer.MAX_VALUE;
                 MapLocation me = rc.getLocation();
-                MapLocation[] spawns = rc.getAllySpawnLocations();
-                for (MapLocation i : spawns) {
-                    closestSpawn = Math.min(me.distanceSquaredTo(i), closestSpawn);
-                }
+                MapLocation[] spawns = {
+                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
+                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
+                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
+                };
+                // MapLocation closestSpawn = Motion.getClosest(spawns);
+                Motion.bugnavTowards(new MapLocation(me.x+dx, me.y+dy));
+                rc.setIndicatorLine(rc.getLocation(), new MapLocation(me.x+dx, me.y+dy), 255, 255, 0);
+                indicatorString.append("LONGPATH->("+(me.x+dx)+","+(me.y+dy)+");");
 
-                int weight = 4096 // 2^12
-                + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
-                - 6*closestSpawn //distance to nearest spawn (closer is better)
-                ;
-                weight = Math.max(weight, 0);
-                weight = Math.min(weight, 8192);
-
-                //using setup flag target global array index
-                int best = rc.readSharedArray(Comms.SETUP_FLAG_WEIGHT);
-                if (best < weight) {
-                    rc.writeSharedArray(Comms.SETUP_FLAG_WEIGHT, weight);
-                    rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, Comms.intifyLocation(rc.getLocation()));
+                for (int i = 0; i < spawns.length; i++) {
+                    if (rc.canSenseLocation(spawns[i])) {
+                        int dist = spawns[i].distanceSquaredTo(damInit);
+                        int best = rc.readSharedArray(Comms.SETUP_FLAG_DIST+i);
+                        if (dist < best) {
+                            rc.writeSharedArray(Comms.SETUP_FLAG_DIST+i, dist);
+                        }
+                    }
                 }
             }
-        } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 210) {
+        // } else if (rc.getRoundNum() == 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
+        //     if (damInit == null) {
+        //         //not running longest path
+        //         MapInfo[] infos = rc.senseNearbyMapInfos();
+        //         if (!getCrumbs(infos) && !rc.hasFlag()) {
+        //             guessSymmetry();
+        //             Motion.spreadRandomly();
+        //         }
+        //     } else {
+        //         //longest path
+        //         //get closest spawn zone
+        //         int closestSpawn = Integer.MAX_VALUE;
+        //         MapLocation me = rc.getLocation();
+        //         MapLocation[] spawns = rc.getAllySpawnLocations();
+        //         for (MapLocation i : spawns) {
+        //             closestSpawn = Math.min(me.distanceSquaredTo(i), closestSpawn);
+        //         }
+
+        //         int weight = 4096 // 2^12
+        //         + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
+        //         - 6*closestSpawn //distance to nearest spawn (closer is better)
+        //         ;
+        //         weight = Math.max(weight, 0);
+        //         weight = Math.min(weight, 8192);
+
+        //         //using setup flag target global array index
+        //         int best = rc.readSharedArray(Comms.SETUP_FLAG_WEIGHT);
+        //         if (best < weight) {
+        //             rc.writeSharedArray(Comms.SETUP_FLAG_WEIGHT, weight);
+        //             rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, Comms.intifyLocation(rc.getLocation()));
+        //         }
+        //     }
+        } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 205) {
             //move flag
+            if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET))) {
+                int[] dists = {
+                    rc.readSharedArray(Comms.SETUP_FLAG_DIST),
+                    rc.readSharedArray(Comms.SETUP_FLAG_DIST+1),
+                    rc.readSharedArray(Comms.SETUP_FLAG_DIST+2),
+                };
+                // for (int i : dists)System.out.println(i);
+                int best = 0;
+                int max = 0;
+                for (int i= 0; i < dists.length; i++) {
+                    if (dists[i] > max) {
+                        max = dists[i];
+                        best = i;
+                    }
+                }
+                System.out.println(max + " " + best);
+                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+best) & 0b1111111111111);
+            }
             if (rc.hasFlag()) {
                 moveFlag();
             } else if (Comms.id < 6) {
@@ -434,10 +484,10 @@ public class Setup {
                 indicatorString.append("FOLLOW-FLAG;" + Comms.id);
             } else {
                 guessSymmetry();
-                MapInfo[] info = rc.senseNearbyMapInfos();
+                MapInfo[] infos = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
                 if (!Comms.hasLocation(damLoc)) {
-                    for (MapInfo i : info) {
+                    for (MapInfo i : infos) {
                         if (i.isDam()) {
                             rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()) | 1 << 13);
                             break;
@@ -448,7 +498,7 @@ public class Setup {
                 MapLocation me = rc.getLocation();
                 Boolean nearDam = false;
                 RobotInfo[] bots = rc.senseNearbyRobots();
-                for (MapInfo i : info) {
+                for (MapInfo i : infos) {
                     if (i.isDam()) {
                         nearDam = true;
                     }
@@ -482,7 +532,7 @@ public class Setup {
                     int storedBotWeight = damLoc >> 13 & 0b111;
                     if (!Comms.hasLocation(damLoc) || botWeight > storedBotWeight) {
                         //Changing meeting point if there are lots of enemy bots/not many friendly bots
-                        for (MapInfo i : info) {
+                        for (MapInfo i : infos) {
                             if (i.isDam()) {
                                 rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()) | botWeight << 13);
                                 break;
@@ -492,7 +542,7 @@ public class Setup {
                     if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) < 5) {
                         rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(Comms.parseLocation(damLoc)) | botWeight << 13);
                     }
-                    for (MapInfo i : info) {
+                    for (MapInfo i : infos) {
                         if (i.isDam()) {
                             weights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] += 20;
                         }

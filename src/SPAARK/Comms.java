@@ -13,6 +13,7 @@ public class Comms {
      * 3-5: Ally flag default locations
      * 6-8: Ally flag current locations
      * 9-11: Ally flag info
+     * 12-14: Ally spawn zone distance from center (setup only)
      * 12-14: Opponent flag ids
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
@@ -26,7 +27,7 @@ public class Comms {
      * 62: spawn zone connectedness
      * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ)
      * 63: Global id counter (first round only)
-     * 63: Flag target heuristic (setup only)
+     * 63: Flag target heuristic (setup only) (not using for now)
     */
     /**
      * Formatting:
@@ -64,6 +65,7 @@ public class Comms {
     protected static final int ALLY_FLAG_DEF_LOC = 3;
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
+    protected static final int SETUP_FLAG_DIST = 12;
     protected static final int OPPO_FLAG_ID = 12;
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;
@@ -111,6 +113,31 @@ public class Comms {
     }
     public static MapLocation getRobotDirection(int n) {
         return new MapLocation(((n >> 6) & 0b1111) - 8, ((n >> 10) & 0b1111) - 8);
+    }
+
+    protected static MapLocation getCloserToAxis(MapLocation loc, int dis) throws GameActionException {
+        //get coord closer to the center, according to symmetry
+        int sym = rc.readSharedArray(SYM) & 0b111;
+        int x = loc.x;
+        int y = loc.y;
+        if ((sym & 0b100) > 0) {
+            //NOT horz
+            if (loc.x < rc.getMapWidth()/2) {
+                x += dis;
+            } else if (loc.x > rc.getMapWidth()/2) {
+                x -= dis;
+            }
+        }
+        if ((sym & 0b010) > 0) {
+            //NOT vert
+            if (loc.y < rc.getMapHeight()/2) {
+                y += dis;
+            } else if (loc.y > rc.getMapHeight()/2) {
+                y -= dis;
+            }
+        }
+        //invalid symmetry doesn't get changed
+        return new MapLocation(x, y);
     }
 
     // write flag
