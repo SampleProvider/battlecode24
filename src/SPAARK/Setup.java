@@ -448,7 +448,6 @@ public class Setup {
                     rc.readSharedArray(Comms.SETUP_FLAG_DIST+1),
                     rc.readSharedArray(Comms.SETUP_FLAG_DIST+2),
                 };
-                // for (int i : dists)System.out.println(i);
                 int best = 0;
                 int max = 0;
                 for (int i= 0; i < dists.length; i++) {
@@ -457,7 +456,6 @@ public class Setup {
                         best = i;
                     }
                 }
-                System.out.println(max + " " + best);
                 rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+best) & 0b1111111111111);
             }
             if (rc.hasFlag()) {
