@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_;
 
 import battlecode.common.*;
 
@@ -27,6 +27,8 @@ public strictfp class RobotPlayer {
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
 
+    protected static Micro micro;
+
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
@@ -41,6 +43,8 @@ public strictfp class RobotPlayer {
         Defense.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Micro.rc = rc;
+        micro = new Micro();
 
         Comms.init();
         

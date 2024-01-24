@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -286,7 +286,7 @@ public class Setup {
             if (Comms.hasLocation(flagLoc)) {
                 MapLocation coord = Comms.parseLocation(flagLoc);
                 if (rc.canSenseLocation(coord)) {
-                    Motion.bfsnav(coord);
+                    Motion.bugnavTowards(coord);
                     if (rc.getLocation().distanceSquaredTo(coord) <= 2) {
                         //connected!
                         if (spawnFlagIndex == 1) {
@@ -372,7 +372,7 @@ public class Setup {
                     dx += i.getDeltaX() * damSpreadWeights[i.getDirectionOrderNum()];
                     dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
                 }
-                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy));
+                Motion.bugnavTowards(new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 500);
                 rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.getLocation().x + dx, rc.getLocation().y + dy), 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(rc.getLocation().x+dx)+","+(rc.getLocation().y+dy)+");");
             }
@@ -414,7 +414,7 @@ public class Setup {
                 moveFlag();
             } else if (Comms.id < 6) {
                 MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-                Motion.bfsnav(flagCarrier);
+                Motion.bugnavTowards(flagCarrier);
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;");
             } else {
@@ -429,7 +429,7 @@ public class Setup {
                 moveFlag();
             } else if (Comms.id < 6) {
                 MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-                Motion.bfsnav(flagCarrier);
+                Motion.bugnavTowards(flagCarrier);
                 rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
                 indicatorString.append("FOLLOW-FLAG;" + Comms.id);
             } else {
@@ -456,7 +456,7 @@ public class Setup {
                 if (!nearDam) {
                     //if we aren't near the dam, then go to the meeting point
                     if (Comms.hasLocation(damLoc)) {
-                        Motion.bfsnav(Comms.parseLocation(damLoc));
+                        Motion.bugnavTowards(Comms.parseLocation(damLoc), 500);
                         indicatorString.append("MEET("+Comms.parseLocation(damLoc).x+","+Comms.parseLocation(damLoc).y+");");
                         rc.setIndicatorLine(me, Comms.parseLocation(damLoc), 255, 100, 0);
                     } else {

@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_2;
 
 import battlecode.common.*;
 
@@ -28,7 +28,7 @@ public class Defense {
         rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-            Motion.bfsnav(targetLoc);
+            Motion.bugnavTowards(targetLoc);
             rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
@@ -99,7 +99,7 @@ public class Defense {
                 MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (Comms.id < 3) {
-                    Motion.bfsnav(targetLoc);
+                    Motion.bugnavTowards(targetLoc, 0);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
                         // dont bother placing traps around nothing

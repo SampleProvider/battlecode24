@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_2;
 
 import battlecode.common.*;
 
@@ -131,8 +131,6 @@ public strictfp class RobotPlayer {
                     }
                 }
                 else {
-                    Motion.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                    Motion.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
                     if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }

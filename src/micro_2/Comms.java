@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_2;
 
 import battlecode.common.*;
 
@@ -286,9 +286,6 @@ public class Comms {
                         if (!hasLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)) || (parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + index))) && !isFlagInDanger(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index)))) {
                             rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
                             rc.writeSharedArray(POI + i + 1, 0);
-                        }
-                        else {
-                            rc.writeSharedArray(POI + i, intifyLocation(parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index))));
                         }
                     }
                     else {
