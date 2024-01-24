@@ -88,7 +88,7 @@ public class Setup {
         if (turnsPlacingFlag > 90) {
             //taking too long
             MapLocation me = rc.getLocation();
-            MapLocation closestConnectedSpawnLoc = null;
+            MapLocation closestConnectedSpawnLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex));
             switch (flagIndex) {
                 case 0:
                     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 0b1) == 1) {
@@ -176,7 +176,7 @@ public class Setup {
                 default:
             }
         }
-        Motion.bugnavTowards(toPlace, 500);
+        Motion.bfsnav(toPlace);
         MapLocation me = rc.getLocation();
         if (rc.canSenseLocation(toPlace)) {
             MapInfo tile = rc.senseMapInfo(toPlace);
@@ -360,6 +360,7 @@ public class Setup {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) {
+                    guessSymmetry();
                     Motion.spreadRandomly();
                 }
             } else {
@@ -393,12 +394,12 @@ public class Setup {
                     closestSpawn = Math.min(me.distanceSquaredTo(i), closestSpawn);
                 }
 
-                int weight = 32768 // 2^15
+                int weight = 4096 // 2^12
                 + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
                 - 6*closestSpawn //distance to nearest spawn (closer is better)
                 ;
                 weight = Math.max(weight, 0);
-                weight = Math.min(weight, 65535);
+                weight = Math.min(weight, 8192);
 
                 //using setup flag target global array index
                 int best = rc.readSharedArray(Comms.SETUP_FLAG_WEIGHT);
