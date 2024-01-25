@@ -65,7 +65,7 @@ public class Comms {
     protected static final int ALLY_FLAG_DEF_LOC = 3;
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
-    protected static final int SETUP_FLAG_DIST = 12;
+    protected static final int SETUP_FLAG_DIST = 21;
     protected static final int OPPO_FLAG_ID = 12;
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;

@@ -61,6 +61,8 @@ public class Offense {
         Comms.updatePOI();
         Motion.updateBfsMap();
 
+        indicatorString.append(flagIndex);
+
         // flagIndex: index of flag currently holding in global array
         run: {
             if (flagIndex != -1) {
@@ -80,12 +82,8 @@ public class Offense {
             }
             // crumb stuff if not already done
             MapInfo[] info = rc.senseNearbyMapInfos();
-            for (MapInfo i : info) {
-                if (i.getCrumbs() > 0) {
-                    Motion.bfsnav(i.getMapLocation());
-                    indicatorString.append("CRUMB("+i.getMapLocation().x+","+i.getMapLocation().y+");");
-                    break run;
-                }
+            if (Setup.getCrumbs(info)) {
+                break run;
             }
 
             MapLocation best = Comms.getBestPOI();
