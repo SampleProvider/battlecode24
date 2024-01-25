@@ -27,8 +27,8 @@ public class Setup {
     protected static MapLocation flagOffset = new MapLocation(-100, -100);
     protected static int turnsPlacingFlag = 0;
 
-    protected static int[] damSpreadWeights = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     protected static MapLocation damInit;
+    protected static MapLocation runTarget = new MapLocation(0, 0);
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -223,6 +223,13 @@ public class Setup {
         }
     }
 
+    protected static void followFlag() throws GameActionException {
+        MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
+        Motion.bfsnav(flagCarrier);
+        rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
+        indicatorString.append("FOLLOW-FLAG" + (Comms.id % 3) + ";");
+    }
+
     protected static void guessSymmetry() throws GameActionException {
         int curSymmetry = rc.readSharedArray(Comms.SYM) & 0b111;
         if (curSymmetry == 0b110 || curSymmetry == 0b101 || curSymmetry == 0b011) {
@@ -352,17 +359,18 @@ public class Setup {
             //longest path
             if (!rc.hasFlag()) {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
-                MapLocation me = rc.getLocation();
+                MapLocation me = runTarget = rc.getLocation();
                 for (MapInfo i : infos) {
                     if (i.getTeamTerritory() == rc.getTeam().opponent()) {
-                        damInit = i.getMapLocation();
-                        damSpreadWeights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] -= 100/me.distanceSquaredTo(i.getMapLocation());
+                        Direction dir = me.directionTo(i.getMapLocation()).opposite();
+                        runTarget = new MapLocation(runTarget.x+dir.dx, runTarget.y+dir.dy);
                     }
                     if (i.isDam()) {
-                        if (damInit == null) {
+                        if (damInit == null || me.distanceSquaredTo(damInit) > me.distanceSquaredTo(i.getMapLocation())) {
                             damInit = i.getMapLocation();
                         }
-                        damSpreadWeights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getMapLocation());
+                        Direction dir = me.directionTo(i.getMapLocation()).opposite();
+                        runTarget = new MapLocation(runTarget.x+dir.dx, runTarget.y+dir.dy);
                         int meet = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
                         if (!Comms.hasLocation(meet)) {
                             rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(damInit));
@@ -381,22 +389,14 @@ public class Setup {
             } else {
                 //running longest path
                 //nav
-                int dx=0;
-                int dy=0;
-                for (Direction i : Direction.allDirections()) {
-                    dx += i.getDeltaX() * damSpreadWeights[i.getDirectionOrderNum()];
-                    dy += i.getDeltaY() * damSpreadWeights[i.getDirectionOrderNum()];
-                }
-                MapLocation me = rc.getLocation();
                 MapLocation[] spawns = {
                     Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
                     Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
                     Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
                 };
-                // MapLocation closestSpawn = Motion.getClosest(spawns);
-                Motion.bugnavTowards(new MapLocation(me.x+dx, me.y+dy));
-                rc.setIndicatorLine(rc.getLocation(), new MapLocation(me.x+dx, me.y+dy), 255, 255, 0);
-                indicatorString.append("LONGPATH->("+(me.x+dx)+","+(me.y+dy)+");");
+                Motion.bugnavTowards(runTarget);
+                rc.setIndicatorLine(rc.getLocation(), runTarget, 255, 255, 0);
+                indicatorString.append("LONGPATH->("+(runTarget.x)+","+(runTarget.y)+");");
 
                 for (int i = 0; i < spawns.length; i++) {
                     if (rc.canSenseLocation(spawns[i])) {
@@ -442,6 +442,7 @@ public class Setup {
         //     }
         } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 205) {
             //move flag
+            //pick farthest spawn loc to place flags
             if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET))) {
                 int[] dists = {
                     rc.readSharedArray(Comms.SETUP_FLAG_DIST),
@@ -460,11 +461,8 @@ public class Setup {
             }
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (Comms.id < 6) {
-                MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-                Motion.bfsnav(flagCarrier);
-                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
-                indicatorString.append("FOLLOW-FLAG;");
+            } else if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
+                followFlag();
             } else {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos)) {
@@ -473,13 +471,22 @@ public class Setup {
             }
         } else {
             //line up
+            //clear array values
+            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST) > 0) {
+                rc.writeSharedArray(Comms.SETUP_FLAG_DIST, 0);
+            }
+            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 1) > 0) {
+                rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 1, 0);
+            }
+            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 2) > 0) {
+                rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 2, 0);
+            }
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (Comms.id < 6) {
-                MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-                Motion.bfsnav(flagCarrier);
-                rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
-                indicatorString.append("FOLLOW-FLAG;" + Comms.id);
+            } else if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
+                followFlag();
+            } else if (RobotPlayer.mode == RobotPlayer.SCOUT) {
+                Motion.spreadRandomly();
             } else {
                 guessSymmetry();
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -564,9 +571,6 @@ public class Setup {
                     indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                 }
             }
-        }
-        if (Comms.id < 6) {
-            rc.setIndicatorDot(rc.getLocation(), 255, 0, 255);
         }
     }
     protected static void jailed() throws GameActionException {

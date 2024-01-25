@@ -13,11 +13,11 @@ public class Comms {
      * 3-5: Ally flag default locations
      * 6-8: Ally flag current locations
      * 9-11: Ally flag info
-     * 12-14: Ally spawn zone distance from center (setup only)
      * 12-14: Opponent flag ids
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
      * 21-23: Opponent flag info
+     * 21-23: Ally spawn zone distance from center (setup only)
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
      * 26-28: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
@@ -65,11 +65,11 @@ public class Comms {
     protected static final int ALLY_FLAG_DEF_LOC = 3;
     protected static final int ALLY_FLAG_CUR_LOC = 6;
     protected static final int ALLY_FLAG_INFO = 9;
-    protected static final int SETUP_FLAG_DIST = 21;
     protected static final int OPPO_FLAG_ID = 12;
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;
     protected static final int OPPO_FLAG_INFO = 21;
+    protected static final int SETUP_FLAG_DIST = 21;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
     protected static final int SETUP_SYM_GUESS = 26;
