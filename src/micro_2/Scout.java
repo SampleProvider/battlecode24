@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_2;
 
 import battlecode.common.*;
 
@@ -37,7 +37,7 @@ public class Scout {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             // rc.pickupFlag(closestFlag.getLocation());
             // int flagId = closestFlag.getID();
-            // for (int i = 3; --i >= 0;) {
+            // for (int i = 0; i <= 2; i++) {
             //     if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
             //         flagIndex = i;
             //         rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);

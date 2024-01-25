@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_;
 
 import battlecode.common.*;
 
@@ -28,7 +28,7 @@ public class Defense {
         rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-            Motion.bfsnav(targetLoc);
+            Motion.bugnavTowards(targetLoc);
             rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
@@ -46,7 +46,10 @@ public class Defense {
         }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
-        for (FlagInfo flag : Motion.flags) {
+        for (FlagInfo flag : friendlyFlags) {
+            Comms.writeFlag(flag);
+        }
+        for (FlagInfo flag : opponentFlags) {
             Comms.writeFlag(flag);
         }
         Comms.checkFlags(friendlyFlags, opponentFlags);
@@ -57,7 +60,7 @@ public class Defense {
                 // spam traps between enemy and flag
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
                 // Motion.moveRandomly();
-                for (int i = 3; --i >= 0;) {
+                for (int i = 0; i < 2; i++) {
                     // MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     Direction buildDir = me.directionTo(closestRobot.getLocation());
                     if (rng.nextInt(3) == 0) {
@@ -96,14 +99,14 @@ public class Defense {
                 MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (Comms.id < 3) {
-                    Motion.bfsnav(targetLoc);
+                    Motion.bugnavTowards(targetLoc, 0);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
                         // dont bother placing traps around nothing
                         FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
                         if (flags.length > 0) {
                             // camping
-                            for (int j = 8; --j >= 0;) {
+                            for (int j = 0; j < 8; j++) {
                                 MapLocation buildLoc = me.add(DIRECTIONS[j]);
                                 if (rc.canFill(buildLoc)) {
                                     rc.fill(buildLoc);

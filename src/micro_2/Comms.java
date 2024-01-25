@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_2;
 
 import battlecode.common.*;
 
@@ -17,7 +17,6 @@ public class Comms {
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
      * 21-23: Opponent flag info
-     * 21-23: Ally spawn zone distance from center (setup only)
      * 24: Flag target (setup only)
      * 25: Gathering point (setup only)
      * 26-28: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
@@ -27,7 +26,7 @@ public class Comms {
      * 62: spawn zone connectedness
      * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ)
      * 63: Global id counter (first round only)
-     * 63: Flag target heuristic (setup only) (not using for now)
+     * 63: Flag target heuristic (setup only)
     */
     /**
      * Formatting:
@@ -69,7 +68,6 @@ public class Comms {
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;
     protected static final int OPPO_FLAG_INFO = 21;
-    protected static final int SETUP_FLAG_DIST = 21;
     protected static final int SETUP_FLAG_TARGET = 24;
     protected static final int SETUP_GATHER_LOC = 25;
     protected static final int SETUP_SYM_GUESS = 26;
@@ -115,36 +113,11 @@ public class Comms {
         return new MapLocation(((n >> 6) & 0b1111) - 8, ((n >> 10) & 0b1111) - 8);
     }
 
-    protected static MapLocation getCloserToAxis(MapLocation loc, int dis) throws GameActionException {
-        //get coord closer to the center, according to symmetry
-        int sym = rc.readSharedArray(SYM) & 0b111;
-        int x = loc.x;
-        int y = loc.y;
-        if ((sym & 0b100) > 0) {
-            //NOT horz
-            if (loc.x < rc.getMapWidth()/2) {
-                x += dis;
-            } else if (loc.x > rc.getMapWidth()/2) {
-                x -= dis;
-            }
-        }
-        if ((sym & 0b010) > 0) {
-            //NOT vert
-            if (loc.y < rc.getMapHeight()/2) {
-                y += dis;
-            } else if (loc.y > rc.getMapHeight()/2) {
-                y -= dis;
-            }
-        }
-        //invalid symmetry doesn't get changed
-        return new MapLocation(x, y);
-    }
-
     // write flag
     protected static void writeFlag(FlagInfo flag) throws GameActionException {
         int flagId = flag.getID();
         if (flag.getTeam().equals(rc.getTeam())) {
-            for (int i = 3; --i >= 0;) {
+            for (int i = 0; i <= 2; i++) {
                 if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0 || rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
@@ -181,7 +154,7 @@ public class Comms {
         }
         else {
             FlagInfo[] flags = rc.senseNearbyFlags(0, rc.getTeam());
-            for (int i = 3; --i >= 0;) {
+            for (int i = 0; i <= 2; i++) {
                 if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0 || rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
@@ -202,7 +175,7 @@ public class Comms {
     }
     protected static void checkFlags(FlagInfo[] friendlyFlags, FlagInfo[] opponentFlags) throws GameActionException {
         // detect if flags were reset
-        for (int i = 3; --i >= 0;) {
+        for (int i = 0; i <= 2; i++) {
             int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
             if (hasLocation(n)) {
                 if (rc.canSenseLocation(parseLocation(n))) {
@@ -223,7 +196,7 @@ public class Comms {
                 }
             }
         }
-        for (int i = 3; --i >= 0;) {
+        for (int i = 0; i <= 2; i++) {
             int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
             if (hasLocation(n)) {
                 if (rc.canSenseLocation(parseLocation(n))) {
@@ -314,9 +287,6 @@ public class Comms {
                             rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
                             rc.writeSharedArray(POI + i + 1, 0);
                         }
-                        else {
-                            rc.writeSharedArray(POI + i, intifyLocation(parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + index))));
-                        }
                     }
                     else {
                         rc.writeSharedArray(POI + i, rc.getRoundNum() + 2);
@@ -354,27 +324,30 @@ public class Comms {
                     // System.out.println(i);
                 }
                 MapLocation loc = parseLocation(n);
-                int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
                 if (closestIsFlag) {
                     if (isFlag(n2)) {
-                        if (closestDist == -1 || dist > closestDist) {
-                            closestIndex = i;
-                            closestDist = dist;
-                            closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                        if (closestDist == -1) {
+                            int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                            if (dist > closestDist) {
+                                closestIndex = i;
+                                closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                                closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
+                            }
                         }
                     }
                 }
                 else {
                     if (isFlag(n2)) {
                         closestIndex = i;
-                        closestDist = dist;
+                        closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
                         closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         closestIsFlag = true;
                     }
                     else {
-                        if (closestDist == -1 || (dist - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
+                        int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
+                        if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
                             closestIndex = i;
-                            closestDist = dist;
+                            closestDist = 
                             closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         }
                     }

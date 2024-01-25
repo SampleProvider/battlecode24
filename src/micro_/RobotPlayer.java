@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_;
 
 import battlecode.common.*;
 
@@ -27,6 +27,8 @@ public strictfp class RobotPlayer {
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
 
+    protected static Micro micro;
+
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
@@ -41,16 +43,15 @@ public strictfp class RobotPlayer {
         Defense.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Micro.rc = rc;
+        micro = new Micro();
 
         Comms.init();
-
-        int mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
         
         if (Comms.id < 3) {
             mode = DEFENSIVE;
         }
-        else if (Comms.id < mapSizeFactor + 3) {
-            //vary # of scouts based on map size
+        else if (Comms.id < 6) {
             mode = SCOUT;
         }
 
@@ -68,7 +69,7 @@ public strictfp class RobotPlayer {
                             if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)))) {
                                 break spawn; // labels moment
                             }
-                            for (int i = 27; --i >= 0;) {
+                            for (int i = 0; i < 27; i++) {
                                 if (!rc.canSpawn(spawnLocs[i])) {
                                     spawnLocs[i] = new MapLocation(-1000, -1000);
                                 }
@@ -82,7 +83,7 @@ public strictfp class RobotPlayer {
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
                         int index = rng.nextInt(27 * 3);
-                        for (int i = 27; --i >= 0;) {
+                        for (int i = 0; i < 27; i++) {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                             if (rc.canSpawn(randomLoc)) {
                                 rc.spawn(randomLoc);
@@ -94,13 +95,13 @@ public strictfp class RobotPlayer {
                         }
                     }
                     else {
-                        for (int i = 27; --i >= 0;) {
+                        for (int i = 0; i < 27; i++) {
                             if (!rc.canSpawn(spawnLocs[i])) {
                                 spawnLocs[i] = new MapLocation(-1000, -1000);
                             }
                         }
                         MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                        for (int i = 3; --i >= 0;) {
+                        for (int i = 0; i < 3; i++) {
                             if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
                                 bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
                             }
@@ -136,7 +137,6 @@ public strictfp class RobotPlayer {
                 else {
                     Motion.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                     Motion.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-                    Motion.flags = rc.senseNearbyFlags(-1);
                     if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }
