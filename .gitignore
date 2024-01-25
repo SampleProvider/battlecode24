@@ -1,6 +1,7 @@
 ###### BATTLECODE ######
 
 /matches
+/_matches
 /client
 gradle.properties
 
