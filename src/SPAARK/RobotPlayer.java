@@ -65,7 +65,7 @@ public strictfp class RobotPlayer {
                             if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)))) {
                                 break spawn; // labels moment
                             }
-                            for (int i = 0; i < 27; i++) {
+                            for (int i = 27; --i >= 0;) {
                                 if (!rc.canSpawn(spawnLocs[i])) {
                                     spawnLocs[i] = new MapLocation(-1000, -1000);
                                 }
@@ -79,7 +79,7 @@ public strictfp class RobotPlayer {
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
                         int index = rng.nextInt(27 * 3);
-                        for (int i = 0; i < 27; i++) {
+                        for (int i = 27; --i >= 0;) {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                             if (rc.canSpawn(randomLoc)) {
                                 rc.spawn(randomLoc);
@@ -91,13 +91,13 @@ public strictfp class RobotPlayer {
                         }
                     }
                     else {
-                        for (int i = 0; i < 27; i++) {
+                        for (int i = 27; --i >= 0;) {
                             if (!rc.canSpawn(spawnLocs[i])) {
                                 spawnLocs[i] = new MapLocation(-1000, -1000);
                             }
                         }
                         MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 3; --i >= 0;) {
                             if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
                                 bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
                             }

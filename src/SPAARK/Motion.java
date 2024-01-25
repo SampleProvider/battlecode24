@@ -235,7 +235,7 @@ public class Motion {
             }
             Direction clockwiseDir = clockwiseLoc.directionTo(dest);
             {
-                for (int i = 0; i < 8; i++) {
+                for (int i = 9; --i >= 0;) {
                     MapLocation loc = clockwiseLoc.add(clockwiseDir);
                     if (rc.onTheMap(loc)) {
                         if (!rc.canSenseLocation(loc)) {
@@ -255,7 +255,7 @@ public class Motion {
             }
             Direction counterClockwiseDir = counterClockwiseLoc.directionTo(dest);
             {
-                for (int i = 0; i < 8; i++) {
+                for (int i = 9; --i >= 0;) {
                     MapLocation loc = counterClockwiseLoc.add(counterClockwiseDir);
                     if (rc.onTheMap(loc)) {
                         if (!rc.canSenseLocation(loc)) {
@@ -312,7 +312,7 @@ public class Motion {
         }
 
         boolean stuck = true;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 4; --i >= 0;) {
             if (!visitedList.toString().contains(me + " " + i + " ")) {
                 visitedList.append(me + " " + i + " ");
                 stuck = false;
@@ -469,7 +469,7 @@ public class Motion {
             }
         }
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 8; --i >= 0;) {
             if (rotation == CLOCKWISE) {
                 direction = direction.rotateRight();
             }
@@ -1065,7 +1065,7 @@ public class Motion {
         Direction optimalFillDirection = Direction.CENTER;
         int minDist = Integer.MAX_VALUE;
         int minFillDist = Integer.MAX_VALUE;
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 9; --i >= 0;) {
             if (directions[i]) {
                 Direction dir = Direction.DIRECTION_ORDER[i];
                 if (rc.canMove(dir)) {

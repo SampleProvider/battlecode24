@@ -34,7 +34,7 @@ public class Offense {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             rc.pickupFlag(closestFlag.getLocation());
             int flagId = closestFlag.getID();
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(Comms.OPPO_FLAG_ID + i) == 0) {
                     flagIndex = i;
                     rc.writeSharedArray(Comms.OPPO_FLAG_ID + i, flagId);
@@ -98,7 +98,7 @@ public class Offense {
             }
             if (target == null) {
                 MapLocation closestStoredFlag = null;
-                for (int i = 0; i <= 2; i++) {
+                for (int i = 3; --i >= 0;) {
                     int n = rc.readSharedArray(Comms.OPPO_FLAG_CUR_LOC + i);
                     // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
                     if (Comms.hasLocation(n) && Comms.isFlagPickedUp(n)) {
@@ -116,7 +116,7 @@ public class Offense {
             }
             if (target == null) {
                 MapLocation closestStoredFlag = null;
-                for (int i = 0; i <= 2; i++) {
+                for (int i = 3; --i >= 0;) {
                     int n = rc.readSharedArray(Comms.OPPO_FLAG_CUR_LOC + i);
                     // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
                     if (Comms.hasLocation(n) && !Comms.isFlagPickedUp(n)) {
@@ -161,7 +161,7 @@ public class Offense {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             rc.pickupFlag(closestFlag.getLocation());
             int flagId = closestFlag.getID();
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(Comms.OPPO_FLAG_ID + i) == 0) {
                     flagIndex = i;
                     rc.writeSharedArray(Comms.OPPO_FLAG_ID + i, flagId);

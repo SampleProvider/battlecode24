@@ -37,7 +37,7 @@ public class Scout {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             // rc.pickupFlag(closestFlag.getLocation());
             // int flagId = closestFlag.getID();
-            // for (int i = 0; i <= 2; i++) {
+            // for (int i = 3; --i >= 0;) {
             //     if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
             //         flagIndex = i;
             //         rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);
