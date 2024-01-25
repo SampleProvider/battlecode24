@@ -60,7 +60,7 @@ public class Defense {
                 // spam traps between enemy and flag
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);
                 // Motion.moveRandomly();
-                for (int i = 0; i < 2; i++) {
+                for (int i = 3; --i >= 0;) {
                     // MapLocation buildLoc = me.add(DIRECTIONS[rng.nextInt(8)]);
                     Direction buildDir = me.directionTo(closestRobot.getLocation());
                     if (rng.nextInt(3) == 0) {
@@ -106,7 +106,7 @@ public class Defense {
                         FlagInfo[] flags = rc.senseNearbyFlags(2, rc.getTeam());
                         if (flags.length > 0) {
                             // camping
-                            for (int j = 0; j < 8; j++) {
+                            for (int j = 8; --j >= 0;) {
                                 MapLocation buildLoc = me.add(DIRECTIONS[j]);
                                 if (rc.canFill(buildLoc)) {
                                     rc.fill(buildLoc);

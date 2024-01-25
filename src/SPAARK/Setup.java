@@ -62,7 +62,7 @@ public class Setup {
             MapLocation flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
             boolean found = false;
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(Comms.ALLY_FLAG_ID + i) == closestFlag.getID()) {
                     flagIndex = i;
                     found = true;
@@ -247,7 +247,7 @@ public class Setup {
             Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+7)),
             Comms.parseLocation(rc.readSharedArray(Comms.SETUP_SYM_GUESS+8)),
         };
-        for (int i = 0; i < guesses.length; i++) {
+        for (int i = 9; --i >= 0;) {
             if (rc.canSenseLocation(guesses[i])) {
                 MapInfo info = rc.senseMapInfo(guesses[i]);
                 if (info.getSpawnZoneTeamObject() != rc.getTeam().opponent()) {
@@ -285,7 +285,7 @@ public class Setup {
             }
             return false;
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 3; --i >= 0;) {
             if (i == spawnFlagIndex) continue;
             int flagLoc = rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + i);
             if (Comms.hasLocation(flagLoc)) {
@@ -332,7 +332,7 @@ public class Setup {
             MapLocation me = rc.getLocation();
             if (spawnFlagIndex == -1) {
                 //set spawnFlagIndex
-                for (int i = 0; i < 3; i++) {
+                for (int i = 3; --i >= 0;) {
                     int flagLoc = rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + i);
                     if (Comms.hasLocation(flagLoc) && me.distanceSquaredTo(Comms.parseLocation(flagLoc)) < 5) {
                         spawnFlagIndex = i;
@@ -398,7 +398,7 @@ public class Setup {
                 rc.setIndicatorLine(rc.getLocation(), runTarget, 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(runTarget.x)+","+(runTarget.y)+");");
 
-                for (int i = 0; i < spawns.length; i++) {
+                for (int i = 3; --i >= 0;) {
                     if (rc.canSenseLocation(spawns[i])) {
                         int dist = spawns[i].distanceSquaredTo(damInit);
                         int best = rc.readSharedArray(Comms.SETUP_FLAG_DIST+i);
@@ -451,7 +451,7 @@ public class Setup {
                 };
                 int best = 0;
                 int max = 0;
-                for (int i= 0; i < dists.length; i++) {
+                for (int i = 3; --i >= 0;) {
                     if (dists[i] > max) {
                         max = dists[i];
                         best = i;

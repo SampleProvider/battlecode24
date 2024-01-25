@@ -113,7 +113,7 @@ public class GlobalArray {
     protected static void writeFlag(FlagInfo flag) throws GameActionException {
         int flagId = flag.getID();
         if (flag.getTeam().equals(rc.getTeam())) {
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0; i++) {
                 if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0 || rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);

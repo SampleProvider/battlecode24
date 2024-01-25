@@ -144,7 +144,7 @@ public class Comms {
     protected static void writeFlag(FlagInfo flag) throws GameActionException {
         int flagId = flag.getID();
         if (flag.getTeam().equals(rc.getTeam())) {
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0 || rc.readSharedArray(ALLY_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(ALLY_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(ALLY_FLAG_ID + i, flagId);
@@ -181,7 +181,7 @@ public class Comms {
         }
         else {
             FlagInfo[] flags = rc.senseNearbyFlags(0, rc.getTeam());
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0 || rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
                         rc.writeSharedArray(OPPO_FLAG_ID + i, flagId);
@@ -202,7 +202,7 @@ public class Comms {
     }
     protected static void checkFlags(FlagInfo[] friendlyFlags, FlagInfo[] opponentFlags) throws GameActionException {
         // detect if flags were reset
-        for (int i = 0; i <= 2; i++) {
+        for (int i = 3; --i >= 0;) {
             int n = rc.readSharedArray(ALLY_FLAG_CUR_LOC + i);
             if (hasLocation(n)) {
                 if (rc.canSenseLocation(parseLocation(n))) {
@@ -223,7 +223,7 @@ public class Comms {
                 }
             }
         }
-        for (int i = 0; i <= 2; i++) {
+        for (int i = 3; --i >= 0;) {
             int n = rc.readSharedArray(OPPO_FLAG_CUR_LOC + i);
             if (hasLocation(n)) {
                 if (rc.canSenseLocation(parseLocation(n))) {
