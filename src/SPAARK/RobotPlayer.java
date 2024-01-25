@@ -43,11 +43,14 @@ public strictfp class RobotPlayer {
         Scout.rng = rng;
 
         Comms.init();
+
+        int mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
         
         if (Comms.id < 3) {
             mode = DEFENSIVE;
         }
-        else if (Comms.id < 6) {
+        else if (Comms.id < mapSizeFactor + 3) {
+            //vary # of scouts based on map size
             mode = SCOUT;
         }
 
