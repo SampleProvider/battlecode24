@@ -565,10 +565,10 @@ public class Motion {
             double weight = 0;
             if (rc.getHealth() > 500) {
                 if (d.equals(optimalDir)) {
-                    weight += 1.5;
+                    weight += 1.55;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
-                    weight += 1;
+                    weight += 1.5;
                 }
                 if (rc.hasFlag() && d.equals(optimalDir.opposite()) || d.equals(optimalDir.opposite().rotateLeft()) || d.equals(optimalDir.opposite().rotateRight())) {
                     weight -= 2;
@@ -576,10 +576,10 @@ public class Motion {
             }
             else {
                 if (d.equals(optimalDir)) {
-                    weight += 0.5;
+                    weight += 0.55;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
-                    weight += 0.25;
+                    weight += 0.5;
                 }
             }
             // really incentivize moving into spawn area
@@ -665,14 +665,28 @@ public class Motion {
             }
             // weight += friendlyWeight;
             // prefer not filling?
+
             if (rc.canFill(me.add(d))) {
-                if (bestFillDir == null) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
+                if (opponentRobots.length > 0) {
+                    if (bestFillDir == null) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                    else if (bestFillWeight < weight) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
                 }
-                else if (bestFillWeight < weight) {
-                    bestFillDir = d;
-                    bestFillWeight = weight;
+                else {
+                    weight -= 0.1;
+                    if (bestDir == null) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
+                    else if (bestWeight < weight) {
+                        bestDir = d;
+                        bestWeight = weight;
+                    }
                 }
             }
             else {
@@ -702,8 +716,12 @@ public class Motion {
                     // }
                 }
             }
-            // Direction oldLastDir = lastDir;
-            moveWithAction(bestDir);
+            if (rc.canMove(bestDir)) {
+                moveWithAction(bestDir);
+            }
+            else if (rc.canFill(me.add(bestDir))) {
+                rc.fill(me.add(bestDir));
+            }
             // if (bestDir != optimalDir) {
             //     lastDir = oldLastDir;
             // }
