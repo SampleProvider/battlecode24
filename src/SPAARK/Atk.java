@@ -51,55 +51,55 @@ public class Atk {
     }
 
     protected static RobotInfo getPrioritizedOpponentRobot(RobotInfo[] opponentRobots) throws GameActionException {
-        RobotInfo robot = null;
-        for (RobotInfo r : opponentRobots) {
-            if (robot == null) {
-                robot = r;
+        RobotInfo best = null;
+        for (RobotInfo robot : opponentRobots) {
+            if (best == null) {
+                best = robot;
             }
-            else if (robot.hasFlag()) {
-                if (!r.hasFlag()) {
-                    robot = r;
+            else if (best.hasFlag()) {
+                if (!robot.hasFlag()) {
+                    best = robot;
                 }
-                else if (robot.getHealth() > r.getHealth()) {
-                    robot = r;
+                else if (best.getHealth() > robot.getHealth()) {
+                    best = robot;
                 }
-                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                    robot = r;
+                else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
+                    best = robot;
                 }
             }
-            else if (robot.getHealth() > r.getHealth()) {
-                robot = r;
+            else if (best.getHealth() > robot.getHealth()) {
+                best = robot;
             }
-            else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                robot = r;
+            else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
+                best = robot;
             }
         }
-        return robot;
+        return best;
     }
     protected static RobotInfo getPrioritizedFriendlyRobot(RobotInfo[] friendlyRobots) throws GameActionException {
-        RobotInfo robot = null;
-        for (RobotInfo r : friendlyRobots) {
-            if (robot == null) {
-                robot = r;
+        RobotInfo best = null;
+        for (RobotInfo robot : friendlyRobots) {
+            if (best == null) {
+                best = robot;
             }
-            else if (robot.hasFlag()) {
-                if (!r.hasFlag()) {
-                    robot = r;
+            else if (best.hasFlag()) {
+                if (!robot.hasFlag()) {
+                    best = robot;
                 }
-                else if (robot.getHealth() > r.getHealth()) {
-                    robot = r;
+                else if (best.getHealth() > robot.getHealth()) {
+                    best = robot;
                 }
-                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                    robot = r;
+                else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
+                    best = robot;
                 }
             }
-            else if (robot.getHealth() > r.getHealth()) {
-                robot = r;
+            else if (best.getHealth() > robot.getHealth()) {
+                best = robot;
             }
-            else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                robot = r;
+            else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
+                best = robot;
             }
         }
-        return robot;
+        return best;
     }
 }
