@@ -50,10 +50,7 @@ public class Offense {
         // writing flags to global array
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
-        for (FlagInfo flag : friendlyFlags) {
-            Comms.writeFlag(flag);
-        }
-        for (FlagInfo flag : opponentFlags) {
+        for (FlagInfo flag : Motion.flags) {
             Comms.writeFlag(flag);
         }
         Comms.checkFlags(friendlyFlags, opponentFlags);
@@ -150,10 +147,7 @@ public class Offense {
         
         opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
-        for (FlagInfo flag : friendlyFlags) {
-            Comms.writeFlag(flag);
-        }
-        for (FlagInfo flag : opponentFlags) {
+        for (FlagInfo flag : Motion.flags) {
             Comms.writeFlag(flag);
         }
         // GlobalArray.checkFlags(opponentFlags);

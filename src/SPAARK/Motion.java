@@ -181,9 +181,8 @@ public class Motion {
         }
         if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
-            RobotInfo[] robotInfo = rc.senseNearbyRobots(20, rc.getTeam());
             MapLocation target = me;
-            for (RobotInfo r : robotInfo) {
+            for (RobotInfo r : friendlyRobots) {
                 target = target.add(me.directionTo(r.getLocation()).opposite());
             }
             if (target.equals(me)) {
@@ -555,8 +554,6 @@ public class Motion {
         double bestWeight = 0;
         Direction bestFillDir = null;
         double bestFillWeight = 0;
-        RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -735,7 +732,6 @@ public class Motion {
             MapLocation me = rc.getLocation();
             MapLocation newMe = rc.getLocation().add(dir);
             
-            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             RobotInfo robot = null;
             for (RobotInfo r : opponentRobots) {
                 if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
@@ -764,7 +760,6 @@ public class Motion {
             }
 
             if (robot == null) {
-                RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                 for (RobotInfo r : friendlyRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
@@ -1133,6 +1128,7 @@ public class Motion {
             lastDir = dir;
             opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
             friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+            flags = rc.senseNearbyFlags(-1);
         }
         else if (rc.canFill(rc.adjacentLocation(dir))) {
             rc.fill(rc.adjacentLocation(dir));

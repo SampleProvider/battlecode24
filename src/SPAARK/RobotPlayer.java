@@ -133,6 +133,7 @@ public strictfp class RobotPlayer {
                 else {
                     Motion.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                     Motion.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+                    Motion.flags = rc.senseNearbyFlags(-1);
                     if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }

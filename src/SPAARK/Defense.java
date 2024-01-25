@@ -46,10 +46,7 @@ public class Defense {
         }
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
-        for (FlagInfo flag : friendlyFlags) {
-            Comms.writeFlag(flag);
-        }
-        for (FlagInfo flag : opponentFlags) {
+        for (FlagInfo flag : Motion.flags) {
             Comms.writeFlag(flag);
         }
         Comms.checkFlags(friendlyFlags, opponentFlags);

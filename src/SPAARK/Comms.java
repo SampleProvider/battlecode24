@@ -354,30 +354,27 @@ public class Comms {
                     // System.out.println(i);
                 }
                 MapLocation loc = parseLocation(n);
+                int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
                 if (closestIsFlag) {
                     if (isFlag(n2)) {
-                        if (closestDist == -1) {
-                            int dist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
-                            if (dist > closestDist) {
-                                closestIndex = i;
-                                closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
-                                closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
-                            }
+                        if (closestDist == -1 || dist > closestDist) {
+                            closestIndex = i;
+                            closestDist = dist;
+                            closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         }
                     }
                 }
                 else {
                     if (isFlag(n2)) {
                         closestIndex = i;
-                        closestDist = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));
+                        closestDist = dist;
                         closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         closestIsFlag = true;
                     }
                     else {
-                        int min = Math.min(Math.min(flag1.distanceSquaredTo(loc), flag2.distanceSquaredTo(loc)), flag3.distanceSquaredTo(loc));;
-                        if (closestDist == -1 || (min - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
+                        if (closestDist == -1 || (dist - closestDist + (-(getOpponentRobots(n2) - getFriendlyRobots(n2)) + closestNeededRobots) * 4) < 0) {
                             closestIndex = i;
-                            closestDist = 
+                            closestDist = dist;
                             closestNeededRobots = getOpponentRobots(n2) - getFriendlyRobots(n2);
                         }
                     }
