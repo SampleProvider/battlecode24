@@ -195,6 +195,10 @@ public class Build {
             }
         }
 
+        RobotInfo[] oppoRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+
+        Comms.writePOI(rc.getLocation(), oppoRobots.length, 0);
+
         // Atk.attack();
         // Atk.heal();
 

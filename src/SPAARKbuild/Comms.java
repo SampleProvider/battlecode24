@@ -280,6 +280,9 @@ public class Comms {
     }
 
     protected static void writePOI(MapLocation loc, int robots, int flag) throws GameActionException {
+        /*
+         * set flag to 0 for no flag
+         */
         for (int i = 0; i < 30; i += 2) {
             boolean empty = (!hasLocation(rc.readSharedArray(POI + i)) && rc.getRoundNum() >= rc.readSharedArray(POI + i));
             if (empty || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(loc) <= 8) {
