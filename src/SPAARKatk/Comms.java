@@ -8,6 +8,9 @@ public class Comms {
 
     protected static int id;
 
+    protected static int[] commsIdToGameId = new int[50];
+    protected static int[] gameIdToCommsId = new int[4096]; //idk how large it needs to be
+
     /*
      * 0-2: Ally flag ids
      * 3-5: Ally flag default locations
@@ -24,6 +27,7 @@ public class Comms {
      * 29-31: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
      * 32-34: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
      * 26-55: Points of Interest
+     * 56-59: Can move indicator 1 bit per bot
      * 62: spawn zone connectedness
      * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ)
      * 63: Global id counter (first round only)
@@ -74,6 +78,7 @@ public class Comms {
     protected static final int SETUP_GATHER_LOC = 25;
     protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
+    protected static final int CAN_MOVE = 56;
     protected static final int SPAWN_CONNECTED = 62;
     protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
@@ -434,6 +439,7 @@ public class Comms {
         // get own id (used for groups and staging)
         id = rc.readSharedArray(INIT_GLOBAL_ID_COUNTER);
         rc.writeSharedArray(INIT_GLOBAL_ID_COUNTER, id + 1);
+        rc.writeSharedArray(id, rc.getID());
         Motion.bfsInit();
     }
 }

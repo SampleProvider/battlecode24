@@ -56,6 +56,19 @@ public strictfp class RobotPlayer {
 
         Clock.yield();
 
+        for (int i = 50; --i >= 0;) {
+            Comms.commsIdToGameId[i] = rc.readSharedArray(i);
+            Comms.gameIdToCommsId[Comms.commsIdToGameId[i]-10000] = i;
+        }
+        if (Comms.id == 49) {
+            //clear arr
+            for (int i = 50; --i >= 0;) {
+                rc.writeSharedArray(i, 0);
+            }
+        }
+
+        Clock.yield();
+
         while (true) {
             turnCount += 1;
 
