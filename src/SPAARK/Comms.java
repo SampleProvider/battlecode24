@@ -172,9 +172,6 @@ public class Comms {
                     }
                     if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS) {
                         if (flag.isPickedUp() || !loc.equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
-                            if (rc.getRoundNum() == 201) {
-                                System.out.println(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)));
-                            }
                             writePOI(loc, Motion.opponentRobots.length, i + 1);
                             // writePOI(loc, 50);
                         }
@@ -273,14 +270,12 @@ public class Comms {
         for (int i = 0; i < 30; i += 2) {
             boolean empty = (!hasLocation(rc.readSharedArray(POI + i)) && rc.getRoundNum() >= rc.readSharedArray(POI + i));
             if (empty || parseLocation(rc.readSharedArray(POI + i)).distanceSquaredTo(loc) <= 8) {
-                // if (rc.getRoundNum() == 470) {
                     // System.out.println("WRITE " + i + " " + rc.readSharedArray(POI + i + 1) + " " + parseLocation(rc.readSharedArray(POI + i)) + " " + loc);
-                // }
                 if (!empty && getFlag(rc.readSharedArray(POI + i + 1)) != flag) {
                     continue;
                 }
                 if (flag != 0) {
-                    System.out.println("WROTE FLAG " + flag);
+                    // System.out.println("WROTE FLAG " + flag);
                 }
                 rc.setIndicatorLine(rc.getLocation(), loc, 0, 255, 255);
                 rc.writeSharedArray(POI + i, intifyLocation(loc));
