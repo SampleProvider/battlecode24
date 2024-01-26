@@ -1,4 +1,4 @@
-package SPAARKatk;
+package SPAARKbuild;
 
 import battlecode.common.*;
 
@@ -23,9 +23,12 @@ public strictfp class RobotPlayer {
     protected static int mode = -1;
     protected static MapLocation spawnLoc = new MapLocation(-1, -1);
 
+    protected static int mapSizeFactor;
+
     protected final static int DEFENSIVE = 0;
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
+    protected final static int BUILD = 3;
 
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
@@ -41,10 +44,12 @@ public strictfp class RobotPlayer {
         Defense.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Build.rc = rc;
+        Build.rng = rng;
 
         Comms.init();
 
-        int mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
+        mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
         
         if (Comms.id < 3) {
             mode = DEFENSIVE;
@@ -52,6 +57,8 @@ public strictfp class RobotPlayer {
         else if (Comms.id < mapSizeFactor + 3) {
             //vary # of scouts based on map size
             mode = SCOUT;
+        } else if (Comms.id >= 47) {
+            mode = BUILD;
         }
 
         Clock.yield();
@@ -132,6 +139,7 @@ public strictfp class RobotPlayer {
                 Offense.indicatorString = indicatorString;
                 Defense.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
+                Build.indicatorString = indicatorString;
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
@@ -141,6 +149,9 @@ public strictfp class RobotPlayer {
                     }
                     else if (mode == SCOUT) {
                         Scout.jailed();
+                    }
+                    else if (mode == BUILD) {
+                        Build.jailed();
                     }
                     else {
                         Offense.jailed();
@@ -167,6 +178,9 @@ public strictfp class RobotPlayer {
                     }
                     else if (mode == SCOUT) {
                         Scout.run();
+                    }
+                    else if (mode == BUILD) {
+                        Build.run();
                     }
                     else {
                         Offense.run();

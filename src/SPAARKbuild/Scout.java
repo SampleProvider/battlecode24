@@ -1,4 +1,4 @@
-package SPAARKatk;
+package SPAARKbuild;
 
 import battlecode.common.*;
 
@@ -69,7 +69,7 @@ public class Scout {
             }
             targetTurns += 1;
             rc.setIndicatorLine(me, target, 0, 255, 0);
-            Motion.bfsnav(target);
+            Motion.bfsnav(target, false);
         }
 
         Atk.attack();

@@ -1,4 +1,5 @@
-package SPAARKatk;
+package SPAARKbuild;
+
 import battlecode.common.*;
 
 import java.util.Random;
@@ -175,7 +176,7 @@ public class Setup {
                 default:
             }
         }
-        Motion.bugnavTowards(toPlace);
+        Motion.bfsnav(toPlace);
         MapLocation me = rc.getLocation();
         if (rc.canSenseLocation(toPlace)) {
             MapInfo tile = rc.senseMapInfo(toPlace);
@@ -225,7 +226,7 @@ public class Setup {
 
     protected static void followFlag() throws GameActionException {
         MapLocation flagCarrier = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-        Motion.bfsnav(flagCarrier);
+        Motion.bfsnav(flagCarrier, false);
         rc.setIndicatorLine(rc.getLocation(), flagCarrier, 255, 0, 255);
         indicatorString.append("FOLLOW-FLAG" + (Comms.id % 3) + ";");
     }
@@ -291,7 +292,7 @@ public class Setup {
             if (Comms.hasLocation(flagLoc)) {
                 MapLocation coord = Comms.parseLocation(flagLoc);
                 if (rc.canSenseLocation(coord)) {
-                    Motion.bfsnav(coord);
+                    Motion.bfsnav(coord, false);
                     if (rc.getLocation().distanceSquaredTo(coord) <= 2) {
                         //connected!
                         if (spawnFlagIndex == 1) {
@@ -350,14 +351,14 @@ public class Setup {
                     }
                 }
                 if (nearDam) {
-                    Motion.bfsnav(damTarget);
+                    Motion.bfsnav(damTarget, false);
                 } else {
                     Motion.spreadRandomly();
                 }
             }
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
-            if (!rc.hasFlag()) {
+            if (!rc.hasFlag() && RobotPlayer.mode != RobotPlayer.BUILD) {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 MapLocation me = runTarget = rc.getLocation();
                 for (MapInfo i : infos) {
@@ -386,6 +387,9 @@ public class Setup {
                     guessSymmetry();
                     Motion.spreadRandomly();
                 }
+                if (RobotPlayer.mode == RobotPlayer.BUILD) {
+                    Build.spamWater();
+                }
             } else {
                 //running longest path
                 //nav
@@ -394,7 +398,7 @@ public class Setup {
                     Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
                     Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
                 };
-                Motion.bugnavTowards(runTarget);
+                Motion.bfsnav(runTarget, false);
                 rc.setIndicatorLine(rc.getLocation(), runTarget, 255, 255, 0);
                 indicatorString.append("LONGPATH->("+(runTarget.x)+","+(runTarget.y)+");");
 
@@ -468,19 +472,12 @@ public class Setup {
                 if (!getCrumbs(infos)) {
                     Motion.spreadRandomly();
                 }
+                if (RobotPlayer.mode == RobotPlayer.BUILD) {
+                    Build.spamWater();
+                }
             }
         } else {
             //line up
-            //clear array values
-            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST) > 0) {
-                rc.writeSharedArray(Comms.SETUP_FLAG_DIST, 0);
-            }
-            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 1) > 0) {
-                rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 1, 0);
-            }
-            if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 2) > 0) {
-                rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 2, 0);
-            }
             if (rc.hasFlag()) {
                 moveFlag();
             } else if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
@@ -489,6 +486,9 @@ public class Setup {
                 Motion.spreadRandomly();
             } else {
                 guessSymmetry();
+                if (RobotPlayer.mode == RobotPlayer.BUILD) {
+                    Build.spamWater();
+                }
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
                 if (!Comms.hasLocation(damLoc)) {
@@ -511,7 +511,7 @@ public class Setup {
                 if (!nearDam) {
                     //if we aren't near the dam, then go to the meeting point
                     if (Comms.hasLocation(damLoc)) {
-                        Motion.bfsnav(Comms.parseLocation(damLoc));
+                        Motion.bfsnav(Comms.parseLocation(damLoc), false);
                         indicatorString.append("MEET("+Comms.parseLocation(damLoc).x+","+Comms.parseLocation(damLoc).y+");");
                         rc.setIndicatorLine(me, Comms.parseLocation(damLoc), 255, 100, 0);
                     } else {
@@ -570,6 +570,25 @@ public class Setup {
                     }
                     indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                 }
+            }
+        }
+
+        //clear array values
+        if (rc.readSharedArray(Comms.SETUP_FLAG_DIST) > 0) {
+            rc.writeSharedArray(Comms.SETUP_FLAG_DIST, 0);
+        }
+        if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 1) > 0) {
+            rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 1, 0);
+        }
+        if (rc.readSharedArray(Comms.SETUP_FLAG_DIST + 2) > 0) {
+            rc.writeSharedArray(Comms.SETUP_FLAG_DIST + 2, 0);
+        }
+        if (rc.hasFlag() && rc.getRoundNum() == GameConstants.SETUP_ROUNDS - 1) {
+            rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
+        }
+        if (Comms.id == 49 && rc.getRoundNum() == GameConstants.SETUP_ROUNDS - 1) {
+            for (int i = 0; i < 9; i++) {
+                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + i, 0);
             }
         }
     }

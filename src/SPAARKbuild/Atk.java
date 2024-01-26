@@ -1,4 +1,4 @@
-package SPAARKatk;
+package SPAARKbuild;
 
 import battlecode.common.*;
 
@@ -101,67 +101,5 @@ public class Atk {
             }
         }
         return best;
-    }
-
-    protected static int getAttack(RobotInfo r) throws GameActionException {
-        int baseAttack = 150;
-        GlobalUpgrade[] upgrades = rc.getGlobalUpgrades(r.getTeam());
-        for (GlobalUpgrade u : upgrades) {
-            baseAttack += u.baseAttackChange;
-        }
-        switch (r.getAttackLevel()) {
-            case 1:
-                baseAttack = (int)((float)baseAttack * 1.05);
-                break;
-            case 2:
-                baseAttack = (int)((float)baseAttack * 1.07);
-                break;
-            case 3:
-                baseAttack = (int)((float)baseAttack * 1.10);
-                break;
-            case 4:
-                baseAttack = (int)((float)baseAttack * 1.30);
-                break;
-            case 5:
-                baseAttack = (int)((float)baseAttack * 1.35);
-                break;
-            case 6:
-                baseAttack = (int)((float)baseAttack * 1.60);
-                break;
-            default:
-                break;
-        }
-        return baseAttack;
-    }
-
-    protected static int getHeal(RobotInfo r) throws GameActionException {
-        int baseAttack = 80;
-        GlobalUpgrade[] upgrades = rc.getGlobalUpgrades(r.getTeam());
-        for (GlobalUpgrade u : upgrades) {
-            baseAttack += u.baseHealChange;
-        }
-        switch (r.getAttackLevel()) {
-            case 1:
-                baseAttack = (int)((float)baseAttack * 1.03);
-                break;
-            case 2:
-                baseAttack = (int)((float)baseAttack * 1.05);
-                break;
-            case 3:
-                baseAttack = (int)((float)baseAttack * 1.07);
-                break;
-            case 4:
-                baseAttack = (int)((float)baseAttack * 1.10);
-                break;
-            case 5:
-                baseAttack = (int)((float)baseAttack * 1.15);
-                break;
-            case 6:
-                baseAttack = (int)((float)baseAttack * 1.25);
-                break;
-            default:
-                break;
-        }
-        return baseAttack;
     }
 }

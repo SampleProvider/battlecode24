@@ -1,4 +1,4 @@
-package SPAARKatk;
+package SPAARKbuild;
 
 import battlecode.common.*;
 
@@ -148,16 +148,16 @@ public class Motion {
 
     // basic random movement
     protected static void moveRandomly() throws GameActionException {
-        boolean stuck = true;
-        for (Direction d : DIRECTIONS) {
-            if (rc.canMove(d)) {
-                stuck = false;
+        if (rc.isMovementReady()) {
+            boolean stuck = true;
+            for (Direction d : DIRECTIONS) {
+                if (rc.canMove(d)) {
+                    stuck = false;
+                }
             }
-        }
-        if (stuck) {
-            return;
-        }
-        while (rc.isMovementReady()) {
+            if (stuck) {
+                return;
+            }
             // move in a random direction but minimize making useless moves back to where you came from
             Direction direction = DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
             if (direction == lastRandomDir.opposite() && rc.canMove(direction.opposite())) {
@@ -166,6 +166,7 @@ public class Motion {
             if (rc.canMove(direction)) {
                 rc.move(direction);
                 lastRandomDir = direction;
+                updateInfo();
             }
         }
     }
@@ -181,9 +182,8 @@ public class Motion {
         }
         if (rc.isMovementReady()) {
             MapLocation me = rc.getLocation();
-            RobotInfo[] robotInfo = rc.senseNearbyRobots(20, rc.getTeam());
             MapLocation target = me;
-            for (RobotInfo r : robotInfo) {
+            for (RobotInfo r : friendlyRobots) {
                 target = target.add(me.directionTo(r.getLocation()).opposite());
             }
             if (target.equals(me)) {
@@ -195,21 +195,23 @@ public class Motion {
                     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
+                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, false);
                     if (rc.canMove(direction)) {
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
                         lastRandomDir = direction;
+                        updateInfo();
                     } else {
                         moveRandomly();
                     }
                 }
             } else {
-                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, false);
                 if (rc.canMove(direction)) {
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
+                    updateInfo();
                 } else {
                     moveRandomly();
                 }
@@ -555,8 +557,6 @@ public class Motion {
         double bestWeight = 0;
         Direction bestFillDir = null;
         double bestFillWeight = 0;
-        RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -600,6 +600,9 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
+                    if (RobotPlayer.mode == RobotPlayer.BUILD) {
+                        weight -= 10;
+                    }
                     if (actions == 0 || rc.getHealth() < 500) {
                         weight -= 10;
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
@@ -702,7 +705,7 @@ public class Motion {
         }
         // trap micro
         if (bestDir != null) {
-            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
+            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 2 && (RobotPlayer.mode == RobotPlayer.BUILD || (friendlyRobots.length > 5 && rc.getCrumbs() > 20 * RobotPlayer.mapSizeFactor))) {
                 MapLocation buildLoc = rc.getLocation().add(bestDir);
                 build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
                     MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
@@ -731,146 +734,93 @@ public class Motion {
         }
     }
     protected static void moveWithAction(Direction dir) throws GameActionException {
+        if (RobotPlayer.mode == RobotPlayer.BUILD) {
+            move(dir);
+            return;
+        }
         if (rc.isActionReady()) {
             MapLocation me = rc.getLocation();
             MapLocation newMe = rc.getLocation().add(dir);
             
-            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            RobotInfo best = null;
-
-            //try to get a one-shottable enemy
-            int highestHPOneShot = 0;
+            RobotInfo robot = null;
             for (RobotInfo r : opponentRobots) {
                 if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                     continue;
                 }
-                if (r.getHealth() <= rc.getAttackDamage()) {
-                    if (r.getHealth() > highestHPOneShot) {
-                        best = r;
-                    } else if (r.getHealth() == highestHPOneShot) {
-                        if (best == null) {
-                            best = r;
-                        } else {
-                            //attack furthest-away bot with same hp (likely to be running away)
-                            if (me.distanceSquaredTo(r.getLocation()) > me.distanceSquaredTo(best.getLocation())) {
-                                best = r;
-                            }
-                        }
+                if (robot == null) {
+                    robot = r;
+                }
+                else if (robot.hasFlag()) {
+                    if (!r.hasFlag()) {
+                        robot = r;
                     }
+                    else if (robot.getHealth() > r.getHealth()) {
+                        robot = r;
+                    }
+                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                        robot = r;
+                    }
+                }
+                else if (robot.getHealth() > r.getHealth()) {
+                    robot = r;
+                }
+                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                    robot = r;
                 }
             }
 
-            //get the bot that can killed as fast as possible
-            if (best == null) {
-                int bestHitsToKill = 100;
-                int overkill = 1000;
-                for (RobotInfo r : opponentRobots) {
-                    if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
-                        continue;
-                    }
-                    MapLocation rLoc = r.getLocation();
-                    int dmg = 0;
-                    int hitsToKill = 1000;
-                    for (RobotInfo ally : friendlyRobots) {
-                        if (rLoc.distanceSquaredTo(ally.getLocation()) > 4) {
-                            continue;
-                        }
-                        dmg += Atk.getAttack(ally);
-                    }
-                    dmg += rc.getAttackDamage();
-                    if (dmg > 0) {
-                        hitsToKill = r.getHealth() / dmg;
-                    }
-                    if (hitsToKill < bestHitsToKill) {
-                        bestHitsToKill = hitsToKill;
-                        overkill = hitsToKill % dmg;
-                        best = r;
-                    } else if (hitsToKill == bestHitsToKill) {
-                        if (hitsToKill % dmg < overkill) {
-                            overkill = hitsToKill % dmg;
-                            best = r;
-                        }
-                    }
-                    // if (best == null) {
-                    //     best = r;
-                    // }
-                    // else if (best.hasFlag()) {
-                    //     if (!r.hasFlag()) {
-                    //         best = r;
-                    //     }
-                    //     else if (best.getHealth() > r.getHealth()) {
-                    //         best = r;
-                    //     }
-                    //     else if (best.getHealth() == r.getHealth() && best.getID() > r.getID()) {
-                    //         best = r;
-                    //     }
-                    // }
-                    // else if (best.getHealth() > r.getHealth()) {
-                    //     best = r;
-                    // }
-                    // else if (best.getHealth() == r.getHealth() && best.getID() > r.getID()) {
-                    //     best = r;
-                    // }
-                }
-            }
-
-            if (best == null) {
+            if (robot == null) {
                 for (RobotInfo r : friendlyRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
-                    if (r.getHealth() + rc.getHealAmount() < 150) {
-                        //going to get one shotted, don't try to heal
-                        continue;
+                    if (robot == null) {
+                        robot = r;
                     }
-                    if (best == null) {
-                        best = r;
-                    }
-                    else if (best.hasFlag()) {
+                    else if (robot.hasFlag()) {
                         if (!r.hasFlag()) {
-                            best = r;
+                            robot = r;
                         }
-                        else if (best.getHealth() > r.getHealth()) {
-                            best = r;
+                        else if (robot.getHealth() > r.getHealth()) {
+                            robot = r;
                         }
-                        else if (best.getHealth() == r.getHealth() && best.getID() > r.getID()) {
-                            best = r;
+                        else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                            robot = r;
                         }
                     }
-                    else if (best.getHealth() > r.getHealth()) {
-                        best = r;
+                    else if (robot.getHealth() > r.getHealth()) {
+                        robot = r;
                     }
-                    else if (best.getHealth() == r.getHealth() && best.getID() > r.getID()) {
-                        best = r;
+                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                        robot = r;
                     }
                 }
             }
 
-            if (best != null) {
-                if (best.getTeam().equals(rc.getTeam())) {
-                    while (rc.canHeal(best.getLocation())) {
-                        rc.heal(best.getLocation());
+            if (robot != null) {
+                if (robot.getTeam().equals(rc.getTeam())) {
+                    while (rc.canHeal(robot.getLocation())) {
+                        rc.heal(robot.getLocation());
                     }
                 }
                 else  {
-                    while (rc.canAttack(best.getLocation())) {
-                        rc.attack(best.getLocation());
+                    while (rc.canAttack(robot.getLocation())) {
+                        rc.attack(robot.getLocation());
                     }
                 }
             }
 
             move(dir);
 
-            if (best != null) {
-                if (best.getTeam().equals(rc.getTeam())) {
-                    while (rc.canHeal(best.getLocation())) {
-                        rc.heal(best.getLocation());
+            if (robot != null) {
+                if (robot.getTeam().equals(rc.getTeam())) {
+                    while (rc.canHeal(robot.getLocation())) {
+                        rc.heal(robot.getLocation());
                     }
                 }
                 else  {
-                    while (rc.canAttack(best.getLocation())) {
-                        rc.attack(best.getLocation());
+                    while (rc.canAttack(robot.getLocation())) {
+                        rc.attack(robot.getLocation());
                     }
                 }
             }
@@ -1171,12 +1121,16 @@ public class Motion {
             step = 1;
         }
 
-        if (rc.isMovementReady()) {
+        if (!rc.getLocation().equals(dest) && rc.isMovementReady()) {
             Direction d = getBfsDirection(dest, fillWater);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
             micro(d, dest);
+        }
+        else {
+            Atk.attack();
+            Atk.heal();
         }
         bfs();
         indicatorString.append(Clock.getBytecodesLeft() + " ");
@@ -1186,8 +1140,7 @@ public class Motion {
         if (rc.canMove(dir)) {
             rc.move(dir);
             lastDir = dir;
-            opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+            updateInfo();
         }
         else if (rc.canFill(rc.adjacentLocation(dir))) {
             rc.fill(rc.adjacentLocation(dir));
@@ -1195,5 +1148,10 @@ public class Motion {
     }
     protected static boolean canMove(Direction dir) throws GameActionException {
         return rc.canMove(dir) || rc.canFill(rc.adjacentLocation(dir));
+    }
+    protected static void updateInfo() throws GameActionException {
+        opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+        flags = rc.senseNearbyFlags(-1);
     }
 }

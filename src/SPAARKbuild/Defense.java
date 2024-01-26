@@ -1,4 +1,4 @@
-package SPAARKatk;
+package SPAARKbuild;
 
 import battlecode.common.*;
 
@@ -28,7 +28,7 @@ public class Defense {
         rc.setIndicatorDot(me, 255, 0, 255);
         if (!hasFoundFlag) {
             MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
-            Motion.bfsnav(targetLoc);
+            Motion.bfsnav(targetLoc, false);
             rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
             if (me.distanceSquaredTo(targetLoc) <= 2) {
                 hasFoundFlag = true;
@@ -96,7 +96,7 @@ public class Defense {
                 MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)));
                 rc.setIndicatorLine(me, targetLoc, 255, 0, 255);
                 if (Comms.id < 3) {
-                    Motion.bfsnav(targetLoc);
+                    Motion.bfsnav(targetLoc, false);
                     me = rc.getLocation();
                     if (me.equals(targetLoc)) {
                         // dont bother placing traps around nothing
@@ -123,7 +123,7 @@ public class Defense {
                     }
                 } else {
                     // patrolling i guess
-                    Motion.bugnavAround(targetLoc, 9, 25);
+                    Motion.bugnavAround(targetLoc, 9, 25, false);
                     me = rc.getLocation();
                     FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
                     // also dont place traps around nothing
