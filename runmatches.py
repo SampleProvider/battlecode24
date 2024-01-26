@@ -12,9 +12,9 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'SPAARK' #bot to test
+currentBot = 'SPAARKatk' #bot to test
 
-bots = ['SPAARKturtl', 'TSPAARKJAN14'] #other bots
+bots = ['SPAARK'] #other bots
 
 maps = []
 
@@ -24,49 +24,49 @@ maps = []
 # maps.append("[edge] microlarge")
 
 #Default
-maps.append("DefaultSmall")
-maps.append("DefaultMedium")
+# maps.append("DefaultSmall")
+# maps.append("DefaultMedium")
 # maps.append("DefaultLarge")
 # maps.append("DefaultHuge")
 
 #Sprint 1
-# maps.append("AceOfSpades")
-# maps.append("Alien")
-# maps.append("Ambush")
-# maps.append("Battlecode24")
-# maps.append("BigDucksBigPond")
-# maps.append("Canals")
-# maps.append("CH3353C4K3F4CT0RY")
-# maps.append("Duck")
-# maps.append("Fountain")
-# maps.append("Hockey")
-# maps.append("HungerGames")
-# maps.append("MazeRunner")
-# maps.append("Rivers")
-# maps.append("Snake")
-# maps.append("Soccer")
-# maps.append("SteamboatMickey")
-# maps.append("Yinyang")
+maps.append("AceOfSpades")
+maps.append("Alien")
+maps.append("Ambush")
+maps.append("Battlecode24")
+maps.append("BigDucksBigPond")
+maps.append("Canals")
+maps.append("CH3353C4K3F4CT0RY")
+maps.append("Duck")
+maps.append("Fountain")
+maps.append("Hockey")
+maps.append("HungerGames")
+maps.append("MazeRunner")
+maps.append("Rivers")
+maps.append("Snake")
+maps.append("Soccer")
+maps.append("SteamboatMickey")
+maps.append("Yinyang")
 
 #Sprint 2
-# maps.append("BedWars")
-# maps.append("Bunkers")
-# maps.append("Checkered")
-# maps.append("Diagonal")
-# maps.append("Divergent")
-# maps.append("EndAround")
-# maps.append("FloodGates")
-# maps.append("Foxes")
-# maps.append("Fusbol")
-# maps.append("GaltonBoard")
-# maps.append("HeMustBeFreed")
-# maps.append("Intercontinental")
-# maps.append("Klein")
-# maps.append("QueenOfHearts")
-# maps.append("QuestionableChess")
-# maps.append("Racetrack")
-# maps.append("Rainbow")
-# maps.append("TreeSearch")
+maps.append("BedWars")
+maps.append("Bunkers")
+maps.append("Checkered")
+maps.append("Diagonal")
+maps.append("Divergent")
+maps.append("EndAround")
+maps.append("FloodGates")
+maps.append("Foxes")
+maps.append("Fusbol")
+maps.append("GaltonBoard")
+maps.append("HeMustBeFreed")
+maps.append("Intercontinental")
+maps.append("Klein")
+maps.append("QueenOfHearts")
+maps.append("QuestionableChess")
+maps.append("Racetrack")
+maps.append("Rainbow")
+maps.append("TreeSearch")
 
 matches = list(product(bots, maps))
 
