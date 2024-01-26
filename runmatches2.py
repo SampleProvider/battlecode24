@@ -2,7 +2,7 @@ from itertools import product
 import re
 import subprocess
 
-emojiMode = False
+emojiMode = True
 emojiMap = {
     'Won': ':white_check_mark:',
     'Lost': ':x:',
@@ -12,9 +12,9 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'SPAARK' #bot to test
+currentBot = 'TSPAARK_AggressiveMicro' #bot to test
 
-bots = ['SPAARKturtl', 'TSPAARKJAN14'] #other bots
+bots = ['TSPAARK_OneGroup'] #other bots
 
 maps = []
 
