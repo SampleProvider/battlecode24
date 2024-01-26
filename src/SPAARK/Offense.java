@@ -23,6 +23,7 @@ public class Offense {
     protected static int flagIndex = -1;
 
     protected static int turnsFindingFlag = 0;
+    protected static int reachedBroadcastTurn = 0;
     protected static MapLocation turnsFindingFlagTarget = new MapLocation(0, 0);
     
     protected static void run() throws GameActionException {
@@ -93,22 +94,24 @@ public class Offense {
             if (target == null && closestFlag != null) {
                 target = closestFlag.getLocation();
             }
-            if (target == null) {
-                MapLocation closestStoredFlag = null;
-                for (int i = 3; --i >= 0;) {
-                    int n = rc.readSharedArray(Comms.OPPO_FLAG_CUR_LOC + i);
-                    // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
-                    if (Comms.hasLocation(n) && Comms.isFlagPickedUp(n)) {
-                        MapLocation loc = Comms.parseLocation(n);
-                        if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
-                            closestStoredFlag = loc;
+            if (Comms.id % 2 == 0) {
+                if (target == null) {
+                    MapLocation closestStoredFlag = null;
+                    for (int i = 3; --i >= 0;) {
+                        int n = rc.readSharedArray(Comms.OPPO_FLAG_CUR_LOC + i);
+                        // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
+                        if (Comms.hasLocation(n) && Comms.isFlagPickedUp(n)) {
+                            MapLocation loc = Comms.parseLocation(n);
+                            if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
+                                closestStoredFlag = loc;
+                            }
                         }
                     }
-                }
-                if (closestStoredFlag != null) {
-                    Motion.bugnavAround(closestStoredFlag, 4, 10);
-                    rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 200, 200, 200);
-                    break run;
+                    if (closestStoredFlag != null) {
+                        Motion.bugnavAround(closestStoredFlag, 4, 10);
+                        rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 200, 200, 200);
+                        break run;
+                    }
                 }
             }
             if (target == null) {
@@ -133,7 +136,31 @@ public class Offense {
                 MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                 if (hiddenFlags.length > 0) {
                     MapLocation closestHiddenFlag = Motion.getClosest(hiddenFlags);
+                    if (me.distanceSquaredTo(closestHiddenFlag) < 4) {
+                        reachedBroadcastTurn = rc.getRoundNum();
+                    }
+                    if (reachedBroadcastTurn / 100 == rc.getRoundNum() / 100) {
+                        Motion.spreadRandomly();
+                    }
                     target = closestHiddenFlag;
+                }
+            }
+            if (target == null) {
+                MapLocation closestStoredFlag = null;
+                for (int i = 3; --i >= 0;) {
+                    int n = rc.readSharedArray(Comms.OPPO_FLAG_CUR_LOC + i);
+                    // int n2 = rc.readSharedArray(GlobalArray.OPPO_FLAG_DEF_LOC + i);
+                    if (Comms.hasLocation(n) && Comms.isFlagPickedUp(n)) {
+                        MapLocation loc = Comms.parseLocation(n);
+                        if (closestStoredFlag == null || me.distanceSquaredTo(closestStoredFlag) > me.distanceSquaredTo(loc)) {
+                            closestStoredFlag = loc;
+                        }
+                    }
+                }
+                if (closestStoredFlag != null) {
+                    Motion.bugnavAround(closestStoredFlag, 4, 10);
+                    rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 200, 200, 200);
+                    break run;
                 }
             }
         

@@ -572,6 +572,14 @@ public class Setup {
                 }
             }
         }
+        if (rc.hasFlag() && rc.getRoundNum() == GameConstants.SETUP_ROUNDS - 1) {
+            rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
+        }
+        if (Comms.id == 49 && rc.getRoundNum() == GameConstants.SETUP_ROUNDS - 1) {
+            for (int i = 0; i < 9; i++) {
+                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + i, 0);
+            }
+        }
     }
     protected static void jailed() throws GameActionException {
         // how are you dying lol

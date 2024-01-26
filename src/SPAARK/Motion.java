@@ -148,16 +148,16 @@ public class Motion {
 
     // basic random movement
     protected static void moveRandomly() throws GameActionException {
-        boolean stuck = true;
-        for (Direction d : DIRECTIONS) {
-            if (rc.canMove(d)) {
-                stuck = false;
+        if (rc.isMovementReady()) {
+            boolean stuck = true;
+            for (Direction d : DIRECTIONS) {
+                if (rc.canMove(d)) {
+                    stuck = false;
+                }
             }
-        }
-        if (stuck) {
-            return;
-        }
-        while (rc.isMovementReady()) {
+            if (stuck) {
+                return;
+            }
             // move in a random direction but minimize making useless moves back to where you came from
             Direction direction = DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
             if (direction == lastRandomDir.opposite() && rc.canMove(direction.opposite())) {
@@ -166,6 +166,7 @@ public class Motion {
             if (rc.canMove(direction)) {
                 rc.move(direction);
                 lastRandomDir = direction;
+                updateInfo();
             }
         }
     }
@@ -199,6 +200,7 @@ public class Motion {
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
                         lastRandomDir = direction;
+                        updateInfo();
                     } else {
                         moveRandomly();
                     }
@@ -209,6 +211,7 @@ public class Motion {
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
+                    updateInfo();
                 } else {
                     moveRandomly();
                 }
@@ -1111,12 +1114,16 @@ public class Motion {
             step = 1;
         }
 
-        if (rc.isMovementReady()) {
+        if (!rc.getLocation().equals(dest) && rc.isMovementReady()) {
             Direction d = getBfsDirection(dest, fillWater);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
             micro(d, dest);
+        }
+        else {
+            Atk.attack();
+            Atk.heal();
         }
         bfs();
         indicatorString.append(Clock.getBytecodesLeft() + " ");
@@ -1126,9 +1133,7 @@ public class Motion {
         if (rc.canMove(dir)) {
             rc.move(dir);
             lastDir = dir;
-            opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-            flags = rc.senseNearbyFlags(-1);
+            updateInfo();
         }
         else if (rc.canFill(rc.adjacentLocation(dir))) {
             rc.fill(rc.adjacentLocation(dir));
@@ -1136,5 +1141,10 @@ public class Motion {
     }
     protected static boolean canMove(Direction dir) throws GameActionException {
         return rc.canMove(dir) || rc.canFill(rc.adjacentLocation(dir));
+    }
+    protected static void updateInfo() throws GameActionException {
+        opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+        flags = rc.senseNearbyFlags(-1);
     }
 }
