@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_3;
 
 import battlecode.common.*;
 
@@ -646,6 +646,9 @@ public class Motion {
             if (rc.getHealth() > minHP) {
                 // weight += 20;
                 weight += 2;
+                if (rc.getLevel(SkillType.ATTACK) > 3) {
+                    weight += 2;
+                }
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {

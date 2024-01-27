@@ -12,41 +12,41 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'TSPAARK_AggressiveMicro' #bot to test
+currentBot = 'micro_3' #bot to test
 
-bots = ['TSPAARK_OneGroup'] #other bots
+bots = ['SPAARK'] #other bots
 
 maps = []
 
 #Micro testing
-# maps.append("[edge] microsmall")
-# maps.append("[edge] micromedium")
-# maps.append("[edge] microlarge")
+maps.append("[edge] microsmall")
+maps.append("[edge] micromedium")
+maps.append("[edge] microlarge")
 
 #Default
 maps.append("DefaultSmall")
 maps.append("DefaultMedium")
-# maps.append("DefaultLarge")
-# maps.append("DefaultHuge")
+maps.append("DefaultLarge")
+maps.append("DefaultHuge")
 
 #Sprint 1
-# maps.append("AceOfSpades")
-# maps.append("Alien")
-# maps.append("Ambush")
-# maps.append("Battlecode24")
-# maps.append("BigDucksBigPond")
-# maps.append("Canals")
-# maps.append("CH3353C4K3F4CT0RY")
-# maps.append("Duck")
-# maps.append("Fountain")
-# maps.append("Hockey")
-# maps.append("HungerGames")
-# maps.append("MazeRunner")
-# maps.append("Rivers")
-# maps.append("Snake")
-# maps.append("Soccer")
-# maps.append("SteamboatMickey")
-# maps.append("Yinyang")
+maps.append("AceOfSpades")
+maps.append("Alien")
+maps.append("Ambush")
+maps.append("Battlecode24")
+maps.append("BigDucksBigPond")
+maps.append("Canals")
+maps.append("CH3353C4K3F4CT0RY")
+maps.append("Duck")
+maps.append("Fountain")
+maps.append("Hockey")
+maps.append("HungerGames")
+maps.append("MazeRunner")
+maps.append("Rivers")
+maps.append("Snake")
+maps.append("Soccer")
+maps.append("SteamboatMickey")
+maps.append("Yinyang")
 
 #Sprint 2
 # maps.append("BedWars")
@@ -161,7 +161,7 @@ if emojiMode:
 
 # Write to file
 with open('matches-summary.txt', 'w') as f:
-    table = [[''] + bots, [':---:' for i in range(len(bots) + 1)]] + [[map] + row for map, row in zip(maps, table)]
+    table = [[currentBot + " vs "] + bots, [':---:' for i in range(len(bots) + 1)]] + [[map] + row for map, row in zip(maps, table)]
     for line in table:
         f.write('| ')
         f.write(' | '.join(line))
