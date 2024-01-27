@@ -140,6 +140,16 @@ public class Comms {
         return new MapLocation(x, y);
     }
 
+    //# of flags you have captured more than the opponent
+    protected static int getFlagAdv() throws GameActionException {
+        int total = 0;
+        for (int i = 3; --i >= 0;) {
+            total += rc.readSharedArray(OPPO_FLAG_CUR_LOC+i) == 1 ? 1 : 0;
+            total -= rc.readSharedArray(ALLY_FLAG_CUR_LOC+i) == 1 ? 1 : 0;
+        }
+        return total;
+    }
+
     // write flag
     protected static void writeFlag(FlagInfo flag) throws GameActionException {
         MapLocation me = rc.getLocation();

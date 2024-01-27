@@ -590,6 +590,7 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
+            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -621,11 +622,17 @@ public class Motion {
                         if (opponentRobots.length > friendlyRobots.length) {
                             weight -= 10;
                         }
+                        if (adv > 0) {
+                            weight -= 10;
+                        }
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
+                        }
+                        if (adv < 0) {
+                            weight += 10;
                         }
                     }
                     // stop moving into robots when you have the flag buh
