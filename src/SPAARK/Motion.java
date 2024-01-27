@@ -635,7 +635,10 @@ public class Motion {
                         weight -= 20;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 20;
+                        weight += 15;
+                        if (opponentRobots.length + 3 < friendlyRobots.length) {
+                            weight += 10;
+                        }
                     }
                 }
                 // REALLY DONT BE THAT CLOSE
