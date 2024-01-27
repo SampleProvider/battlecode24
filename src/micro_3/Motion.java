@@ -1,4 +1,4 @@
-package SPAARK;
+package micro_3;
 
 import battlecode.common.*;
 
@@ -590,7 +590,6 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
-            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -612,21 +611,12 @@ public class Motion {
                         weight += 4;
                     }
                     if (rc.hasFlag()) {
-                        weight -= 25;
-                        if (opponentRobots.length > friendlyRobots.length) {
-                            weight -= 10;
-                        }
-                        if (adv > 0) {
-                            weight -= 10;
-                        }
+                        weight -= 30;
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
+                        if (opponentRobots.length < 3) {
                             weight += 30;
-                        }
-                        if (adv < 0) {
-                            weight += 10;
                         }
                     }
                     // stop moving into robots when you have the flag buh
@@ -642,10 +632,7 @@ public class Motion {
                         weight -= 20;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 15;
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 10;
-                        }
+                        weight += 20;
                     }
                 }
                 // REALLY DONT BE THAT CLOSE
@@ -659,6 +646,9 @@ public class Motion {
             if (rc.getHealth() > minHP) {
                 // weight += 20;
                 weight += 2;
+                if (rc.getLevel(SkillType.ATTACK) > 3) {
+                    weight += 2;
+                }
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {
@@ -672,11 +662,7 @@ public class Motion {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
-                        //prevent clogging
                         friendlyWeight -= 1;
-                        // if (robot.hasFlag()) {
-                        //     friendlyWeight -= 1;
-                        // }
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);
