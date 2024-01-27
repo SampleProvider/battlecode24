@@ -611,11 +611,14 @@ public class Motion {
                         weight += 4;
                     }
                     if (rc.hasFlag()) {
-                        weight -= 30;
+                        weight -= 25;
+                        if (opponentRobots.length > friendlyRobots.length) {
+                            weight -= 10;
+                        }
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
-                        if (opponentRobots.length < 3) {
+                        if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
                         }
                     }
@@ -658,7 +661,11 @@ public class Motion {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
-                        friendlyWeight -= 2;
+                        //prevent clogging
+                        friendlyWeight -= 1;
+                        // if (robot.hasFlag()) {
+                        //     friendlyWeight -= 1;
+                        // }
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);
