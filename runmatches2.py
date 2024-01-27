@@ -19,9 +19,9 @@ bots = ['SPAARK'] #other bots
 maps = []
 
 #Micro testing
-maps.append("[edge] microsmall")
-maps.append("[edge] micromedium")
-maps.append("[edge] microlarge")
+# maps.append("[edge] microsmall")
+# maps.append("[edge] micromedium")
+# maps.append("[edge] microlarge")
 
 #Default
 maps.append("DefaultSmall")

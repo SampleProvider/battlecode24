@@ -1,10 +1,10 @@
-package SPAARK;
+package micro_3;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
-public class Motion {
+public class Motion2 {
     protected static RobotController rc;
     protected static StringBuilder indicatorString;
 
@@ -589,7 +589,10 @@ public class Motion {
                 }
             }
             int actions = rc.isActionReady() ? 1 : 0;
-            int minHP = 1000;
+            int minHP = 1001;
+            int dpsRecieved = 0;
+            int opponentsTargeting = 0;
+            int friendlyTargeting = 0;
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -597,63 +600,62 @@ public class Motion {
                     // weight -= 10 * (Math.sqrt(robot.getLocation().distanceSquaredTo(dest)) - Math.sqrt(me.add(d).distanceSquaredTo(dest)));
                     // weight -= squared * 100;
                 }
+                if (robot.hasFlag()) {
+                    break;
+                }
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
+                    dpsRecieved += 150;
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500) {
-                        weight -= 10;
-                        // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
-                        //     weight += 6;
-                        // }
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 70 && rc.getExperience(SkillType.HEAL) <= 75) {
-                            weight += 20;
-                        }
-                    }
-                    else {
-                        actions -= 1;
-                        weight += 4;
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 70 && rc.getExperience(SkillType.HEAL) <= 75) {
-                            weight += 20;
-                        }
-                    }
-                    if (rc.hasFlag()) {
-                        weight -= 25;
-                        if (opponentRobots.length > friendlyRobots.length) {
-                            weight -= 10;
-                        }
-                    }
-                    else if (robot.hasFlag()) {
-                        weight += 10;
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 30;
-                        }
-                    }
+                    // if (actions == 0 || rc.getHealth() < 500) {
+                    //     weight -= 10;
+                    //     // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
+                    //     //     weight += 6;
+                    //     // }
+                    // }
+                    // else {
+                    //     actions -= 1;
+                    //     weight += 4;
+                    // }
+                    // if (rc.hasFlag()) {
+                    //     weight -= 25;
+                    //     if (opponentRobots.length > friendlyRobots.length) {
+                    //         weight -= 10;
+                    //     }
+                    // }
+                    // else if (robot.hasFlag()) {
+                    //     weight += 10;
+                    //     if (opponentRobots.length + 3 < friendlyRobots.length) {
+                    //         weight += 30;
+                    //     }
+                    // }
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500) {
-                        // weight -= 3;
-                        weight -= 8;
-                    }
+                    opponentsTargeting += 1;
+                    // if (rc.getHealth() < 500) {
+                    //     // weight -= 3;
+                    //     weight -= 8;
+                    // }
                 }
-                if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.hasFlag()) {
-                        weight -= 20;
-                    }
-                    else if (robot.hasFlag()) {
-                        weight += 15;
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 10;
-                        }
-                    }
-                }
-                // REALLY DONT BE THAT CLOSE
-                if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                    // weight -= 16;
-                    if (robot.hasFlag()) {
-                        weight += 20;
-                    }
-                }
+                // if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                //     if (rc.hasFlag()) {
+                //         weight -= 20;
+                //     }
+                //     else if (robot.hasFlag()) {
+                //         weight += 15;
+                //         if (opponentRobots.length + 3 < friendlyRobots.length) {
+                //             weight += 10;
+                //         }
+                //     }
+                // }
+                // // REALLY DONT BE THAT CLOSE
+                // if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                //     // weight -= 16;
+                //     if (robot.hasFlag()) {
+                //         weight += 20;
+                //     }
+                // }
             }
             if (rc.getHealth() > minHP) {
                 // weight += 20;
@@ -664,22 +666,36 @@ public class Motion {
                 int friendlyWeight = 0;
                 for (RobotInfo robot : friendlyRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
-                    if (rc.canSenseLocation(relativeLoc)) {
-                        friendlyWeight += 1;
-                    }
-                    if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
-                        friendlyWeight += 1;
-                    }
-                    if (me.distanceSquaredTo(relativeLoc) <= 1) {
-                        //prevent clogging
-                        friendlyWeight -= 1;
-                        // if (robot.hasFlag()) {
-                        //     friendlyWeight -= 1;
-                        // }
+                    // if (rc.canSenseLocation(relativeLoc)) {
+                    //     friendlyWeight += 1;
+                    // }
+                    // if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
+                    //     friendlyWeight += 1;
+                    // }
+                    // if (me.distanceSquaredTo(relativeLoc) <= 1) {
+                    //     //prevent clogging
+                    //     friendlyWeight -= 1;
+                    //     // if (robot.hasFlag()) {
+                    //     //     friendlyWeight -= 1;
+                    //     // }
+                    // }
+                    if (me.distanceSquaredTo(relativeLoc) <= 10) {
+                        friendlyTargeting += 1;
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);
             }
+
+            if (dpsRecieved > 0) {
+                weight -= 10000;
+            }
+            else if (opponentsTargeting - friendlyTargeting > 0) {
+                weight -= 1000;
+            }
+            else if (minHP != 1001) {
+                weight += 100;
+            }
+            // weight -= Math.max((opponentsTargeting - friendlyTargeting) * 10, 0);
             // weight += friendlyWeight;
             // prefer not filling?
 
