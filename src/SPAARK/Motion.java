@@ -590,7 +590,6 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
-            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -606,14 +605,16 @@ public class Motion {
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 70 && rc.getExperience(SkillType.HEAL) <= 75) {
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
                             weight += 20;
                         }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 70 && rc.getExperience(SkillType.HEAL) <= 75) {
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor;
                             weight += 20;
                         }
                     }
@@ -622,17 +623,11 @@ public class Motion {
                         if (opponentRobots.length > friendlyRobots.length) {
                             weight -= 10;
                         }
-                        if (adv > 0) {
-                            weight -= 10;
-                        }
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
-                        }
-                        if (adv < 0) {
-                            weight += 10;
                         }
                     }
                     // stop moving into robots when you have the flag buh

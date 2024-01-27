@@ -605,17 +605,28 @@ public class Motion {
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
+                            weight += 20;
+                        }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor;
+                            weight += 20;
+                        }
                     }
                     if (rc.hasFlag()) {
-                        weight -= 30;
+                        weight -= 25;
+                        if (opponentRobots.length > friendlyRobots.length) {
+                            weight -= 10;
+                        }
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
-                        if (opponentRobots.length < 3) {
+                        if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
                         }
                     }
@@ -632,7 +643,10 @@ public class Motion {
                         weight -= 20;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 20;
+                        weight += 15;
+                        if (opponentRobots.length + 3 < friendlyRobots.length) {
+                            weight += 10;
+                        }
                     }
                 }
                 // REALLY DONT BE THAT CLOSE
@@ -646,9 +660,6 @@ public class Motion {
             if (rc.getHealth() > minHP) {
                 // weight += 20;
                 weight += 2;
-                if (rc.getLevel(SkillType.ATTACK) > 3) {
-                    weight += 2;
-                }
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {
@@ -662,7 +673,11 @@ public class Motion {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
+                        //prevent clogging
                         friendlyWeight -= 1;
+                        // if (robot.hasFlag()) {
+                        //     friendlyWeight -= 1;
+                        // }
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);

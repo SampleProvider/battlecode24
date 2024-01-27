@@ -27,6 +27,8 @@ public strictfp class RobotPlayer {
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
 
+    protected static int mapSizeFactor;
+
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
@@ -44,7 +46,7 @@ public strictfp class RobotPlayer {
 
         Comms.init();
 
-        int mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
+        mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2; // 1 to 4
         
         if (Comms.id < 3) {
             mode = DEFENSIVE;
