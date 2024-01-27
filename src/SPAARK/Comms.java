@@ -218,7 +218,7 @@ public class Comms {
                     }
                     if (!found) {
                         if (parseLocation(rc.readSharedArray(ALLY_FLAG_CUR_LOC + i)).equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
-                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, 0);
+                            rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, 1);
                         }
                         else {
                             rc.writeSharedArray(ALLY_FLAG_CUR_LOC + i, rc.readSharedArray(ALLY_FLAG_DEF_LOC + i));
