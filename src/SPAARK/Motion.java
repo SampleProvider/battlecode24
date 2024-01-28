@@ -565,7 +565,7 @@ public class Motion {
             double weight = 0;
             if (rc.getHealth() > 500) {
                 if (d.equals(optimalDir)) {
-                    weight += 1.55;
+                    weight += 1.6;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 1.5;
@@ -576,7 +576,7 @@ public class Motion {
             }
             else {
                 if (d.equals(optimalDir)) {
-                    weight += 0.55;
+                    weight += 0.6;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 0.5;
@@ -606,19 +606,16 @@ public class Motion {
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
-                            weight += 20;
-                        }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
                         weight -= adv * 0.33;
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor;
-                            weight += 20;
-                        }
+                    }
+                    //suicide if you accidentally got heal specialization
+                    if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                        // weight += 60 / RobotPlayer.mapSizeFactor;
+                        weight += 20;
                     }
                     if (rc.hasFlag()) {
                         weight -= 25;
@@ -645,6 +642,7 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.hasFlag()) {
                         weight -= 20;
+                        weight -= adv * 3;
                     }
                     else if (robot.hasFlag()) {
                         weight += 15;

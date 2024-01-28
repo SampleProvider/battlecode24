@@ -102,4 +102,139 @@ public class Atk {
         }
         return best;
     }
+
+    protected static int attackXpSinceLastLevel() throws GameActionException {
+        int exp = rc.getExperience(SkillType.ATTACK);
+        if (exp < 20) {
+            return -1;
+        }
+        if (exp < 40) {
+            return exp - 20;
+        }
+        if (exp < 70) {
+            return exp - 40;
+        }
+        if (exp < 100) {
+            return exp - 70;
+        }
+        if (exp < 140) {
+            return exp - 100;
+        }
+        if (exp < 180) {
+            return exp - 140;
+        }
+        return exp - 180;
+    }
+
+    protected static int buildXpSinceLastLevel() throws GameActionException {
+        int exp = rc.getExperience(SkillType.BUILD);
+        if (exp < 5) {
+            return -1;
+        }
+        if (exp < 10) {
+            return exp - 5;
+        }
+        if (exp < 15) {
+            return exp - 10;
+        }
+        if (exp < 20) {
+            return exp - 15;
+        }
+        if (exp < 25) {
+            return exp - 20;
+        }
+        if (exp < 30) {
+            return exp - 25;
+        }
+        return exp - 30;
+    }
+
+    protected static int healXpSinceLastLevel() throws GameActionException {
+        int exp = rc.getExperience(SkillType.BUILD);
+        if (exp < 10) {
+            return -1;
+        }
+        if (exp < 20) {
+            return exp - 10;
+        }
+        if (exp < 30) {
+            return exp - 20;
+        }
+        if (exp < 50) {
+            return exp - 30;
+        }
+        if (exp < 75) {
+            return exp - 50;
+        }
+        if (exp < 125) {
+            return exp - 75;
+        }
+        return exp - 125;
+    }
+
+    protected static int deathsUntilAttackLevelDrop() throws GameActionException {
+        int lvl = rc.getLevel(SkillType.ATTACK);
+        switch (lvl) {
+            case 0:
+                return -1;
+            case 1:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 5.0);
+            case 2:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 5.0);
+            case 3:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 10.0);
+            case 4:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 10.0);
+            case 5:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 15.0);
+            case 6:
+                return (int)Math.ceil((attackXpSinceLastLevel() - 1) / 15.0);
+            default:
+                return -1;
+        }
+    }
+
+    protected static int deathsUntilBuildLevelDrop() throws GameActionException {
+        int lvl = rc.getLevel(SkillType.BUILD);
+        switch (lvl) {
+            case 0:
+                return -1;
+            case 1:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 2.0);
+            case 2:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 2.0);
+            case 3:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 5.0);
+            case 4:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 5.0);
+            case 5:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 10.0);
+            case 6:
+                return (int)Math.ceil((buildXpSinceLastLevel() - 1) / 10.0);
+            default:
+                return -1;
+        }
+    }
+
+    protected static int deathsUntilHealLevelDrop() throws GameActionException {
+        int lvl = rc.getLevel(SkillType.HEAL);
+        switch (lvl) {
+            case 0:
+                return -1;
+            case 1:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 2.0);
+            case 2:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 2.0);
+            case 3:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 5.0);
+            case 4:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 5.0);
+            case 5:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 10.0);
+            case 6:
+                return (int)Math.ceil((healXpSinceLastLevel() - 1) / 10.0);
+            default:
+                return -1;
+        }
+    }
 }
