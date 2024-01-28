@@ -563,7 +563,7 @@ public class Motion {
             }
             // incentivize moving towards target
             double weight = 0;
-            if (rc.getHealth() > 500) {
+            if (rc.getHealth() > 500) { //tested: adv * 40
                 if (d.equals(optimalDir)) {
                     weight += 1.6;
                 }
@@ -601,7 +601,7 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) {
+                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
                         weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
@@ -634,7 +634,7 @@ public class Motion {
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500 + adv * 40) {
+                    if (rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
                         // weight -= 3;
                         weight -= 8;
                     }
