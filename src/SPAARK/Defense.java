@@ -162,7 +162,8 @@ public class Defense {
                 }
             }
         } else {
-            Motion.spreadRandomly();
+            // Motion.spreadRandomly();
+            RobotPlayer.mode = RobotPlayer.OFFENSIVE;
         }
 
         // GlobalArray.updateSector();
