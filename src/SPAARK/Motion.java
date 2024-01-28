@@ -586,8 +586,10 @@ public class Motion {
                     weight += 1.5;
                 }
                 if (rc.hasFlag() && d.equals(optimalDir.opposite()) || d.equals(optimalDir.opposite().rotateLeft()) || d.equals(optimalDir.opposite().rotateRight())) {
-                    weight -= 2;
+                    weight -= 2; //tested: 1.5, 2.5
                 }
+                //tested +0.5 for being closer to center
+                //tested +0.5, +1 for being closer to axis of symmetry
             }
             else {
                 if (d.equals(optimalDir)) {
@@ -669,6 +671,7 @@ public class Motion {
                 // REALLY DONT BE THAT CLOSE
                 if (me.distanceSquaredTo(relativeLoc) <= 2) {
                     // weight -= 16;
+                    weight -= adv * 3;
                     if (robot.hasFlag()) {
                         weight += 20;
                     }
@@ -676,7 +679,7 @@ public class Motion {
             }
             if (rc.getHealth() > minHP) {
                 // weight += 20;
-                weight += 2;
+                weight += 3; //tested: 2
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {
