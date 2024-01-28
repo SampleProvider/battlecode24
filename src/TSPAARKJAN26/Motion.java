@@ -1,4 +1,4 @@
-package SPAARK;
+package TSPAARKJAN26;
 
 import battlecode.common.*;
 
@@ -563,9 +563,9 @@ public class Motion {
             }
             // incentivize moving towards target
             double weight = 0;
-            if (rc.getHealth() > 500) { //tested: adv * 40
+            if (rc.getHealth() > 500) {
                 if (d.equals(optimalDir)) {
-                    weight += 1.6;
+                    weight += 1.55;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 1.5;
@@ -576,7 +576,7 @@ public class Motion {
             }
             else {
                 if (d.equals(optimalDir)) {
-                    weight += 0.6;
+                    weight += 0.55;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 0.5;
@@ -590,7 +590,6 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
-            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -601,40 +600,29 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
-                        weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
+                    if (actions == 0 || rc.getHealth() < 500) {
+                        weight -= 10;
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
                     }
                     else {
                         actions -= 1;
-                        weight += 5; //tested: 3, 3.5, 4, 4.5 (large difference)
-                        weight -= adv * 0.33;
-                    }
-                    //suicide if you accidentally got heal specialization
-                    if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                        // weight += 60 / RobotPlayer.mapSizeFactor;
-                        weight += 20; //tested: 12, 16, 24, 28 (small difference)
+                        weight += 4;
                     }
                     if (rc.hasFlag()) {
-                        weight -= 23; //tested: 20, 25, 27, 30 (med. difference)
-                        if (opponentRobots.length > friendlyRobots.length) {
-                            weight -= 10; //tested: 6, 8, 12, 14 (small difference)
-                        }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
+                        weight -= 30;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 10; //tested: 6, 8, 12, 14 (large difference)
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 30; //tested: 20, 25, 35, 40 (small difference)
+                        weight += 10;
+                        if (opponentRobots.length < 3) {
+                            weight += 30;
                         }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
                     }
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
+                    if (rc.getHealth() < 500) {
                         // weight -= 3;
                         weight -= 8;
                     }
@@ -642,13 +630,9 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.hasFlag()) {
                         weight -= 20;
-                        weight -= adv * 3;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 15;
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 10;
-                        }
+                        weight += 20;
                     }
                 }
                 // REALLY DONT BE THAT CLOSE
@@ -661,7 +645,6 @@ public class Motion {
             }
             if (rc.getHealth() > minHP) {
                 // weight += 20;
-                weight += 2;
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {
@@ -675,11 +658,7 @@ public class Motion {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
-                        //prevent clogging
-                        friendlyWeight -= 1;
-                        // if (robot.hasFlag()) {
-                        //     friendlyWeight -= 1;
-                        // }
+                        friendlyWeight -= 2;
                     }
                 }
                 weight += Math.min(friendlyWeight, 4);

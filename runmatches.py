@@ -1,6 +1,7 @@
 from itertools import product
 import re
 import subprocess
+from time import gmtime, strftime, time
 
 emojiMode = False
 emojiMap = {
@@ -12,9 +13,12 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'SPAARKbuild' #bot to test
+currentBot = 'SPAARK' #bot to test
+#SPAARK IS THE BASELINE
 
-bots = ['SPAARK'] #other bots
+# bots = ['A0', 'A1', 'A2', 'A3', 'B0', 'B1', 'B2', 'B3', 'C0', 'C1', 'C2', 'C3', 'D0', 'D1', 'D2', 'D3', 'E0', 'E1', 'E2', 'E3', 'F0', 'F1', 'F2', 'F3', 'G0', 'G1', 'G2', 'G3', 'H0', 'H1', 'H2', 'H3'] #other bots
+bots = ['TSPAARKJAN26']
+#CHECK SCREENSHOTS FOR INFO ON WHICH BOT IS WHICH
 
 maps = []
 
@@ -30,34 +34,34 @@ maps = []
 # maps.append("DefaultHuge")
 
 #Sprint 1
-maps.append("AceOfSpades")
-maps.append("Alien")
-maps.append("Ambush")
-maps.append("Battlecode24")
-maps.append("BigDucksBigPond")
-maps.append("Canals")
-maps.append("CH3353C4K3F4CT0RY")
-maps.append("Duck")
-maps.append("Fountain")
-maps.append("Hockey")
-maps.append("HungerGames")
-maps.append("MazeRunner")
-maps.append("Rivers")
-maps.append("Snake")
-maps.append("Soccer")
-maps.append("SteamboatMickey")
-maps.append("Yinyang")
+# maps.append("AceOfSpades")
+# maps.append("Alien")
+# maps.append("Ambush")
+# maps.append("Battlecode24")
+# maps.append("BigDucksBigPond")
+# maps.append("Canals")
+# maps.append("CH3353C4K3F4CT0RY")
+# maps.append("Duck")
+# maps.append("Fountain")
+# maps.append("Hockey")
+# maps.append("HungerGames")
+# maps.append("MazeRunner")
+# maps.append("Rivers")
+# maps.append("Snake")
+# maps.append("Soccer")
+# maps.append("SteamboatMickey")
+# maps.append("Yinyang")
 
 #Sprint 2
-# maps.append("BedWars")
-# maps.append("Bunkers")
-# maps.append("Checkered")
-# maps.append("Diagonal")
-# maps.append("Divergent")
-# maps.append("EndAround")
-# maps.append("FloodGates")
-# maps.append("Foxes")
-# maps.append("Fusbol")
+maps.append("BedWars")
+maps.append("Bunkers")
+maps.append("Checkered")
+maps.append("Diagonal")
+maps.append("Divergent")
+maps.append("EndAround")
+maps.append("FloodGates")
+maps.append("Foxes")
+maps.append("Fusbol")
 # maps.append("GaltonBoard")
 # maps.append("HeMustBeFreed")
 # maps.append("Intercontinental")
@@ -137,13 +141,14 @@ def run_match(bot, map):
 results = {}
 ctr = 0
 #run matches
+currentTime = time()
 for i in range(len(bots)):
     bot = bots[i]
     winsThisBot = 0
     for j in range(len(maps)):
         map = maps[j]
         ctr = ctr + 1
-        print("#" + str(ctr) + " of " + str(len(bots)*len(maps)) + ": {} vs {} on {}".format(currentBot, bot, map))
+        print("(" + strftime("%H:%M:%S", gmtime()) + ") #" + str(ctr) + " of " + str(len(bots)*len(maps)) + ": {} vs {} on {}".format(currentBot, bot, map))
         results[(bot, map)], wins = run_match(bot, map)
         winsThisBot += wins
     print(currentBot + " won " + str(winsThisBot) + " of " + str(len(maps)*2) + " against " + bot + "\n")
@@ -170,3 +175,5 @@ with open('matches-summary.txt', 'w') as f:
     f.write('\n')
     for error in errors:
         f.write(error)
+
+print("Took " + str((time() - currentTime) / 60) + " minutes")
