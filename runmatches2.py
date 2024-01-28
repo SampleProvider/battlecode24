@@ -12,9 +12,9 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'micro_3' #bot to test
+currentBot = 'flag_drop' #bot to test
 
-bots = ['SPAARK'] #other bots
+bots = ['SPAARKa'] #other bots
 
 maps = []
 
@@ -146,7 +146,8 @@ for i in range(len(bots)):
         print("#" + str(ctr) + " of " + str(len(bots)*len(maps)) + ": {} vs {} on {}".format(currentBot, bot, map))
         results[(bot, map)], wins = run_match(bot, map)
         winsThisBot += wins
-    print(currentBot + " won " + str(winsThisBot) + " of " + str(len(maps)*2) + " against " + bot + "\n")
+        print(currentBot + " won " + str(winsThisBot) + " of " + str(j*2 + 2) + " against " + bot + " (" + str(round(winsThisBot / (j*2 + 2) * 100)) + "%)\n")
+    print(currentBot + " won " + str(winsThisBot) + " of " + str(len(maps)*2) + " against " + bot + " (" + str(round(winsThisBot / (len(maps)*2) * 100)) + "%)\n")
 
 # Construct table
 table = [[results.get((bot, map), 'N/A') for bot in bots] for map in maps]

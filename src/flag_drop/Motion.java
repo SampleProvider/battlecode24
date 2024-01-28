@@ -1,4 +1,4 @@
-package SPAARK;
+package flag_drop;
 
 import battlecode.common.*;
 
@@ -155,10 +155,6 @@ public class Motion {
             }
         }
         return closest;
-    }
-
-    protected static MapLocation getMapCenter() throws GameActionException {
-        return new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
     }
 
     // basic random movement
@@ -578,7 +574,7 @@ public class Motion {
             }
             // incentivize moving towards target
             double weight = 0;
-            if (rc.getHealth() > 500) { //tested: adv * 40
+            if (rc.getHealth() > 500) {
                 if (d.equals(optimalDir)) {
                     weight += 1.6;
                 }
@@ -616,40 +612,40 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
-                        weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
+                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) {
+                        weight -= 10;
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
                     }
                     else {
                         actions -= 1;
-                        weight += 5; //tested: 3, 3.5, 4, 4.5 (large difference)
+                        weight += 4;
                         weight -= adv * 0.33;
                     }
                     //suicide if you accidentally got heal specialization
                     if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
                         // weight += 60 / RobotPlayer.mapSizeFactor;
-                        weight += 20; //tested: 12, 16, 24, 28 (small difference)
+                        weight += 20;
                     }
                     if (rc.hasFlag()) {
-                        weight -= 23; //tested: 20, 25, 27, 30 (med. difference)
+                        weight -= 25;
                         if (opponentRobots.length > friendlyRobots.length) {
-                            weight -= 10; //tested: 6, 8, 12, 14 (small difference)
+                            weight -= 10;
                         }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
+                        weight -= adv * 10;
                     }
                     else if (robot.hasFlag()) {
-                        weight += 10; //tested: 6, 8, 12, 14 (large difference)
+                        weight += 10;
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
-                            weight += 30; //tested: 20, 25, 35, 40 (small difference)
+                            weight += 30;
                         }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
+                        weight -= adv * 10;
                     }
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
+                    if (rc.getHealth() < 500 + adv * 40) {
                         // weight -= 3;
                         weight -= 8;
                     }
@@ -691,7 +687,7 @@ public class Motion {
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
                         //prevent clogging
-                        friendlyWeight -= 1; //tested: 2
+                        friendlyWeight -= 1;
                         // if (robot.hasFlag()) {
                         //     friendlyWeight -= 1;
                         // }

@@ -1,4 +1,4 @@
-package SPAARK;
+package flag_drop;
 
 import battlecode.common.*;
 
