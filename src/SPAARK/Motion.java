@@ -146,6 +146,10 @@ public class Motion {
         return closest;
     }
 
+    protected static MapLocation getMapCenter() throws GameActionException {
+        return new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+    }
+
     // basic random movement
     protected static void moveRandomly() throws GameActionException {
         if (rc.isMovementReady()) {
@@ -676,7 +680,7 @@ public class Motion {
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) {
                         //prevent clogging
-                        friendlyWeight -= 1;
+                        friendlyWeight -= 1; //tested: 2
                         // if (robot.hasFlag()) {
                         //     friendlyWeight -= 1;
                         // }

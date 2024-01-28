@@ -13,11 +13,11 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'SPAARK' #bot to test
+currentBot = 'flag' #bot to test
 #SPAARK IS THE BASELINE
 
 # bots = ['A0', 'A1', 'A2', 'A3', 'B0', 'B1', 'B2', 'B3', 'C0', 'C1', 'C2', 'C3', 'D0', 'D1', 'D2', 'D3', 'E0', 'E1', 'E2', 'E3', 'F0', 'F1', 'F2', 'F3', 'G0', 'G1', 'G2', 'G3', 'H0', 'H1', 'H2', 'H3'] #other bots
-bots = ['TSPAARKJAN26']
+bots = ['SPAARK']
 #CHECK SCREENSHOTS FOR INFO ON WHICH BOT IS WHICH
 
 maps = []
@@ -62,15 +62,15 @@ maps.append("EndAround")
 maps.append("FloodGates")
 maps.append("Foxes")
 maps.append("Fusbol")
-# maps.append("GaltonBoard")
-# maps.append("HeMustBeFreed")
-# maps.append("Intercontinental")
-# maps.append("Klein")
-# maps.append("QueenOfHearts")
-# maps.append("QuestionableChess")
-# maps.append("Racetrack")
-# maps.append("Rainbow")
-# maps.append("TreeSearch")
+maps.append("GaltonBoard")
+maps.append("HeMustBeFreed")
+maps.append("Intercontinental")
+maps.append("Klein")
+maps.append("QueenOfHearts")
+maps.append("QuestionableChess")
+maps.append("Racetrack")
+maps.append("Rainbow")
+maps.append("TreeSearch")
 
 matches = list(product(bots, maps))
 

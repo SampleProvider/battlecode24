@@ -56,6 +56,24 @@ public strictfp class RobotPlayer {
             mode = SCOUT;
         }
 
+        if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC))) {
+            MapLocation[] spawns = rc.getAllySpawnLocations();
+            int numFoundSoFar = 0;
+            for (MapLocation m : spawns) {
+                int numAdjSpawnZones = 0; // should be 8 if its the center
+                for (MapLocation other : spawns) {
+                    if (other.equals(m)) continue;
+                    if (m.isAdjacentTo(other)) {
+                        numAdjSpawnZones++;
+                    }
+                }
+                if (numAdjSpawnZones == 8) {
+                    rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + numFoundSoFar, Comms.intifyLocation(m));
+                    numFoundSoFar++;
+                }
+            }
+        }
+
         Clock.yield();
 
         while (true) {
@@ -66,18 +84,11 @@ public strictfp class RobotPlayer {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (mode == DEFENSIVE) {
-                        if (Comms.id < 6) {
-                            if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)))) {
-                                break spawn; // labels moment
-                            }
-                            for (int i = 27; --i >= 0;) {
-                                if (!rc.canSpawn(spawnLocs[i])) {
-                                    spawnLocs[i] = new MapLocation(-1000, -1000);
-                                }
-                            }
-                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
-                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                                rc.spawn(bestSpawnLoc);
+                        //basically spawn next to your assigned flag lol
+                        MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
+                        for (int i = 27; --i >= 0;) {
+                            if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
+                                rc.spawn(spawnLocs[i]);
                                 break spawn;
                             }
                         }
