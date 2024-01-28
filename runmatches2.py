@@ -1,6 +1,8 @@
 from itertools import product
 import re
 import subprocess
+from time import gmtime, strftime, time
+import math
 
 emojiMode = True
 emojiMap = {
@@ -12,9 +14,9 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'flag_drop' #bot to test
+currentBot = 'micro_5' #bot to test
 
-bots = ['SPAARKa'] #other bots
+bots = ['SPAARK'] #other bots
 
 maps = []
 
@@ -133,10 +135,15 @@ def run_match(bot, map):
             if not loseBString in outputB:
                 return 'Error'
         return (numWinsMapping[numWins] + ' (' + ', '.join([gameAInfo, gameBInfo]) + ')', numWins)
+    
+def getTime(seconds):
+    return str(math.floor(seconds / 3600)) + "h " + str(math.floor((seconds % 3600) / 60)) + "d " + str(math.floor(seconds % 60)) + "s"
 
 results = {}
 ctr = 0
 #run matches
+startTime = time()
+currentTime = time()
 for i in range(len(bots)):
     bot = bots[i]
     winsThisBot = 0
@@ -144,8 +151,10 @@ for i in range(len(bots)):
         map = maps[j]
         ctr = ctr + 1
         print("#" + str(ctr) + " of " + str(len(bots)*len(maps)) + ": {} vs {} on {}".format(currentBot, bot, map))
+        currentTime = time()
         results[(bot, map)], wins = run_match(bot, map)
         winsThisBot += wins
+        print("Took " + getTime(time() - currentTime))
         print(currentBot + " won " + str(winsThisBot) + " of " + str(j*2 + 2) + " against " + bot + " (" + str(round(winsThisBot / (j*2 + 2) * 100)) + "%)\n")
     print(currentBot + " won " + str(winsThisBot) + " of " + str(len(maps)*2) + " against " + bot + " (" + str(round(winsThisBot / (len(maps)*2) * 100)) + "%)\n")
 
@@ -171,3 +180,5 @@ with open('matches-summary.txt', 'w') as f:
     f.write('\n')
     for error in errors:
         f.write(error)
+
+print("Took " + getTime(time() - startTime))
