@@ -606,11 +606,19 @@ public class Motion {
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
+                            weight += 20;
+                        }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
                         weight -= adv * 0.33;
+                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                            // weight += 60 / RobotPlayer.mapSizeFactor;
+                            weight += 20;
+                        }
                     }
                     if (rc.hasFlag()) {
                         weight -= 25;
