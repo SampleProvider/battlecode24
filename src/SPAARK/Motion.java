@@ -601,7 +601,7 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500) {
+                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) {
                         weight -= 10;
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
@@ -610,29 +610,26 @@ public class Motion {
                     else {
                         actions -= 1;
                         weight += 4;
+                        weight -= adv * 0.33;
                     }
                     if (rc.hasFlag()) {
                         weight -= 25;
                         if (opponentRobots.length > friendlyRobots.length) {
                             weight -= 10;
                         }
-                        if (adv > 0) {
-                            weight -= 10;
-                        }
+                        weight -= adv * 10;
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
                         }
-                        if (adv < 0) {
-                            weight += 10;
-                        }
+                        weight -= adv * 10;
                     }
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500) {
+                    if (rc.getHealth() < 500 + adv * 40) {
                         // weight -= 3;
                         weight -= 8;
                     }
