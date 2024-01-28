@@ -25,7 +25,7 @@ public class Scout {
     protected static int targetTurns = 0;
     
     protected static void run() throws GameActionException {
-        if (Comms.getFlagAdv() < 0) {
+        if (Comms.getFlagAdv() < 0) { //tested: -1 (small difference)
             Offense.run();
             return;
         }
