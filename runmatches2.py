@@ -14,7 +14,7 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'COMBICAL' #bot to test
+currentBot = 'COMBIC' #bot to test
 
 bots = ['SPAARK'] #other bots
 
