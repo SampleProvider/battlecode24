@@ -14,7 +14,7 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'micro_5' #bot to test
+currentBot = 'micro_6' #bot to test
 
 bots = ['SPAARK'] #other bots
 
@@ -137,7 +137,7 @@ def run_match(bot, map):
         return (numWinsMapping[numWins] + ' (' + ', '.join([gameAInfo, gameBInfo]) + ')', numWins)
     
 def getTime(seconds):
-    return str(math.floor(seconds / 3600)) + "h " + str(math.floor((seconds % 3600) / 60)) + "d " + str(math.floor(seconds % 60)) + "s"
+    return str(math.floor(seconds / 3600)) + "h " + str(math.floor((seconds % 3600) / 60)) + "m " + str(math.floor(seconds % 60)) + "s"
 
 results = {}
 ctr = 0
