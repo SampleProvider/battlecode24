@@ -20,7 +20,6 @@ public class Scout {
         Direction.NORTHWEST,
         Direction.NORTH,
     };
-    protected static int flagIndex = -1;
     
     protected static MapLocation target = null;
     protected static int targetTurns = 0;
@@ -31,25 +30,8 @@ public class Scout {
         rc.setIndicatorDot(me, 0, 255, 0);
 
         // try to sneak flags back (call for help?)
+        Offense.tryPickupFlag();
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
-
-        FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
-        if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            // rc.pickupFlag(closestFlag.getLocation());
-            // int flagId = closestFlag.getID();
-            // for (int i = 3; --i >= 0;) {
-            //     if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == 0) {
-            //         flagIndex = i;
-            //         rc.writeSharedArray(GlobalArray.OPPO_FLAG_ID + i, flagId);
-            //         break;
-            //     }
-            //     else if (rc.readSharedArray(GlobalArray.OPPO_FLAG_ID + i) == flagId) {
-            //         flagIndex = i;
-            //         break;
-            //     }
-            // }
-        }
-        opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 
         FlagInfo[] friendlyFlags = rc.senseNearbyFlags(-1, rc.getTeam());
         for (FlagInfo flag : friendlyFlags) {
@@ -62,23 +44,29 @@ public class Scout {
         Comms.updatePOI();
         Motion.updateBfsMap();
 
-        if (!Setup.getCrumbs(rc.senseNearbyMapInfos())) {
-            if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
-                targetTurns = 0;
-                target = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
+        run: {
+            if (Offense.flagIndex != -1) {
+                Offense.moveWithFlag();
+                break run;
             }
-            targetTurns += 1;
-            rc.setIndicatorLine(me, target, 0, 255, 0);
-            Motion.bfsnav(target);
+            if (!Setup.getCrumbs(rc.senseNearbyMapInfos())) {
+                if (target == null || rc.getLocation().distanceSquaredTo(target) <= 4 || targetTurns >= 50) {
+                    targetTurns = 0;
+                    target = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
+                }
+                targetTurns += 1;
+                rc.setIndicatorLine(me, target, 0, 255, 0);
+                Motion.bfsnav(target);
+            }
         }
+
+        
+        Offense.tryPickupFlag();
 
         Atk.attack();
         Atk.heal();
     }
     protected static void jailed() throws GameActionException {
-        if (flagIndex != -1) {
-            rc.writeSharedArray(Comms.OPPO_FLAG_CUR_LOC + flagIndex, rc.readSharedArray(Comms.OPPO_FLAG_DEF_LOC + flagIndex));
-            flagIndex = -1;
-        }
+        Offense.jailed();
     }
 }

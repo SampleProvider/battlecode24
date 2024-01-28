@@ -128,6 +128,17 @@ public class Motion {
         }
         return closest;
     }
+    protected static RobotInfo getClosestRobot(RobotInfo[] a, MapLocation b) throws GameActionException {
+        RobotInfo closest = null;
+        int distance = 0;
+        for (RobotInfo loc : a) {
+            if (closest == null || b.distanceSquaredTo(loc.getLocation()) < distance) {
+                closest = loc;
+                distance = b.distanceSquaredTo(loc.getLocation());
+            }
+        }
+        return closest;
+    }
 
     protected static MapLocation getFarthest(MapLocation[] a) throws GameActionException {
         /* Get farthest MapLocation to this robot (Euclidean) */
@@ -756,17 +767,36 @@ public class Motion {
             MapLocation me = rc.getLocation();
             MapLocation newMe = rc.getLocation().add(dir);
             
-            RobotInfo robot = null;
-            for (RobotInfo r : opponentRobots) {
-                if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
+            FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
+            FlagInfo flag = null;
+
+            for (FlagInfo f : opponentFlags) {
+                if (me.distanceSquaredTo(f.getLocation()) > 2 && newMe.distanceSquaredTo(f.getLocation()) > 2) {
                     continue;
                 }
-                if (robot == null) {
-                    robot = r;
-                }
-                else if (robot.hasFlag()) {
-                    if (!r.hasFlag()) {
+                flag = f;
+                break;
+            }
+            
+            RobotInfo robot = null;
+            if (flag == null) {
+                for (RobotInfo r : opponentRobots) {
+                    if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
+                        continue;
+                    }
+                    if (robot == null) {
                         robot = r;
+                    }
+                    else if (robot.hasFlag()) {
+                        if (!r.hasFlag()) {
+                            robot = r;
+                        }
+                        else if (robot.getHealth() > r.getHealth()) {
+                            robot = r;
+                        }
+                        else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
+                            robot = r;
+                        }
                     }
                     else if (robot.getHealth() > r.getHealth()) {
                         robot = r;
@@ -775,15 +805,8 @@ public class Motion {
                         robot = r;
                     }
                 }
-                else if (robot.getHealth() > r.getHealth()) {
-                    robot = r;
-                }
-                else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                    robot = r;
-                }
             }
-
-            if (robot == null) {
+            if (robot == null && flag == null) {
                 for (RobotInfo r : friendlyRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
@@ -811,6 +834,9 @@ public class Motion {
                 }
             }
 
+            if (flag != null) {
+                Offense.tryPickupFlag();
+            }
             if (robot != null) {
                 if (robot.getTeam().equals(rc.getTeam())) {
                     while (rc.canHeal(robot.getLocation())) {
@@ -826,6 +852,9 @@ public class Motion {
 
             move(dir);
 
+            if (flag != null) {
+                Offense.tryPickupFlag();
+            }
             if (robot != null) {
                 if (robot.getTeam().equals(rc.getTeam())) {
                     while (rc.canHeal(robot.getLocation())) {
