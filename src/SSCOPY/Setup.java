@@ -1,7 +1,6 @@
-package COMBICAL;
+package SSCOPY;
 import battlecode.common.*;
 
-import java.util.Map;
 import java.util.Random;
 
 public class Setup {
@@ -13,7 +12,19 @@ public class Setup {
     protected static int spawnFlagIndex = -1;
 
     protected static int flagIndex = -1;
-    
+    protected static MapLocation[] placementLocationsOne = {
+        new MapLocation(0, 6),
+        new MapLocation(0, -6),
+        new MapLocation(6, 6),
+        new MapLocation(-6, -6),
+    };
+    protected static MapLocation[] placementLocationsTwo = {
+        new MapLocation(6, 0),
+        new MapLocation(-6, 0),
+        new MapLocation(-6, 6),
+        new MapLocation(6, -6),
+    };
+    protected static MapLocation flagOffset = new MapLocation(-100, -100);
     protected static int turnsPlacingFlag = 0;
 
     protected static MapLocation damInit;
@@ -50,51 +61,79 @@ public class Setup {
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
             MapLocation flagInit = closestFlag.getLocation();
             rc.pickupFlag(closestFlag.getLocation());
-            boolean found = false;
-            for (int i = 3; --i >= 0;) {
-                if (rc.readSharedArray(Comms.ALLY_FLAG_ID + i) == closestFlag.getID()) {
-                    flagIndex = i;
-                    found = true;
-                }
-            }
-            if (found) {
-                rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(flagInit));
-                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
-                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 3, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
-                rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 6, Comms.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
-            }
-            return found;
+            flagIndex = Comms.id % 3;
+            rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, rc.getMapHeight() - flagInit.y - 1))); //rot
+            rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 3, Comms.intifyLocation(new MapLocation(rc.getMapWidth() - flagInit.x - 1, flagInit.y))); //vert
+            rc.writeSharedArray(Comms.SETUP_SYM_GUESS + flagIndex + 6, Comms.intifyLocation(new MapLocation(flagInit.x, rc.getMapHeight() - flagInit.y - 1))); //horz
+            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC, Comms.intifyLocation(rc.getLocation()));
+            return true;
         }
         return false;
     }
 
     protected static void moveFlag() throws GameActionException {
-        MapLocation flagTarget = Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + flagIndex));
-        System.out.println("DESTINATION = " + flagTarget);
-        if (Comms.getSym() == 1) System.out.println("Vertical Symmetry");
-        else if (Comms.getSym() == 0) System.out.println("Rotational Symmetry");
-        else System.out.println("Horizontal Symmetry");
-
+        MapLocation[] allFlags = new MapLocation[] {
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC)),
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+1)),
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+2)),
+        };
         MapLocation me = rc.getLocation();
+        int bestWeight = 0;
+        Direction bestDir = Direction.CENTER;
+        for (Direction d : DIRECTIONS) {
+            int weight = 0;
+            for (int i = 3; --i >= 0; ) {
+                if (allFlags[i] == null) {
+                    continue;
+                }
+                if (i == flagIndex) {
+                    continue;
+                }
+                if (me.add(d).distanceSquaredTo(allFlags[i]) <= me.distanceSquaredTo(allFlags[i])) {
+                    weight += 5;
+                }
+                if (me.distanceSquaredTo(allFlags[i]) <= 36) {
+                    if (me.add(d).distanceSquaredTo(allFlags[i]) > me.distanceSquaredTo(allFlags[i])) {
+                        weight += 100;
+                    } else {
+                        weight -= 100;
+                    }
+                } else if (me.distanceSquaredTo(allFlags[i]) <= 49) {
+                    if (me.add(d).distanceSquaredTo(allFlags[i]) > me.distanceSquaredTo(allFlags[i])) {
+                        weight += 2;
+                    } else {
+                        weight -= 2;
+                    }
+                }
+                if (me.add(d).distanceSquaredTo(allFlags[i]) <= 36) {
+                    weight -= 100;
+                }
+            }
+            if (me.add(d).distanceSquaredTo(Motion.getMapCenter()) >= me.distanceSquaredTo(Motion.getMapCenter())) {
+                //move away from center
+                weight += 7;
+            }
+            if (weight > bestWeight) {
+                bestWeight = weight;
+                bestDir = d;
+            }
+        }
+        // System.out.println(bestWeight + " " + bestDir);
+        rc.setIndicatorLine(me, me.add(bestDir), 255, 255, 255);
+        if (rc.onTheMap(me.add(bestDir))) {
+            MapInfo info = rc.senseMapInfo(me.add(bestDir));
+            if (info.isPassable() || info.isWater()) {
+                if (info.isWater()) {
+                    if (rc.canFill(info.getMapLocation())) {
+                        rc.fill(info.getMapLocation());
+                    }
+                }
+                Motion.bfsnav(me.add(bestDir));
+            } else {
 
-        if (rc.getRoundNum() < 180 && me.distanceSquaredTo(flagTarget) > 0) {
-            Motion.bfsnav(flagTarget);
-            return;
+            }
         }
-
-        if (rc.canFill(me)) {
-            rc.fill(me);
-        }
-        if (rc.canDropFlag(me)) {
-            rc.dropFlag(me);
-            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(me));
-            rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + flagIndex, Comms.intifyLocation(me));
-            flagIndex = -1;
-        }
-        else {
-            rc.setIndicatorLine(me, me, 0, 255, 0);
-            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
-        }
+        rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
     }
 
     protected static void followFlag() throws GameActionException {
@@ -130,41 +169,6 @@ public class Setup {
                 }
             }
         }
-    }
-
-    protected static int getScore() throws GameActionException {
-        MapLocation me = rc.getLocation();
-        MapInfo[] currSpot = rc.senseNearbyMapInfos(13);
-        MapLocation center = new MapLocation(rc.getMapWidth() / 2,  rc.getMapHeight() / 2);
-        int score = 0;
-
-        for (MapInfo locInfo : currSpot) {
-            if (locInfo.isWall()) {
-                int locInfoX = locInfo.getMapLocation().x;
-                int locInfoY = locInfo.getMapLocation().y;
-                if (Comms.getSym() <= 0 && locInfoX > me.x && center.x > locInfoX) score += 3;
-                if (Comms.getSym() <= 0 && locInfoX < me.x && center.x < locInfoX) score += 3;
-                if (Comms.getSym() >= 0 && locInfoY > me.y && center.y > locInfoY) score += 3;
-                if (Comms.getSym() >= 0 && locInfoY < me.y && center.y < locInfoY) score += 3;
-            }
-        }
-
-        if (Comms.getSym() == 0) {
-            score += Math.abs(me.x - rc.getMapWidth() * 2) / rc.getMapWidth() * 4;
-            score += Math.abs(me.y - rc.getMapHeight() * 2) / rc.getMapHeight() * 4;
-        }
-        else if (Comms.getSym() == 1) {
-            score += Math.abs(me.y - rc.getMapHeight() * 2) / rc.getMapHeight() * 4;
-        }
-        else {
-            score += Math.abs(me.x - rc.getMapWidth() * 2) / rc.getMapWidth() * 4;
-        }
-
-        int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 1) % 3)));
-        int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 2) % 3)));
-        score -= dist1 + dist2;
-
-        return score + 32767;
     }
 
     protected static int turnsCheckingSpawnZoneConnected = 0;
@@ -235,7 +239,7 @@ public class Setup {
     }
     
     protected static void run() throws GameActionException {
-        if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth()) + 20) {
+        if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 205) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
             MapLocation me = rc.getLocation();
@@ -248,144 +252,35 @@ public class Setup {
                     }
                 }
             }
-            if (!pickupFlag() && !getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) { // try to get crumbs/flag
-                guessSymmetry();
-                Boolean nearDam = false;
-                MapLocation damTarget = new MapLocation(-1, -1);
-                for (MapInfo i : infos) {
-                    if (i.isDam()) {
-                        nearDam = true;
-                        damTarget = i.getMapLocation();
-                    }
-                }
-                if (nearDam) {
-                    Motion.bfsnav(damTarget);
+            if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
+                if (!rc.hasFlag()) {
+                    pickupFlag();
                 } else {
-                    int currScore = getScore();
-                    MapLocation scoreLoc = rc.getLocation();
-                    int i = Comms.id % 3;
-                    int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3)));
-                    int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3)));
-                    if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3))) dist1 = 36;
-                    if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3))) dist1 = 36;
-                    if (dist1 >= 36 && dist2 >= 36) {
-                        if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + i))) {
-                            System.out.println("Start Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
-                            rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
-                            rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
-                        }
-                        else {
-                            if (currScore > rc.readSharedArray(Comms.SETUP_FLAG_SCORE + i)) {
-                                System.out.println("Better Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
-                                rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
-                                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
-                            }
-                        }
-                    }
-                    Motion.spreadRandomly();
-                }
-            }
-
-        } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth()) + 20) {
-            //longest path
-            if (!rc.hasFlag()) {
-                MapInfo[] infos = rc.senseNearbyMapInfos();
-                MapLocation me = runTarget = rc.getLocation();
-                for (MapInfo i : infos) {
-                    if (i.getTeamTerritory() == rc.getTeam().opponent()) {
-                        Direction dir = me.directionTo(i.getMapLocation()).opposite();
-                        runTarget = new MapLocation(runTarget.x+dir.dx, runTarget.y+dir.dy);
-                    }
-                    if (i.isDam()) {
-                        if (damInit == null || me.distanceSquaredTo(damInit) > me.distanceSquaredTo(i.getMapLocation())) {
-                            damInit = i.getMapLocation();
-                        }
-                        Direction dir = me.directionTo(i.getMapLocation()).opposite();
-                        runTarget = new MapLocation(runTarget.x+dir.dx, runTarget.y+dir.dy);
-                        int meet = rc.readSharedArray(Comms.SETUP_GATHER_LOC);
-                        if (!Comms.hasLocation(meet)) {
-                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(damInit));
-                        }
-                    }
-                }
-            }
-        } else if (rc.getRoundNum() <= 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
-            if (rc.hasFlag()) {
-                moveFlag();
-            }
-            else if (damInit == null) {
-                //not running longest path
-                MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) {
-                    guessSymmetry();
-                    Motion.spreadRandomly();
+                    moveFlag();
                 }
             } else {
-                //running longest path
-                //nav
-                MapLocation[] spawns = {
-                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
-                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
-                    Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
-                };
-                Motion.bugnavTowards(runTarget);
-                rc.setIndicatorLine(rc.getLocation(), runTarget, 255, 255, 0);
-                indicatorString.append("LONGPATH->("+(runTarget.x)+","+(runTarget.y)+");");
-            }
-        // } else if (rc.getRoundNum() == 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
-        //     if (damInit == null) {
-        //         //not running longest path
-        //         MapInfo[] infos = rc.senseNearbyMapInfos();
-        //         if (!getCrumbs(infos) && !rc.hasFlag()) {
-        //             guessSymmetry();
-        //             Motion.spreadRandomly();
-        //         }
-        //     } else {
-        //         //longest path
-        //         //get closest spawn zone
-        //         int closestSpawn = Integer.MAX_VALUE;
-        //         MapLocation me = rc.getLocation();
-        //         MapLocation[] spawns = rc.getAllySpawnLocations();
-        //         for (MapLocation i : spawns) {
-        //             closestSpawn = Math.min(me.distanceSquaredTo(i), closestSpawn);
-        //         }
-
-        //         int weight = 4096 // 2^12
-        //         + rc.getLocation().distanceSquaredTo(damInit) //distance to dam (farther is better)
-        //         - 6*closestSpawn //distance to nearest spawn (closer is better)
-        //         ;
-        //         weight = Math.max(weight, 0);
-        //         weight = Math.min(weight, 8192);
-
-        //         //using setup flag target global array index
-        //         int best = rc.readSharedArray(Comms.SETUP_FLAG_WEIGHT);
-        //         if (best < weight) {
-        //             rc.writeSharedArray(Comms.SETUP_FLAG_WEIGHT, weight);
-        //             rc.writeSharedArray(Comms.SETUP_FLAG_TARGET, Comms.intifyLocation(rc.getLocation()));
-        //         }
-        //     }
-        } else if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 205) {
-            //move flag
-            if (rc.hasFlag()) {
-                moveFlag();
-            } else if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
-                followFlag();
-            } else {
-                MapInfo[] infos = rc.senseNearbyMapInfos();
-                if (!getCrumbs(infos)) {
-                    Motion.spreadRandomly();
+                if (!getCrumbs(infos) && !checkSpawnZoneConnected()) { // try to get crumbs
+                    Boolean nearDam = false;
+                    MapLocation damTarget = new MapLocation(-1, -1);
+                    for (MapInfo i : infos) {
+                        if (i.isDam()) {
+                            nearDam = true;
+                            damTarget = i.getMapLocation();
+                        }
+                    }
+                    if (nearDam) {
+                        Motion.bfsnav(damTarget);
+                    } else {
+                        Motion.spreadRandomly();
+                    }
                 }
             }
+            guessSymmetry();
         } else {
             //line up
             //clear array values
-            if (rc.readSharedArray(Comms.SETUP_FLAG_SCORE) > 0) {
-                rc.writeSharedArray(Comms.SETUP_FLAG_SCORE, 0);
-            }
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (RobotPlayer.mode == RobotPlayer.DEFENSIVE) {
-                followFlag();
             } else if (RobotPlayer.mode == RobotPlayer.SCOUT) {
                 Motion.spreadRandomly();
             } else {
