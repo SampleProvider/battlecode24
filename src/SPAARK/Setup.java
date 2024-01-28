@@ -1,6 +1,5 @@
 package SPAARK;
 import battlecode.common.*;
-import battlecode.world.control.RobotControlProvider;
 
 import java.util.Random;
 

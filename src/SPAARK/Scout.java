@@ -25,6 +25,10 @@ public class Scout {
     protected static int targetTurns = 0;
     
     protected static void run() throws GameActionException {
+        if (Comms.getFlagAdv() < 0) {
+            Offense.run();
+            return;
+        }
         MapLocation me = rc.getLocation();
 
         rc.setIndicatorDot(me, 0, 255, 0);
