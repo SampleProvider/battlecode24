@@ -14,16 +14,16 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'micro_6' #bot to test
+currentBot = 'COMBICAL' #bot to test
 
 bots = ['SPAARK'] #other bots
 
 maps = []
 
 #Micro testing
-# maps.append("[edge] microsmall")
-# maps.append("[edge] micromedium")
-# maps.append("[edge] microlarge")
+maps.append("[edge] microsmall")
+maps.append("[edge] micromedium")
+maps.append("[edge] microlarge")
 
 #Default
 maps.append("DefaultSmall")
@@ -51,24 +51,24 @@ maps.append("SteamboatMickey")
 maps.append("Yinyang")
 
 #Sprint 2
-# maps.append("BedWars")
-# maps.append("Bunkers")
-# maps.append("Checkered")
-# maps.append("Diagonal")
-# maps.append("Divergent")
-# maps.append("EndAround")
-# maps.append("FloodGates")
-# maps.append("Foxes")
-# maps.append("Fusbol")
-# maps.append("GaltonBoard")
-# maps.append("HeMustBeFreed")
-# maps.append("Intercontinental")
-# maps.append("Klein")
-# maps.append("QueenOfHearts")
-# maps.append("QuestionableChess")
-# maps.append("Racetrack")
-# maps.append("Rainbow")
-# maps.append("TreeSearch")
+maps.append("BedWars")
+maps.append("Bunkers")
+maps.append("Checkered")
+maps.append("Diagonal")
+maps.append("Divergent")
+maps.append("EndAround")
+maps.append("FloodGates")
+maps.append("Foxes")
+maps.append("Fusbol")
+maps.append("GaltonBoard")
+maps.append("HeMustBeFreed")
+maps.append("Intercontinental")
+maps.append("Klein")
+maps.append("QueenOfHearts")
+maps.append("QuestionableChess")
+maps.append("Racetrack")
+maps.append("Rainbow")
+maps.append("TreeSearch")
 
 matches = list(product(bots, maps))
 

@@ -54,6 +54,7 @@ public strictfp class RobotPlayer {
         else if (Comms.id < mapSizeFactor + 3) {
             //vary # of scouts based on map size
             mode = SCOUT;
+            // tested: no scouts (22 out of 42)
         }
 
         if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC))) {
