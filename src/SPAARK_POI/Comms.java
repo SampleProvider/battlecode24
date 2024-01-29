@@ -201,7 +201,7 @@ public class Comms {
                     if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS) {
                         if (flag.isPickedUp() || !loc.equals(parseLocation(rc.readSharedArray(ALLY_FLAG_DEF_LOC + i)))) {
                             // writePOI(loc, Motion.opponentRobots.length, i + 1);
-                            writePOI(loc, 50);
+                            writePOI(loc, 50, i + 1);
                         }
                         else if (me.equals(loc) && Motion.opponentRobots.length > 0) {
                             writePOI(loc, Motion.opponentRobots.length, i + 1);
