@@ -785,18 +785,44 @@ public class Motion {
         }
         // trap micro
         if (bestDir != null) {
-            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
-                MapLocation buildLoc = rc.getLocation().add(bestDir);
-                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
+            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 3) {
+                Direction bestBuildDir = null;
+                double bestBuildWeight = 0;
+                for (Direction d : ALL_DIRECTIONS) {
+                    MapLocation loc = me.add(d);
+                    if (!rc.onTheMap(loc)) {
+                        continue;
+                    }
+                    if (!rc.canBuild(TrapType.STUN, loc)) {
+                        continue;
+                    }
+                    double weight = 0;
+                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(loc, 2);
                     for (MapInfo m : mapInfo) {
                         if (m.getTrapType() != TrapType.NONE) {
-                            break build;
+                            weight -= 10;
                         }
                     }
-                    // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                        rc.build(TrapType.STUN, buildLoc);
-                    // }
+                    weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
+                    if (bestBuildDir == null) {
+                        bestBuildDir = d;
+                        bestBuildWeight = weight;
+                    }
+                    else if (bestBuildWeight < weight) {
+                        bestBuildDir = d;
+                        bestBuildWeight = weight;
+                    }
+                }
+                if (bestBuildWeight > 0) {
+                    if (rc.getCrumbs() > 10000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 3) {
+                        rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
+                    }
+                    else if (rc.getCrumbs() > 1000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 5) {
+                        rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
+                    }
+                    else {
+                        rc.build(TrapType.STUN, me.add(bestBuildDir));
+                    }
                 }
             }
             if (rc.canMove(bestDir)) {

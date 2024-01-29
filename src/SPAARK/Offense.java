@@ -101,7 +101,7 @@ public class Offense {
                     }
                 }
                 if (closestStoredFlag != null) {
-                    Motion.bugnavAround(closestStoredFlag, 4, 10);
+                    Motion.bfsnav(closestStoredFlag, true);
                     rc.setIndicatorLine(rc.getLocation(), closestStoredFlag, 200, 200, 200);
                     break run;
                 }
