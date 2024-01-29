@@ -1,4 +1,4 @@
-package micro_6;
+package micro_5;
 
 import battlecode.common.*;
 
@@ -67,7 +67,7 @@ public class Offense {
             if (target == null && closestFlag != null) {
                 target = closestFlag.getLocation();
             }
-            if (Comms.id < 30) {
+            if (Comms.id % 2 == 0) {
                 if (target == null) {
                     MapLocation closestStoredFlag = null;
                     for (int i = 3; --i >= 0;) {
@@ -154,7 +154,9 @@ public class Offense {
         tryPickupFlag();
 
         Atk.attack();
-        Atk.heal();
+        if ((rc.getExperience(SkillType.HEAL) < 99 && rc.getExperience(SkillType.ATTACK) >= 60) || rc.getLevel(SkillType.ATTACK) >= 4) {
+            Atk.heal(); // no healing until attack specialization :C
+        }
     }
     protected static void tryPickupFlag() throws GameActionException {
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());

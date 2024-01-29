@@ -1,4 +1,4 @@
-package micro_3;
+package micro_4;
 
 import battlecode.common.*;
 
@@ -565,7 +565,7 @@ public class Motion {
             double weight = 0;
             if (rc.getHealth() > 500) {
                 if (d.equals(optimalDir)) {
-                    weight += 1.55;
+                    weight += 1.6;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 1.5;
@@ -576,7 +576,7 @@ public class Motion {
             }
             else {
                 if (d.equals(optimalDir)) {
-                    weight += 0.55;
+                    weight += 0.6;
                 }
                 if (d.equals(optimalDir.rotateLeft()) || d.equals(optimalDir.rotateRight())) {
                     weight += 0.5;
@@ -590,6 +590,7 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
+            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
@@ -600,47 +601,71 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500) {
+                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) {
                         weight -= 10;
+                        // weight -= Atk.
+                        if (rc.getHealth() < 500) {
+                            if (rc.getExperience(SkillType.ATTACK) >= 75 && rc.getExperience(SkillType.ATTACK) < 80) {
+                                weight -= 10;
+                            }
+                            if (rc.getExperience(SkillType.ATTACK) >= 110 && rc.getExperience(SkillType.ATTACK) < 120) {
+                                weight -= 10;
+                            }
+                            if (rc.getExperience(SkillType.ATTACK) >= 150 && rc.getExperience(SkillType.ATTACK) < 162) {
+                                weight -= 10;
+                            }
+                        }
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
-                            // weight += 5;
-                        }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor;
-                            // weight += 5;
-                        }
+                        weight -= adv * 0.33;
+                    }
+                    //suicide if you accidentally got heal specialization
+                    if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
+                        // weight += 60 / RobotPlayer.mapSizeFactor;
+                        // weight += 20;
                     }
                     if (rc.hasFlag()) {
                         weight -= 25;
                         if (opponentRobots.length > friendlyRobots.length) {
                             weight -= 10;
                         }
+                        weight -= adv * 10;
                     }
                     else if (robot.hasFlag()) {
                         weight += 10;
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 30;
                         }
+                        weight -= adv * 10;
                     }
                     // stop moving into robots when you have the flag buh
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
-                    if (rc.getHealth() < 500) {
+                    if (rc.getHealth() < 500 + adv * 40) {
                         // weight -= 3;
                         weight -= 8;
+                        // if (rc.getHealth() < 500) {
+                        //     if (rc.getExperience(SkillType.ATTACK) >= 75 && rc.getExperience(SkillType.ATTACK) < 80) {
+                        //         weight -= 4;
+                        //     }
+                        //     if (rc.getExperience(SkillType.ATTACK) >= 110 && rc.getExperience(SkillType.ATTACK) < 120) {
+                        //         weight -= 4;
+                        //     }
+                        //     if (rc.getExperience(SkillType.ATTACK) >= 150 && rc.getExperience(SkillType.ATTACK) < 162) {
+                        //         weight -= 4;
+                        //     }
+                        // }
                     }
                 }
                 if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.hasFlag()) {
                         weight -= 20;
+                        weight -= adv * 3;
                     }
                     else if (robot.hasFlag()) {
                         weight += 15;

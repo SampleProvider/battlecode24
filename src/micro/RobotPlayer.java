@@ -1,4 +1,4 @@
-package micro_6;
+package micro;
 
 import battlecode.common.*;
 
@@ -27,51 +27,38 @@ public strictfp class RobotPlayer {
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
 
-    protected static int mapSizeFactor;
-
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
         Motion.rng = rng;
-        Atk.rc = rc;
-        Comms.rc = rc;
+        Attack.rc = rc;
+        GlobalArray.rc = rc;
         Setup.rc = rc;
         Setup.rng = rng;
-        Offense.rc = rc;
-        Offense.rng = rng;
-        Defense.rc = rc;
-        Defense.rng = rng;
+        Offensive.rc = rc;
+        Offensive.rng = rng;
+        Defensive.rc = rc;
+        Defensive.rng = rng;
         Scout.rc = rc;
         Scout.rng = rng;
+        Leader.rc = rc;
+        Leader.rng = rng;
+        Follower.rc = rc;
+        Follower.rng = rng;
 
-        Comms.init();
-
-        mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2; // 1 to 4
+        GlobalArray.init();
         
-        if (Comms.id < 3) {
+        if (GlobalArray.groupId == 0) {
             mode = DEFENSIVE;
-        }
-        else if (Comms.id < mapSizeFactor + 3) {
-            //vary # of scouts based on map size
+        } else if (GlobalArray.groupId == 1) {
             mode = SCOUT;
         }
-
-        if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC))) {
-            MapLocation[] spawns = rc.getAllySpawnLocations();
-            int numFoundSoFar = 0;
-            for (MapLocation m : spawns) {
-                int numAdjSpawnZones = 0; // should be 8 if its the center
-                for (MapLocation other : spawns) {
-                    if (other.equals(m)) continue;
-                    if (m.isAdjacentTo(other)) {
-                        numAdjSpawnZones++;
-                    }
-                }
-                if (numAdjSpawnZones == 8) {
-                    rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + numFoundSoFar, Comms.intifyLocation(m));
-                    numFoundSoFar++;
-                }
-            }
+        if (GlobalArray.id == 5) {
+            GlobalArray.groupLeader = false;
+            GlobalArray.groupId = 0;
+            mode = DEFENSIVE;
+        } else if (GlobalArray.id == 6) {
+            GlobalArray.groupLeader = true;
         }
 
         Clock.yield();
@@ -83,19 +70,26 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE) {
-                        //basically spawn next to your assigned flag lol
-                        MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
-                        for (int i = 27; --i >= 0;) {
-                            if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
-                                rc.spawn(spawnLocs[i]);
+                    defenseSpawn: if (mode == DEFENSIVE) {
+                        if (GlobalArray.id < 3) {
+                            if (!GlobalArray.hasLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id))) {
+                                break defenseSpawn; // labels moment
+                            }
+                            for (int i = 0; i < 27; i++) {
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
+                                }
+                            }
+                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, GlobalArray.parseLocation(rc.readSharedArray(GlobalArray.ALLY_FLAG_DEF_LOC + GlobalArray.id)));
+                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                                rc.spawn(bestSpawnLoc);
                                 break spawn;
                             }
                         }
                     }
                     if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
                         int index = rng.nextInt(27 * 3);
-                        for (int i = 27; --i >= 0;) {
+                        for (int i = 0; i < 27; i++) {
                             MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
                             if (rc.canSpawn(randomLoc)) {
                                 rc.spawn(randomLoc);
@@ -107,18 +101,12 @@ public strictfp class RobotPlayer {
                         }
                     }
                     else {
-                        for (int i = 27; --i >= 0;) {
+                        for (int i = 0; i < 27; i++) {
                             if (!rc.canSpawn(spawnLocs[i])) {
                                 spawnLocs[i] = new MapLocation(-1000, -1000);
                             }
                         }
-                        MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                        for (int i = 3; --i >= 0;) {
-                            if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
-                                bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
-                            }
-                        }
-                        // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
+                        MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, hiddenFlags[0]);
                         if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
                             rc.spawn(bestSpawnLoc);
                         }
@@ -126,50 +114,61 @@ public strictfp class RobotPlayer {
                 }
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;
-                Atk.indicatorString = indicatorString;
-                Comms.indicatorString = indicatorString;
+                Attack.indicatorString = indicatorString;
+                GlobalArray.indicatorString = indicatorString;
                 Setup.indicatorString = indicatorString;
-                Offense.indicatorString = indicatorString;
-                Defense.indicatorString = indicatorString;
+                Offensive.indicatorString = indicatorString;
+                Defensive.indicatorString = indicatorString;
                 Scout.indicatorString = indicatorString;
+                Leader.indicatorString = indicatorString;
+                Follower.indicatorString = indicatorString;
+                if (GlobalArray.id == 0) {
+                    GlobalArray.incrementSectorTime();
+                    GlobalArray.allocateGroups();
+                }
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
                     }
                     else if (mode == DEFENSIVE) {
-                        Defense.jailed();
+                        Defensive.jailed();
                     }
                     else if (mode == SCOUT) {
                         Scout.jailed();
                     }
                     else {
-                        Offense.jailed();
+                        if (GlobalArray.groupLeader) {
+                            Leader.jailed();
+                        }
+                        Follower.jailed();
+                        Offensive.jailed();
                     }
                 }
                 else {
-                    Motion.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                    Motion.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-                    Motion.flags = rc.senseNearbyFlags(-1);
-                    if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
+                    if (rc.getRoundNum() >= 600 && rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }
-                    if (rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
-                        rc.buyGlobal(GlobalUpgrade.HEALING);
-                    }
-                    if (rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
+                    if (rc.getRoundNum() >= 1200 && rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
                         rc.buyGlobal(GlobalUpgrade.CAPTURING);
+                    }
+                    if (rc.getRoundNum() >= 1800 && rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+                        rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
                     else if (mode == DEFENSIVE) {
-                        Defense.run();
+                        Defensive.run();
                     }
                     else if (mode == SCOUT) {
                         Scout.run();
                     }
                     else {
-                        Offense.run();
+                        if (GlobalArray.groupLeader) {
+                            Leader.run();
+                        }
+                        Follower.run();
+                        Offensive.run();
                     }
                 }
                 rc.setIndicatorString(indicatorString.toString());

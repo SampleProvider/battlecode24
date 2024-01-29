@@ -1,4 +1,4 @@
-package micro_3;
+package RANDOM;
 
 import battlecode.common.*;
 
@@ -552,6 +552,12 @@ public class Motion {
 
     // micro strat used by bugnav
     protected static void micro(Direction optimalDir, MapLocation dest) throws GameActionException {
+        if (rng.nextInt(10) == 0) {
+            moveRandomly();
+            Atk.attack();
+            Atk.heal();
+            return;
+        }
         MapLocation me = rc.getLocation();
         Direction bestDir = null;
         double bestWeight = 0;
@@ -605,18 +611,10 @@ public class Motion {
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor; // why is this losing buh
-                            // weight += 5;
-                        }
                     }
                     else {
                         actions -= 1;
                         weight += 4;
-                        if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
-                            // weight += 60 / RobotPlayer.mapSizeFactor;
-                            // weight += 5;
-                        }
                     }
                     if (rc.hasFlag()) {
                         weight -= 25;
