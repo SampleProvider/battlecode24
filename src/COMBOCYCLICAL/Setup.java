@@ -70,10 +70,7 @@ public class Setup {
 
     protected static void moveFlag() throws GameActionException {
         MapLocation flagTarget = Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + flagIndex));
-        System.out.println("DESTINATION = " + flagTarget);
-        if (Comms.getSym() == 1) System.out.println("Vertical Symmetry");
-        else if (Comms.getSym() == 0) System.out.println("Rotational Symmetry");
-        else System.out.println("Horizontal Symmetry");
+        System.out.println("DESTINATION = " + flagTarget + " for " + flagIndex);
 
         MapLocation me = rc.getLocation();
 
@@ -146,27 +143,19 @@ public class Setup {
             if (locInfo.isWall()) {
                 int locInfoX = locInfo.getMapLocation().x;
                 int locInfoY = locInfo.getMapLocation().y;
-                if (Comms.getSym() <= 0 && locInfoX > me.x && center.x > locInfoX) score += 3;
-                if (Comms.getSym() <= 0 && locInfoX < me.x && center.x < locInfoX) score += 3;
-                if (Comms.getSym() >= 0 && locInfoY > me.y && center.y > locInfoY) score += 3;
-                if (Comms.getSym() >= 0 && locInfoY < me.y && center.y < locInfoY) score += 3;
+                if ((Comms.SYM & 0b010) > 0 && locInfoX > me.x && center.x > locInfoX) score += 10;
+                if ((Comms.SYM & 0b010) > 0 && locInfoX < me.x && center.x < locInfoX) score += 10;
+                if ((Comms.SYM & 0b001) > 0 && locInfoY > me.y && center.y > locInfoY) score += 10;
+                if ((Comms.SYM & 0b001) > 0 && locInfoY < me.y && center.y < locInfoY) score += 10;
             }
         }
 
-        if (Comms.getSym() == 0) {
-            score += Math.abs(me.x - rc.getMapWidth() / 2) * 50;
-            score += Math.abs(me.y - rc.getMapHeight() / 2) * 50;
-        }
-        else if (Comms.getSym() == 1) {
-            score += Math.abs(me.y - rc.getMapHeight() / 2) * 50;
-        }
-        else {
-            score += Math.abs(me.x - rc.getMapWidth() / 2) * 50;
-        }
+        if ((Comms.SYM & 0b010) > 0) score += Math.abs(me.x - rc.getMapWidth() / 2) * 50;
+        if ((Comms.SYM & 0b001) > 0) score += Math.abs(me.y - rc.getMapHeight() / 2) * 50;
 
-        int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 1) % 3)));
-        int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 2) % 3)));
-        score += dist1 + dist2;
+        // int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 1) % 3)));
+        // int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 2) % 3)));
+        // score += dist1 + dist2;
 
         return score + 32767;
     }
@@ -237,6 +226,30 @@ public class Setup {
         }
         return false;
     }
+
+    protected static void evaluateLoc() throws GameActionException {
+        int currScore = getScore();
+        MapLocation scoreLoc = rc.getLocation();
+        int i = Comms.id % 3;
+        int dist1 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3)));
+        int dist2 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3)));
+        if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3))) dist1 = 36;
+        if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3))) dist1 = 36;
+        if (dist1 >= 36 && dist2 >= 36) {
+            if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + i))) {
+                System.out.println("Start Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
+                rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
+                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
+            }
+            else {
+                if (currScore > rc.readSharedArray(Comms.SETUP_FLAG_SCORE + i)) {
+                    System.out.println("Better Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
+                    rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
+                    rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
+                }
+            }
+        }
+    }
     
     protected static void run() throws GameActionException {
         if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth())) {
@@ -265,33 +278,13 @@ public class Setup {
                 if (nearDam) {
                     Motion.bfsnav(damTarget);
                 } else {
-                    int currScore = getScore();
-                    MapLocation scoreLoc = rc.getLocation();
-                    int i = Comms.id % 3;
-                    int dist1 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3)));
-                    int dist2 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3)));
-                    if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3))) dist1 = 36;
-                    if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3))) dist1 = 36;
-                    if (dist1 >= 36 && dist2 >= 36) {
-                        if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + i))) {
-                            System.out.println("Start Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
-                            rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
-                            rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
-                        }
-                        else {
-                            if (currScore > rc.readSharedArray(Comms.SETUP_FLAG_SCORE + i)) {
-                                System.out.println("Better Location for " + i + " at: " + rc.getLocation() + " with score: " + currScore);
-                                rc.writeSharedArray(Comms.SETUP_FLAG_SCORE + i, currScore);
-                                rc.writeSharedArray(Comms.SETUP_FLAG_TARGET + i, Comms.intifyLocation(rc.getLocation()));
-                            }
-                        }
-                    }
+                    evaluateLoc();
                     Motion.spreadRandomly();
                 }
             }
 
         } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
-            //longest path
+            evaluateLoc();
             if (!rc.hasFlag()) {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 MapLocation me = runTarget = rc.getLocation();
@@ -314,10 +307,8 @@ public class Setup {
                 }
             }
         } else if (rc.getRoundNum() <= 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
-            if (rc.hasFlag()) {
-                moveFlag();
-            }
-            else if (damInit == null) {
+            evaluateLoc();
+            if (damInit == null) {
                 //not running longest path
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected() && !rc.hasFlag()) {
