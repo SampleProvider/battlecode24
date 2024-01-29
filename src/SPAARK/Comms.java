@@ -17,14 +17,11 @@ public class Comms {
      * 15-17: Opponent flag default locations
      * 18-20: Opponent flag current locations
      * 21-23: Opponent flag info
-     * 21-23: Ally spawn zone distance from center (setup only)
-     * 24: Flag target (setup only)
-     * 25: Gathering point (setup only)
      * 26-28: symmetry ROT flag 0, ROT flag 1, ROT flag 2 (setup only)
      * 29-31: symmetry VERT flag 0, VERT flag 1, VERT flag 2 (setup only)
      * 32-34: symmetry HORZ flag 0, HORZ flag 1, HORZ flag 2 (setup only)
      * 26-55: Points of Interest
-     * 56: Gathering point weight (setup only)
+     * 56-61: Gathering points (setup only)
      * 62: spawn zone connectedness
      * 62: symmetry (0b110=6:ROT, 0b101=5:VERT, 0b011=3:HORZ)
      * 63: Global id counter (first round only)
@@ -70,12 +67,9 @@ public class Comms {
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;
     protected static final int OPPO_FLAG_INFO = 21;
-    protected static final int SETUP_FLAG_DIST = 21;
-    protected static final int SETUP_FLAG_TARGET = 24;
-    protected static final int SETUP_GATHER_LOC = 25;
+    protected static final int SETUP_GATHER_LOC = 56;
     protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
-    protected static final int SETUP_GATHER_WEIGHT = 56;
     protected static final int SPAWN_CONNECTED = 62;
     protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
