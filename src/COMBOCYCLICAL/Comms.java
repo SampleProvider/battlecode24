@@ -116,14 +116,6 @@ public class Comms {
         return new MapLocation(((n >> 6) & 0b1111) - 8, ((n >> 10) & 0b1111) - 8);
     }
 
-    // symmetry type
-    public static int getSym() throws GameActionException {
-        int sym = rc.readSharedArray(SYM);
-        if ((sym & 0b110) == 0b110) return 0; // rot
-        if ((sym & 0b011) == 0b011) return 1; // horz;
-        return -1; 
-    }
-
     protected static MapLocation getCloserToAxis(MapLocation loc, int dis) throws GameActionException {
         //get coord closer to the center, according to symmetry
         int sym = rc.readSharedArray(SYM) & 0b111;
