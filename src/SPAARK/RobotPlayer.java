@@ -92,80 +92,80 @@ public strictfp class RobotPlayer {
             turnCount += 1;
 
             try {
-                    spawn: if (!rc.isSpawned()) {
-                        MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-                        MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                        if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
-                            if (mode == DEFENSIVE) {
-                                //basically spawn next to your assigned flag lol
-                                MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
-                                for (int i = 27; --i >= 0;) {
-                                    if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
-                                        rc.spawn(spawnLocs[i]);
-                                        break spawn;
-                                    }
-                                }
-                            }
-                            MapLocation[] spawns = {
-                                Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
-                                Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
-                                Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
-                            };
-                            MapLocation favoredSpawn = new MapLocation(0, 0);
-                            if (Comms.id % 2 == 0) {
-                                favoredSpawn = Motion.getClosest(spawns, Motion.getMapCenter());
-                            } else if ((Comms.id % 10) % 4 == 1) {
-                                //ends with 1, 5, 9
-                                for (int i = 3; --i >= 0;) {
-                                    if (!spawns[i].equals(Motion.getFarthest(spawns, Motion.getMapCenter())) && !spawns[i].equals(Motion.getClosest(spawns, Motion.getMapCenter()))) {
-                                        favoredSpawn = spawns[i];
-                                        break;
-                                    }
-                                }
-                            } else {
-                                favoredSpawn = Motion.getFarthest(spawns, Motion.getMapCenter());
-                            }
-                            for (Direction d : ALL_DIRECTIONS) {
-                                if (rc.canSpawn(favoredSpawn.add(d))) {
-                                    rc.spawn(favoredSpawn.add(d));
-                                    break;
-                                }
-                            }
-
-                        } else {
-                            //game started
-                            if (hiddenFlags.length == 0) {
-                                int index = rng.nextInt(27 * 3);
-                                for (int i = 27; --i >= 0;) {
-                                    MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
-                                    if (rc.canSpawn(randomLoc)) {
-                                        rc.spawn(randomLoc);
-                                        break spawn;
-                                    }
-                                    else {
-                                        index++;
-                                    }
-                                }
-                            }
-                            else {
-                                for (int i = 27; --i >= 0;) {
-                                    if (!rc.canSpawn(spawnLocs[i])) {
-                                        spawnLocs[i] = new MapLocation(-1000, -1000);
-                                    }
-                                }
-                                MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                                for (int i = 3; --i >= 0;) {
-                                    if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
-                                        bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
-                                    }
-                                }
-                                // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
-                                if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                                    rc.spawn(bestSpawnLoc);
+                spawn: if (!rc.isSpawned()) {
+                    MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+                    MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                        if (mode == DEFENSIVE) {
+                            //basically spawn next to your assigned flag lol
+                            MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
+                            for (int i = 27; --i >= 0;) {
+                                if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
+                                    rc.spawn(spawnLocs[i]);
+                                    break spawn;
                                 }
                             }
                         }
+                        MapLocation[] spawns = {
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
+                        };
+                        MapLocation favoredSpawn = new MapLocation(0, 0);
+                        if (Comms.id % 10 < 4) {
+                            favoredSpawn = Motion.getClosest(spawns, Motion.getMapCenter());
+                        } else if (Comms.id % 10 < 7) {
+                            //ends with 1, 5, 9
+                            for (int i = 3; --i >= 0;) {
+                                if (!spawns[i].equals(Motion.getFarthest(spawns, Motion.getMapCenter())) && !spawns[i].equals(Motion.getClosest(spawns, Motion.getMapCenter()))) {
+                                    favoredSpawn = spawns[i];
+                                    break;
+                                }
+                            }
+                        } else {
+                            favoredSpawn = Motion.getFarthest(spawns, Motion.getMapCenter());
+                        }
+                        for (Direction d : ALL_DIRECTIONS) {
+                            if (rc.canSpawn(favoredSpawn.add(d))) {
+                                rc.spawn(favoredSpawn.add(d));
+                                break;
+                            }
+                        }
+
+                    } else {
+                        //game started
+                        if (hiddenFlags.length == 0) {
+                            int index = rng.nextInt(27 * 3);
+                            for (int i = 27; --i >= 0;) {
+                                MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
+                                if (rc.canSpawn(randomLoc)) {
+                                    rc.spawn(randomLoc);
+                                    break spawn;
+                                }
+                                else {
+                                    index++;
+                                }
+                            }
+                        }
+                        else {
+                            for (int i = 27; --i >= 0;) {
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
+                                }
+                            }
+                            MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
+                            for (int i = 3; --i >= 0;) {
+                                if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
+                                    bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
+                                }
+                            }
+                            // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
+                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                                rc.spawn(bestSpawnLoc);
+                            }
+                        }
                     }
+                }
                 StringBuilder indicatorString = new StringBuilder();
                 Motion.indicatorString = indicatorString;
                 Atk.indicatorString = indicatorString;

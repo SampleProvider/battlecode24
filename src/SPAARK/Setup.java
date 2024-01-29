@@ -265,19 +265,7 @@ public class Setup {
                 }
             } else {
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected()) { // try to get crumbs
-                    Boolean nearDam = false;
-                    MapLocation damTarget = new MapLocation(-1, -1);
-                    for (MapInfo i : infos) {
-                        if (i.isDam()) {
-                            nearDam = true;
-                            damTarget = i.getMapLocation();
-                        }
-                    }
-                    if (nearDam) {
-                        Motion.bfsnav(damTarget);
-                    } else {
-                        Motion.spreadRandomly(false);
-                    }
+                    Motion.spreadRandomly(false);
                 }
             }
             guessSymmetry();
