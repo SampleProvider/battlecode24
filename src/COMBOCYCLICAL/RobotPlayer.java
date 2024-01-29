@@ -1,4 +1,4 @@
-package COMBIC;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 
@@ -27,6 +27,8 @@ public strictfp class RobotPlayer {
     protected final static int OFFENSIVE = 1;
     protected final static int SCOUT = 2;
 
+    protected static int mapSizeFactor;
+
     public static void run(RobotController rc) throws GameActionException {
         rng = new Random(rc.getID() + 2024);
         Motion.rc = rc;
@@ -44,17 +46,33 @@ public strictfp class RobotPlayer {
 
         Comms.init();
 
-        int mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2;
-        int defensiveFactor = 3;
-        if (Comms.getFlagAdv() > 0) {
-            defensiveFactor += (Comms.getFlagAdv()) * 2 + rc.getRoundNum() / 600;
-        }
-        if (Comms.id < defensiveFactor) {
+        mapSizeFactor = (rc.getMapHeight() + rc.getMapWidth()) / 20 - 2; // 1 to 4
+        
+        if (Comms.id < 3) {
             mode = DEFENSIVE;
         }
-        else if (Comms.id < mapSizeFactor + defensiveFactor) {
+        else if (Comms.id < mapSizeFactor + 3) {
             //vary # of scouts based on map size
             mode = SCOUT;
+            // tested: no scouts (22 out of 42)
+        }
+
+        if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC))) {
+            MapLocation[] spawns = rc.getAllySpawnLocations();
+            int numFoundSoFar = 0;
+            for (MapLocation m : spawns) {
+                int numAdjSpawnZones = 0; // should be 8 if its the center
+                for (MapLocation other : spawns) {
+                    if (other.equals(m)) continue;
+                    if (m.isAdjacentTo(other)) {
+                        numAdjSpawnZones++;
+                    }
+                }
+                if (numAdjSpawnZones == 8) {
+                    rc.writeSharedArray(Comms.ALLY_FLAG_DEF_LOC + numFoundSoFar, Comms.intifyLocation(m));
+                    numFoundSoFar++;
+                }
+            }
         }
 
         Clock.yield();
@@ -67,18 +85,11 @@ public strictfp class RobotPlayer {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (mode == DEFENSIVE) {
-                        if (Comms.id < 6) {
-                            if (!Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + (Comms.id % 3)))) {
-                                break spawn; // labels moment
-                            }
-                            for (int i = 27; --i >= 0;) {
-                                if (!rc.canSpawn(spawnLocs[i])) {
-                                    spawnLocs[i] = new MapLocation(-1000, -1000);
-                                }
-                            }
-                            MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
-                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                                rc.spawn(bestSpawnLoc);
+                        //basically spawn next to your assigned flag lol
+                        MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
+                        for (int i = 27; --i >= 0;) {
+                            if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
+                                rc.spawn(spawnLocs[i]);
                                 break spawn;
                             }
                         }
@@ -140,20 +151,15 @@ public strictfp class RobotPlayer {
                     Motion.opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                     Motion.friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
                     Motion.flags = rc.senseNearbyFlags(-1);
-                    
-                    int attackPriority = -1 * Comms.getFlagAdv() + (rc.canBuyGlobal(GlobalUpgrade.ATTACK) ? 0 : -9999);
-                    int healPriority = Comms.getFlagAdv() + (rc.canBuyGlobal(GlobalUpgrade.HEALING) ? 0 : -9999);
-                    int capturePriority = (attackPriority < 0 && healPriority < 0 && rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) ? 0 : -1000000;
-                    if (rc.canBuyGlobal(GlobalUpgrade.ATTACK) && attackPriority > 0 && attackPriority >= healPriority) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.ATTACK)) {
                         rc.buyGlobal(GlobalUpgrade.ATTACK);
                     }
-                    if (rc.canBuyGlobal(GlobalUpgrade.HEALING) && healPriority > 0 && healPriority > attackPriority) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
                         rc.buyGlobal(GlobalUpgrade.HEALING);
                     }
-                    if (capturePriority > 0) {
+                    if (rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
                         rc.buyGlobal(GlobalUpgrade.CAPTURING);
                     }
-                    
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }

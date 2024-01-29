@@ -1,4 +1,4 @@
-package COMBICAL;
+package COMBOCYCLICAL;
 import battlecode.common.*;
 
 import java.util.Map;
@@ -79,6 +79,7 @@ public class Setup {
 
         if (rc.getRoundNum() < 180 && me.distanceSquaredTo(flagTarget) > 0) {
             Motion.bfsnav(flagTarget);
+            rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(me));
             return;
         }
 
@@ -134,9 +135,12 @@ public class Setup {
 
     protected static int getScore() throws GameActionException {
         MapLocation me = rc.getLocation();
-        MapInfo[] currSpot = rc.senseNearbyMapInfos(13);
         MapLocation center = new MapLocation(rc.getMapWidth() / 2,  rc.getMapHeight() / 2);
         int score = 0;
+
+        int scoreRadius = 18;
+
+        MapInfo[] currSpot = rc.senseNearbyMapInfos(scoreRadius);
 
         for (MapInfo locInfo : currSpot) {
             if (locInfo.isWall()) {
@@ -150,19 +154,19 @@ public class Setup {
         }
 
         if (Comms.getSym() == 0) {
-            score += Math.abs(me.x - rc.getMapWidth() * 2) / rc.getMapWidth() * 4;
-            score += Math.abs(me.y - rc.getMapHeight() * 2) / rc.getMapHeight() * 4;
+            score += Math.abs(me.x - rc.getMapWidth() / 2) * 50;
+            score += Math.abs(me.y - rc.getMapHeight() / 2) * 50;
         }
         else if (Comms.getSym() == 1) {
-            score += Math.abs(me.y - rc.getMapHeight() * 2) / rc.getMapHeight() * 4;
+            score += Math.abs(me.y - rc.getMapHeight() / 2) * 50;
         }
         else {
-            score += Math.abs(me.x - rc.getMapWidth() * 2) / rc.getMapWidth() * 4;
+            score += Math.abs(me.x - rc.getMapWidth() / 2) * 50;
         }
 
         int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 1) % 3)));
         int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (Comms.id + 2) % 3)));
-        score -= dist1 + dist2;
+        score += dist1 + dist2;
 
         return score + 32767;
     }
@@ -235,7 +239,7 @@ public class Setup {
     }
     
     protected static void run() throws GameActionException {
-        if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth()) + 20) {
+        if (rc.getRoundNum() < Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
             MapLocation me = rc.getLocation();
@@ -264,8 +268,8 @@ public class Setup {
                     int currScore = getScore();
                     MapLocation scoreLoc = rc.getLocation();
                     int i = Comms.id % 3;
-                    int dist1 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3)));
-                    int dist2 = me.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3)));
+                    int dist1 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3)));
+                    int dist2 = scoreLoc.distanceSquaredTo(Comms.parseLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3)));
                     if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 1) % 3))) dist1 = 36;
                     if (!Comms.hasLocation(rc.readSharedArray(Comms.SETUP_FLAG_TARGET + (i + 2) % 3))) dist1 = 36;
                     if (dist1 >= 36 && dist2 >= 36) {
@@ -286,7 +290,7 @@ public class Setup {
                 }
             }
 
-        } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth()) + 20) {
+        } else if (rc.getRoundNum() == Math.max(rc.getMapHeight(), rc.getMapWidth())) {
             //longest path
             if (!rc.hasFlag()) {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
@@ -309,7 +313,7 @@ public class Setup {
                     }
                 }
             }
-        } else if (rc.getRoundNum() <= 200) {
+        } else if (rc.getRoundNum() <= 5*Math.max(rc.getMapHeight(), rc.getMapWidth())/3) {
             if (rc.hasFlag()) {
                 moveFlag();
             }

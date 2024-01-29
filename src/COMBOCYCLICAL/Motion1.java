@@ -1,4 +1,4 @@
-package COMBICAL;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 

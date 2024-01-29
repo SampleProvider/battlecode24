@@ -1,4 +1,4 @@
-package SSPAARK;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 

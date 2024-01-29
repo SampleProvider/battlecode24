@@ -1,4 +1,4 @@
-package COMBIC;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 
@@ -68,6 +68,7 @@ public class Offense {
                 target = closestFlag.getLocation();
             }
             if (Comms.id % 2 == 0) {
+                // tested: (%3==0 (21/42), %5<2 (21/42), %10<3 (14/42), %10<4 (21/42), <30 (23/42))
                 if (target == null) {
                     MapLocation closestStoredFlag = null;
                     for (int i = 3; --i >= 0;) {

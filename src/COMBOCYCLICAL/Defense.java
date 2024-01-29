@@ -1,4 +1,4 @@
-package COMBIC;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 
@@ -162,7 +162,8 @@ public class Defense {
                 }
             }
         } else {
-            Motion.spreadRandomly();
+            // Motion.spreadRandomly();
+            RobotPlayer.mode = RobotPlayer.OFFENSIVE;
         }
 
         // GlobalArray.updateSector();

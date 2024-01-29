@@ -1,4 +1,4 @@
-package COMBICAL;
+package COMBOCYCLICAL;
 
 import battlecode.common.*;
 
@@ -69,11 +69,12 @@ public class Comms {
     protected static final int OPPO_FLAG_DEF_LOC = 15;
     protected static final int OPPO_FLAG_CUR_LOC = 18;
     protected static final int OPPO_FLAG_INFO = 21;
-    protected static final int SETUP_FLAG_SCORE = 59;
-    protected static final int SETUP_FLAG_TARGET = 56;
+    protected static final int SETUP_FLAG_DIST = 21;
     protected static final int SETUP_GATHER_LOC = 25;
     protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
+    protected static final int SETUP_FLAG_SCORE = 56;
+    protected static final int SETUP_FLAG_TARGET = 59;
     protected static final int SPAWN_CONNECTED = 62;
     protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;
@@ -146,6 +147,22 @@ public class Comms {
         }
         //invalid symmetry doesn't get changed
         return new MapLocation(x, y);
+    }
+
+    protected static int getNumCapturedEnemyFlags() throws GameActionException {
+        int total = 0;
+        for (int i = 3; --i >= 0;) {
+            total += rc.readSharedArray(OPPO_FLAG_CUR_LOC+i) == 1 ? 1 : 0;
+        }
+        return total;
+    }
+
+    protected static int getNumCapturedAllyFlags() throws GameActionException {
+        int total = 0;
+        for (int i = 3; --i >= 0;) {
+            total += rc.readSharedArray(ALLY_FLAG_CUR_LOC+i) == 1 ? 1 : 0;
+        }
+        return total;
     }
 
     //# of flags you have captured more than the opponent
