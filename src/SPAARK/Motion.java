@@ -620,6 +620,7 @@ public class Motion {
                     minHP = Math.min(minHP, robot.getHealth());
                     if (actions == 0 || rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
                         weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
+                        //tested: +0.1adv, +0.2adv, +0.33adv (small difference)
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
@@ -627,7 +628,7 @@ public class Motion {
                     else {
                         actions -= 1;
                         weight += 5; //tested: 3, 3.5, 4, 4.5 (large difference)
-                        weight -= adv * 0.33;
+                        weight -= adv * 0.33; //tested: 0.5
                     }
                     //suicide if you accidentally got heal specialization
                     if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
@@ -643,7 +644,7 @@ public class Motion {
                     }
                     else if (robot.hasFlag()) {
                         weight += 10; //tested: 6, 8, 12, 14 (large difference)
-                        if (opponentRobots.length + 3 < friendlyRobots.length) {
+                        if (opponentRobots.length + 3 < friendlyRobots.length) { //tested: +adv (med. difference)
                             weight += 30; //tested: 20, 25, 35, 40 (small difference)
                         }
                         weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
@@ -683,10 +684,13 @@ public class Motion {
             }
             // maybe be closer to friendly robots
             if (opponentRobots.length > 0) {
-                int friendlyWeight = 0;
+                double friendlyWeight = 0;
                 for (RobotInfo robot : friendlyRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (rc.canSenseLocation(relativeLoc)) {
+                        friendlyWeight += 1;
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) <= 9) {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
