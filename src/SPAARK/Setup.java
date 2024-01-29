@@ -41,6 +41,10 @@ public class Setup {
         Direction.NORTH,
     };
 
+    protected static Boolean getCrumbs() throws GameActionException {
+        return getCrumbs(rc.senseNearbyMapInfos());
+    }
+
     protected static Boolean getCrumbs(MapInfo[] info) throws GameActionException {
         for (MapInfo i : info) {
             if (i.getCrumbs() > 0 && !i.isWall() && !i.isDam()) {
