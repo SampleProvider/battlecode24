@@ -1,4 +1,4 @@
-package SPAARK_POI;
+package POI_1;
 
 import battlecode.common.*;
 

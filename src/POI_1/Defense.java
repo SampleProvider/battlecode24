@@ -1,4 +1,4 @@
-package SPAARK_POI;
+package POI_1;
 
 import battlecode.common.*;
 
@@ -26,10 +26,6 @@ public class Defense {
     protected static void run() throws GameActionException {
         MapLocation me = rc.getLocation();
         rc.setIndicatorDot(me, 255, 0, 255);
-        if (rc.getRoundNum() > GameConstants.SETUP_ROUNDS && rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+Comms.id%3) == 1) {
-            Offense.run();
-            return;
-        }
         if (!hasFoundFlag) {
             MapLocation targetLoc = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + (Comms.id % 3)));
             Motion.bfsnav(targetLoc);

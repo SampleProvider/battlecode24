@@ -1,4 +1,4 @@
-package SPAARK_POI;
+package POI_1;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -265,7 +265,19 @@ public class Setup {
                 }
             } else {
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected()) { // try to get crumbs
-                    Motion.spreadRandomly(false);
+                    Boolean nearDam = false;
+                    MapLocation damTarget = new MapLocation(-1, -1);
+                    for (MapInfo i : infos) {
+                        if (i.isDam()) {
+                            nearDam = true;
+                            damTarget = i.getMapLocation();
+                        }
+                    }
+                    if (nearDam) {
+                        Motion.bfsnav(damTarget);
+                    } else {
+                        Motion.spreadRandomly();
+                    }
                 }
             }
             guessSymmetry();
@@ -304,42 +316,37 @@ public class Setup {
                         indicatorString.append("MEET("+Comms.parseLocation(damLoc).x+","+Comms.parseLocation(damLoc).y+");");
                         rc.setIndicatorLine(me, Comms.parseLocation(damLoc), 255, 100, 0);
                     } else {
-                        Motion.spreadRandomly();
+                        Motion.moveRandomly();
                         indicatorString.append("RANDOM;");
                     }
                 } else {
                     //Nearby dam, try to spread out
-                    int botWeight = 32767;
+                    int botWeight = 16;
                     double weights[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; //one for each direction
                     for (RobotInfo i : bots) {
                         if (i.team == rc.getTeam()) {
-                            botWeight -= 3;
+                            botWeight -= 1;
                             weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getLocation());
                         } else {
-                            botWeight += 9;
+                            botWeight += 3;
                             weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] += 60/me.distanceSquaredTo(i.getLocation());
                         }
                     }
-                    MapLocation[] flags = {
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC)),
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+1)),
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+2)),
-                    };
-                    botWeight -= Math.sqrt(me.distanceSquaredTo(Motion.getClosest(flags)));
-                    int storedBotWeight = rc.readSharedArray(Comms.SETUP_GATHER_WEIGHT);
+                    botWeight /= 4;
+                    botWeight = Math.max(botWeight, 0);
+                    botWeight = Math.min(botWeight, 7);
+                    int storedBotWeight = damLoc >> 13 & 0b111;
                     if (!Comms.hasLocation(damLoc) || botWeight > storedBotWeight) {
-                        //Changing meeting point
+                        //Changing meeting point if there are lots of enemy bots/not many friendly bots
                         for (MapInfo i : infos) {
                             if (i.isDam()) {
-                                rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
-                                rc.writeSharedArray(Comms.SETUP_GATHER_WEIGHT, botWeight);
+                                rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()) | botWeight << 13);
                                 break;
                             }
                         }
                     }
-                    if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) <= 4) {
-                        //Update weight at this location
-                        rc.writeSharedArray(Comms.SETUP_GATHER_WEIGHT, botWeight);
+                    if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) < 5) {
+                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(Comms.parseLocation(damLoc)) | botWeight << 13);
                     }
                     for (MapInfo i : infos) {
                         if (i.isDam()) {
