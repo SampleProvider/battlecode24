@@ -276,7 +276,7 @@ public class Setup {
                     if (nearDam) {
                         Motion.bfsnav(damTarget);
                     } else {
-                        Motion.spreadRandomly();
+                        Motion.spreadRandomly(false);
                     }
                 }
             }

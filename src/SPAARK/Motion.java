@@ -186,6 +186,9 @@ public class Motion {
         }
     }
     protected static void spreadRandomly() throws GameActionException {
+        spreadRandomly(true);
+    }
+    protected static void spreadRandomly(boolean fillWater) throws GameActionException {
         boolean stuck = true;
         for (Direction d : DIRECTIONS) {
             if (rc.canMove(d)) {
@@ -210,7 +213,7 @@ public class Motion {
                     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
+                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
                     if (rc.canMove(direction)) {
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
@@ -221,7 +224,7 @@ public class Motion {
                     }
                 }
             } else {
-                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
                 if (rc.canMove(direction)) {
                     rc.move(direction);
                     lastRandomSpread = target;
@@ -717,17 +720,7 @@ public class Motion {
             // prefer not filling?
 
             if (rc.canFill(me.add(d))) {
-                if (opponentRobots.length > 0) {
-                    if (bestFillDir == null) {
-                        bestFillDir = d;
-                        bestFillWeight = weight;
-                    }
-                    else if (bestFillWeight < weight) {
-                        bestFillDir = d;
-                        bestFillWeight = weight;
-                    }
-                }
-                else {
+                if (opponentRobots.length == 0 || rc.senseMapInfo(me.add(d)).getCrumbs() > 0) {
                     weight -= 0.1;
                     if (bestDir == null) {
                         bestDir = d;
@@ -736,6 +729,16 @@ public class Motion {
                     else if (bestWeight < weight) {
                         bestDir = d;
                         bestWeight = weight;
+                    }
+                }
+                else {
+                    if (bestFillDir == null) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                    else if (bestFillWeight < weight) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
                     }
                 }
             }
@@ -1094,6 +1097,7 @@ public class Motion {
         MapLocation me = rc.getLocation();
 
         boolean[] directions = new boolean[9];
+        boolean[] waterDirections = new boolean[9];
         for (int i = 1; i < step; i++) {
             if (((bfsDist[i * (height + 2) + 1 + me.y] >> me.x) & 1) == 1) {
                 if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
@@ -1124,26 +1128,63 @@ public class Motion {
                         directions[4] = true;
                     }
                 }
+                if (i + 3 < MAX_PATH_LENGTH) {
+                    if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
+                        waterDirections[7] = true;
+                    }
+                    if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> me.x) & 1) == 1) {
+                        waterDirections[3] = true;
+                    }
+                    if (me.x > 0) {
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[1] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[8] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[2] = true;
+                        }
+                    }
+                    if (me.x < width - 1) {
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[5] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[6] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[4] = true;
+                        }
+                    }
+                }
                 break;
             }
         }
         Direction optimalDirection = Direction.CENTER;
-        Direction optimalFillDirection = Direction.CENTER;
+        // Direction optimalFillDirection = Direction.CENTER;
         int minDist = Integer.MAX_VALUE;
-        int minFillDist = Integer.MAX_VALUE;
+        boolean optimalFilling = false;
+        int optimalIndex = 0;
+        // int minFillDist = Integer.MAX_VALUE;
         for (int i = 9; --i >= 0;) {
             if (directions[i]) {
                 Direction dir = Direction.DIRECTION_ORDER[i];
                 if (rc.canMove(dir)) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                    if (me.add(dir).distanceSquaredTo(dest) < minDist || (optimalFilling && waterDirections[i])) {
                         optimalDirection = dir;
                         minDist = me.add(dir).distanceSquaredTo(dest);
+                        optimalFilling = false;
+                        optimalIndex = i;
                     }
                 }
                 else if (rc.canFill(me.add(dir))) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minFillDist) {
-                        optimalFillDirection = dir;
-                        minFillDist = me.add(dir).distanceSquaredTo(dest);
+                    // if (me.add(dir).distanceSquaredTo(dest) < minDist && (optimalFilling || !waterDirections[optimalIndex])) {
+                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                        optimalDirection = dir;
+                        minDist = me.add(dir).distanceSquaredTo(dest);
+                        optimalFilling = true;
+                        optimalIndex = i;
                     }
                 }
             }
@@ -1151,16 +1192,17 @@ public class Motion {
         if (optimalDirection != Direction.CENTER) {
             return optimalDirection;
         }
-        if (optimalDirection == Direction.CENTER && optimalFillDirection == Direction.CENTER) {
-            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
+        if (optimalDirection == Direction.CENTER) {
+            // optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
+            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, false);
             indicatorString.append("BUGNAV");
 
             if (canMove(optimalDirection)) {
                 return optimalDirection;
             }
         }
-        if (canMove(optimalFillDirection)) {
-            return optimalFillDirection;
+        if (canMove(optimalDirection)) {
+            return optimalDirection;
         }
         return Direction.CENTER;
     }
