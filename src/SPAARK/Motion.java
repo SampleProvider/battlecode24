@@ -654,16 +654,16 @@ public class Motion {
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
                         // weight -= 3;
-                        weight -= 8;
+                        weight -= 8; //tested: 7, 9 (small difference)
                     }
                 }
                 if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.hasFlag()) {
-                        weight -= 20;
-                        weight -= adv * 3;
+                        weight -= 20; //tested: 15, 25 (med. difference)
+                        weight -= adv * 3; //tested: 2, 5 (small difference)
                     }
                     else if (robot.hasFlag()) {
-                        weight += 15;
+                        weight += 20; //tested: 10, 15 (large difference)
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 10;
                         }
@@ -672,9 +672,9 @@ public class Motion {
                 // REALLY DONT BE THAT CLOSE
                 if (me.distanceSquaredTo(relativeLoc) <= 2) {
                     // weight -= 16;
-                    weight -= adv * 3;
+                    weight -= adv * 2; //tested: 3, 4 (med. difference)
                     if (robot.hasFlag()) {
-                        weight += 20;
+                        weight += 20; //tested: 15, 25 (small difference)
                     }
                 }
             }
@@ -688,23 +688,26 @@ public class Motion {
                 for (RobotInfo robot : friendlyRobots) {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (rc.canSenseLocation(relativeLoc)) {
-                        friendlyWeight += 1;
+                        friendlyWeight += 1.5; //tested: 0.5, 1 (small difference)
                     }
-                    if (me.distanceSquaredTo(relativeLoc) <= 9) {
+                    if (me.distanceSquaredTo(relativeLoc) <= 10) { //tested: 8, 9 (med. difference)
+                        friendlyWeight += 1; //tested: 0.5, 1.5 (med. difference)
+                    }
+                    if (me.distanceSquaredTo(relativeLoc) <= 5) {
                         friendlyWeight += 1;
                     }
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
-                        friendlyWeight += 1;
+                        friendlyWeight += 1; //tested: 0.5, 1.5 (small difference)
                     }
-                    if (me.distanceSquaredTo(relativeLoc) <= 1) {
+                    if (me.distanceSquaredTo(relativeLoc) <= 1) { //tested: 2 (large difference)
                         //prevent clogging
-                        friendlyWeight -= 1; //tested: 2
+                        friendlyWeight -= 1; //tested: 0.7, 1.5, 2
                         // if (robot.hasFlag()) {
                         //     friendlyWeight -= 1;
                         // }
                     }
                 }
-                weight += Math.min(friendlyWeight, 4);
+                weight += Math.min(friendlyWeight, 4); //tested: 3, 6 (small difference)
             }
             // weight += friendlyWeight;
             // prefer not filling?

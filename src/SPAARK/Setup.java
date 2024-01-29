@@ -239,6 +239,7 @@ public class Setup {
     }
     
     protected static void run() throws GameActionException {
+        Motion.updateBfsMap();
         if (rc.getRoundNum() + Math.max(rc.getMapWidth(), rc.getMapHeight()) <= 205) {
             //exploration phase, lasts up to turn 60
             MapInfo[] infos = rc.senseNearbyMapInfos();
