@@ -206,32 +206,63 @@ public class Motion {
             }
             if (target.equals(me)) {
                 // just keep moving in the same direction as before if there's no robots nearby
-                if (rc.getRoundNum() % 3 == 0 || lastRandomSpread == null) {
-                    moveRandomly(); // occasionally move randomly to avoid getting stuck
-                } else if (rng.nextInt(20) == 1) {
-                    // don't get stuck in corners
-                    lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
-                    moveRandomly();
-                } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
-                    if (rc.canMove(direction)) {
-                        rc.move(direction);
-                        lastRandomSpread = lastRandomSpread.add(direction);
-                        lastRandomDir = direction;
-                        updateInfo();
-                    } else {
-                        moveRandomly();
-                    }
-                }
+                moveRandomly();
+                // if (rc.getRoundNum() % 3 == 0 || lastRandomSpread == null) {
+                //     moveRandomly(); // occasionally move randomly to avoid getting stuck
+                // } else if (rng.nextInt(20) == 1) {
+                //     // don't get stuck in corners
+                //     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
+                //     moveRandomly();
+                // } else {
+                //     // Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
+                //     Direction direction = me.directionTo(target);
+                //     if (rc.canMove(direction)) {
+                //         rc.move(direction);
+                //         lastRandomSpread = lastRandomSpread.add(direction);
+                //         lastRandomDir = direction;
+                //         updateInfo();
+                //     } else {
+                //         moveRandomly();
+                //     }
+                // }
             } else {
-                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
+                // Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
+                Direction direction = me.directionTo(target);
                 if (rc.canMove(direction)) {
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
                     updateInfo();
                 } else {
-                    moveRandomly();
+                    if (rng.nextInt(2) == 1) {
+                        if (rc.canMove(direction.rotateLeft())) {
+                            rc.move(direction.rotateLeft());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateLeft();
+                            updateInfo();
+                        } else if (rc.canMove(direction.rotateRight())) {
+                            rc.move(direction.rotateRight());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateRight();
+                            updateInfo();
+                        } else {
+                            moveRandomly();
+                        }
+                    } else {
+                        if (rc.canMove(direction.rotateRight())) {
+                            rc.move(direction.rotateRight());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateRight();
+                            updateInfo();
+                        } else if (rc.canMove(direction.rotateLeft())) {
+                            rc.move(direction.rotateLeft());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateLeft();
+                            updateInfo();
+                        } else {
+                            moveRandomly();
+                        }
+                    }
                 }
             }
         }
