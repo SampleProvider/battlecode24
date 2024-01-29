@@ -605,6 +605,10 @@ public class Motion {
                     weight += 100;
                 }
             }
+            //get crumbs
+            if (!rc.hasFlag()) {
+                weight += rc.senseMapInfo(me.add(d)).getCrumbs() / 10;
+            }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
             int adv = Comms.getFlagAdv();
