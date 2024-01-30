@@ -1,4 +1,4 @@
-package ATK_SPAARK;
+package SPAARK;
 
 import battlecode.common.*;
 
