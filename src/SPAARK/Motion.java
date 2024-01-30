@@ -213,8 +213,8 @@ public class Motion {
                     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
-                    // Direction direction = me.directionTo(target);
+                    // Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
+                    Direction direction = me.directionTo(target);
                     if (rc.canMove(direction)) {
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
@@ -225,8 +225,8 @@ public class Motion {
                     }
                 }
             } else {
-                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
-                // Direction direction = me.directionTo(target);
+                // Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
+                Direction direction = me.directionTo(target);
                 if (rc.canMove(direction)) {
                     rc.move(direction);
                     lastRandomSpread = target;
@@ -598,7 +598,7 @@ public class Motion {
         }
     }
 
-    // micro strat used by bugnav
+    // micro
     protected static void micro(Direction optimalDir, MapLocation dest) throws GameActionException {
         MapLocation me = rc.getLocation();
         Direction bestDir = null;
