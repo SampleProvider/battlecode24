@@ -51,30 +51,33 @@ public class Atk {
     }
 
     protected static RobotInfo getPrioritizedOpponentRobot(RobotInfo[] opponentRobots) throws GameActionException {
-        RobotInfo best = null;
-        for (RobotInfo robot : opponentRobots) {
-            if (best == null) {
-                best = robot;
+        RobotInfo robot = null;
+        double score = 0;
+
+        MapLocation me = rc.getLocation();
+
+        int damage = rc.getAttackDamage();
+        for (RobotInfo r : opponentRobots) {
+            // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
+            // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 50.0 + (r.hasFlag() ? - 999: 0);
+
+            // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
+            // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.2;
+            double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.3;
+            // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
+            if (r.getHealth() <= damage) {
+                rScore += 1000 + r.getAttackLevel() * 1000;
             }
-            else if (best.hasFlag()) {
-                if (!robot.hasFlag()) {
-                    best = robot;
-                }
-                else if (best.getHealth() > robot.getHealth()) {
-                    best = robot;
-                }
-                else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
-                    best = robot;
-                }
+            if (robot == null) {
+                robot = r;
+                score = rScore;
             }
-            else if (best.getHealth() > robot.getHealth()) {
-                best = robot;
-            }
-            else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
-                best = robot;
+            else if (rScore > score) {
+                robot = r;
+                score = rScore;
             }
         }
-        return best;
+        return robot;
     }
     protected static RobotInfo getPrioritizedFriendlyRobot(RobotInfo[] friendlyRobots) throws GameActionException {
         RobotInfo best = null;
