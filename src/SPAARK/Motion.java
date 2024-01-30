@@ -802,7 +802,7 @@ public class Motion {
                                     numFreeDirections++;
                                 }
                             }
-                            if (numFreeDirections <= 4) {
+                            if (numFreeDirections <= 3) {
                                 friendlyWeight -= 2;
                             }
                         }
@@ -1288,7 +1288,7 @@ public class Motion {
         // Direction optimalFillDirection = Direction.CENTER;
         int minDist = Integer.MAX_VALUE;
         boolean optimalFilling = false;
-        int optimalIndex = 0;
+        // int optimalIndex = 0;
         // int minFillDist = Integer.MAX_VALUE;
         for (int i = 9; --i >= 0;) {
             if (directions[i]) {
@@ -1298,7 +1298,7 @@ public class Motion {
                         if (me.add(dir).distanceSquaredTo(dest) < minDist) {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                 }
@@ -1308,7 +1308,7 @@ public class Motion {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
                             optimalFilling = false;
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                     else if (rc.canFill(me.add(dir))) {
@@ -1317,7 +1317,7 @@ public class Motion {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
                             optimalFilling = true;
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                 }
