@@ -27,6 +27,15 @@ public class Offense {
     protected static MapLocation turnsFindingFlagTarget = new MapLocation(0, 0);
     
     protected static void run() throws GameActionException {
+        if (rc.getRoundNum() == GameConstants.GAME_MAX_NUMBER_OF_ROUNDS && Comms.getFlagAdv() == 0) {
+            if (rc.getExperience(SkillType.BUILD) == 4 || rc.getExperience(SkillType.BUILD) == 9 || rc.getExperience(SkillType.BUILD) == 14 || rc.getExperience(SkillType.BUILD) == 19 || rc.getExperience(SkillType.BUILD) == 24 || rc.getExperience(SkillType.BUILD) == 29) {
+                for (Direction d : DIRECTIONS) {
+                    if (rc.canDig(rc.getLocation().add(d))) {
+                        rc.dig(rc.getLocation().add(d));
+                    }
+                }
+            }
+        }
         // capturing opponent flags
         MapLocation me = rc.getLocation();
         tryPickupFlag();
