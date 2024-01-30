@@ -191,7 +191,7 @@ public class Motion {
     protected static void spreadRandomly(boolean fillWater) throws GameActionException {
         boolean stuck = true;
         for (Direction d : DIRECTIONS) {
-            if (rc.canMove(d)) {
+            if (canMove(d)) {
                 stuck = false;
             }
         }
@@ -203,6 +203,21 @@ public class Motion {
             MapLocation target = me;
             for (RobotInfo r : friendlyRobots) {
                 target = target.add(me.directionTo(r.getLocation()).opposite());
+                // int x = me.x - r.getLocation().x;
+                // if (x > 0) {
+                //     x = 5 - x;
+                // }
+                // else {
+                //     x = -5 - x;
+                // }
+                // int y = me.y - r.getLocation().y;
+                // if (y > 0) {
+                //     y = 5 - y;
+                // }
+                // else {
+                //     y = -5 - y;
+                // }
+                // target = target.translate(x, y);
             }
             if (target.equals(me)) {
                 // just keep moving in the same direction as before if there's no robots nearby
@@ -213,9 +228,12 @@ public class Motion {
                     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
-                    // Direction direction = me.directionTo(target);
-                    if (rc.canMove(direction)) {
+                    // Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
+                    Direction direction = me.directionTo(target);
+                    if (rc.canMove(direction) || (rc.canFill(me.add(direction)) && fillWater)) {
+                        if (rc.canFill(me.add(direction)) && fillWater) {
+                            rc.fill(me.add(direction));
+                        }
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
                         lastRandomDir = direction;
@@ -224,22 +242,37 @@ public class Motion {
                         moveRandomly();
                     }
                 }
+                lastDir = Direction.CENTER;
+                optimalDir = Direction.CENTER;
             } else {
+                rc.setIndicatorLine(me, target, DEFAULT_RETREAT_HP, AWAY, AROUND);
+                if (lastDir == me.directionTo(target)) {
+                    lastDir = Direction.CENTER;
+                }
                 Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
                 // Direction direction = me.directionTo(target);
-                if (rc.canMove(direction)) {
+                if (rc.canMove(direction) || (rc.canFill(me.add(direction)) && fillWater)) {
+                    if (rc.canFill(me.add(direction)) && fillWater) {
+                        rc.fill(me.add(direction));
+                    }
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
                     updateInfo();
                 } else {
                     if (rng.nextInt(2) == 1) {
-                        if (rc.canMove(direction.rotateLeft())) {
+                        if (rc.canMove(direction.rotateLeft()) || (rc.canFill(me.add(direction.rotateLeft())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateLeft())) && fillWater) {
+                                rc.fill(me.add(direction.rotateLeft()));
+                            }
                             rc.move(direction.rotateLeft());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateLeft();
                             updateInfo();
-                        } else if (rc.canMove(direction.rotateRight())) {
+                        } else if (rc.canMove(direction.rotateRight()) || (rc.canFill(me.add(direction.rotateRight())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateRight())) && fillWater) {
+                                rc.fill(me.add(direction.rotateRight()));
+                            }
                             rc.move(direction.rotateRight());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateRight();
@@ -248,12 +281,18 @@ public class Motion {
                             moveRandomly();
                         }
                     } else {
-                        if (rc.canMove(direction.rotateRight())) {
+                        if (rc.canMove(direction.rotateRight()) || (rc.canFill(me.add(direction.rotateRight())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateRight())) && fillWater) {
+                                rc.fill(me.add(direction.rotateRight()));
+                            }
                             rc.move(direction.rotateRight());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateRight();
                             updateInfo();
-                        } else if (rc.canMove(direction.rotateLeft())) {
+                        } else if (rc.canMove(direction.rotateLeft()) || (rc.canFill(me.add(direction.rotateLeft())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateLeft())) && fillWater) {
+                                rc.fill(me.add(direction.rotateLeft()));
+                            }
                             rc.move(direction.rotateLeft());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateLeft();
@@ -598,7 +637,7 @@ public class Motion {
         }
     }
 
-    // micro strat used by bugnav
+    // micro
     protected static void micro(Direction optimalDir, MapLocation dest) throws GameActionException {
         MapLocation me = rc.getLocation();
         Direction bestDir = null;

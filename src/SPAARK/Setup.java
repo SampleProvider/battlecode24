@@ -10,23 +10,6 @@ public class Setup {
     protected static Random rng;
 
     protected static int flagIndex = -1;
-    protected static MapLocation[] placementLocationsOne = {
-        new MapLocation(0, 6),
-        new MapLocation(0, -6),
-        new MapLocation(6, 6),
-        new MapLocation(-6, -6),
-    };
-    protected static MapLocation[] placementLocationsTwo = {
-        new MapLocation(6, 0),
-        new MapLocation(-6, 0),
-        new MapLocation(-6, 6),
-        new MapLocation(6, -6),
-    };
-    protected static MapLocation flagOffset = new MapLocation(-100, -100);
-    protected static int turnsPlacingFlag = 0;
-
-    protected static MapLocation damInit;
-    protected static MapLocation runTarget = new MapLocation(0, 0);
 
     protected static final Direction[] DIRECTIONS = {
         Direction.SOUTHWEST,
@@ -79,60 +62,82 @@ public class Setup {
             Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+1)),
             Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+2)),
         };
+        MapLocation[] spawns = new MapLocation[] {
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
+            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
+        };
         MapLocation me = rc.getLocation();
-        int bestWeight = 0;
-        Direction bestDir = Direction.CENTER;
-        for (Direction d : DIRECTIONS) {
-            int weight = 0;
-            for (int i = 3; --i >= 0; ) {
-                if (allFlags[i] == null) {
-                    continue;
-                }
-                if (i == flagIndex) {
-                    continue;
-                }
-                if (me.add(d).distanceSquaredTo(allFlags[i]) <= me.distanceSquaredTo(allFlags[i])) {
-                    weight += 5;
-                }
-                if (me.distanceSquaredTo(allFlags[i]) <= 36) {
-                    if (me.add(d).distanceSquaredTo(allFlags[i]) > me.distanceSquaredTo(allFlags[i])) {
-                        weight += 100;
-                    } else {
-                        weight -= 100;
-                    }
-                } else if (me.distanceSquaredTo(allFlags[i]) <= 49) {
-                    if (me.add(d).distanceSquaredTo(allFlags[i]) > me.distanceSquaredTo(allFlags[i])) {
-                        weight += 2;
-                    } else {
-                        weight -= 2;
-                    }
-                }
-                if (me.add(d).distanceSquaredTo(allFlags[i]) <= 36) {
-                    weight -= 100;
-                }
+        double bestWeight = 0;
+        MapLocation best = me;
+        MapInfo[] mapInfos = rc.senseNearbyMapInfos();
+        for (int j = 3; --j >= 0;) {
+            if (allFlags[j] == null) {
+                continue;
             }
-            if (me.add(d).distanceSquaredTo(Motion.getMapCenter()) >= me.distanceSquaredTo(Motion.getMapCenter())) {
-                //move away from center
-                weight += 7;
+            if (j == flagIndex) {
+                continue;
             }
-            if (weight > bestWeight) {
-                bestWeight = weight;
-                bestDir = d;
+            if (me.distanceSquaredTo(allFlags[j]) <= 36) {
+                Motion.bugnavAway(allFlags[j], true);
             }
         }
-        // System.out.println(bestWeight + " " + bestDir);
-        rc.setIndicatorLine(me, me.add(bestDir), 255, 255, 255);
-        if (rc.onTheMap(me.add(bestDir))) {
-            MapInfo info = rc.senseMapInfo(me.add(bestDir));
-            if (info.isPassable() || info.isWater()) {
-                if (info.isWater()) {
-                    if (rc.canFill(info.getMapLocation())) {
-                        rc.fill(info.getMapLocation());
-                    }
+        t: for (MapInfo i : mapInfos) {
+            double weight = 0;
+            if (i.isWall() || i.getTeamTerritory() != rc.getTeam()) {
+                continue;
+            }
+            for (int j = 3; --j >= 0;) {
+                if (allFlags[j] == null) {
+                    continue;
                 }
-                Motion.bfsnav(me.add(bestDir));
-            } else {
+                if (j == flagIndex) {
+                    continue;
+                }
+                if (i.getMapLocation().distanceSquaredTo(allFlags[j]) <= 36) {
+                    continue t;
+                }
+                if (me.add(me.directionTo(i.getMapLocation())).distanceSquaredTo(allFlags[j]) <= 36) {
+                    continue t;
+                }
+                if (i.getMapLocation().distanceSquaredTo(allFlags[j]) <= 49) {
+                    weight -= 3;
+                }
+                //closer to other flags
+                weight += 2*(Math.sqrt(me.distanceSquaredTo(allFlags[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(allFlags[j])));
 
+                //closer to spawns
+                weight += (Math.sqrt(me.distanceSquaredTo(spawns[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(spawns[j])));
+            }
+            //farther from center
+            weight += 4*(Math.sqrt(i.getMapLocation().distanceSquaredTo(Motion.getMapCenter())) - Math.sqrt(me.distanceSquaredTo(Motion.getMapCenter())));
+            if (weight > bestWeight) {
+                bestWeight = weight;
+                best = i.getMapLocation();
+            }
+        }
+        rc.setIndicatorLine(me, best, 255, 255, 255);
+        if (!me.isAdjacentTo(best) && !me.equals(best)) {
+            for (int j = 3; --j >= 0;) {
+                if (j == flagIndex) {
+                    continue;
+                }
+                if (allFlags[j] == null) {
+                    continue;
+                }
+                if (me.add(Motion.getBfsDirection(best, true, true)).distanceSquaredTo(allFlags[j]) > 36) {
+                    Motion.bfsnav(best, true);
+                }
+            }
+        } else {
+            MapInfo info = rc.senseMapInfo(best);
+            if (info.isWater()) {
+                if (rc.canFill(info.getMapLocation())) {
+                    rc.fill(info.getMapLocation());
+                }
+            }
+            if (rc.canMove(me.directionTo(best))) {
+                rc.move(me.directionTo(best));
             }
         }
         rc.writeSharedArray(Comms.ALLY_FLAG_CUR_LOC + flagIndex, Comms.intifyLocation(rc.getLocation()));
@@ -264,23 +269,24 @@ public class Setup {
                 }
             } else {
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected()) { // try to get crumbs
-                    if (rc.getRoundNum() < 10) {
-                        Motion.spreadRandomly(true);
-                    } else {
-                        Motion.spreadRandomly(false);
-                    }
+                    Motion.spreadRandomly(false);
+                    // if (rc.getRoundNum() < 20) {
+                    //     Motion.spreadRandomly(true);
+                    // } else {
+                    //     Motion.spreadRandomly(false);
+                    // }
                 }
             }
             guessSymmetry();
         } else {
             //line up
             //clear array values
+            guessSymmetry();
             if (rc.hasFlag()) {
                 moveFlag();
             } else if (RobotPlayer.mode == RobotPlayer.SCOUT) {
                 Motion.spreadRandomly();
             } else {
-                guessSymmetry();
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2);
                 if (!Comms.hasLocation(damLoc)) {
@@ -302,7 +308,7 @@ public class Setup {
                 }
                 if (!nearDam) {
                     //if we aren't near the dam, then go to the meeting point
-                    if (Comms.hasLocation(damLoc)) {
+                    if (Comms.hasLocation(damLoc) && !getCrumbs()) {
                         Motion.bfsnav(Comms.parseLocation(damLoc));
                         indicatorString.append("MEET("+Comms.parseLocation(damLoc).x+","+Comms.parseLocation(damLoc).y+");");
                         rc.setIndicatorLine(me, Comms.parseLocation(damLoc), 255, 100, 0);
@@ -312,88 +318,90 @@ public class Setup {
                     }
                 } else {
                     //Nearby dam, try to spread out
-                    int botWeight = 32767;
-                    double weights[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; //one for each direction
-                    for (RobotInfo i : bots) {
-                        if (i.team == rc.getTeam()) {
-                            botWeight -= 3;
-                            weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getLocation());
-                        } else {
-                            botWeight += 9;
-                            weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] += 60/me.distanceSquaredTo(i.getLocation());
-                        }
-                    }
-                    MapLocation[] flags = {
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC)),
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+1)),
-                        Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+2)),
-                    };
-                    botWeight -= Math.sqrt(me.distanceSquaredTo(Motion.getClosest(flags)));
-                    int storedBotWeight = rc.readSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1);
-                    if (!Comms.hasLocation(damLoc) || botWeight > storedBotWeight) {
-                        //Changing meeting point
-                        for (MapInfo i : infos) {
-                            if (i.isDam()) {
-                                rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2, Comms.intifyLocation(i.getMapLocation()));
-                                rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
-                                if (flagIndex == 1) {
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
-                                    }
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
-                                    }
-                                } else if (flagIndex == 2) {
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
-                                    }
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
-                                    }
-                                } else {
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
-                                    }
-                                    if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
-                                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
-                                    }
-                                }
-                                break;
+                    if (!getCrumbs()) {
+                        int botWeight = 32767;
+                        double weights[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; //one for each direction
+                        for (RobotInfo i : bots) {
+                            if (i.team == rc.getTeam()) {
+                                botWeight -= 3;
+                                weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] -= 10/me.distanceSquaredTo(i.getLocation());
+                            } else {
+                                botWeight += 9;
+                                weights[me.directionTo(i.getLocation()).getDirectionOrderNum()] += 60/me.distanceSquaredTo(i.getLocation());
                             }
                         }
-                    }
-                    if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) <= 4) {
-                        //Update weight at this location
-                        rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
-                    }
-                    for (MapInfo i : infos) {
-                        if (i.isDam()) {
-                            weights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] += 20;
+                        MapLocation[] flags = {
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+1)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC+2)),
+                        };
+                        botWeight -= Math.sqrt(me.distanceSquaredTo(Motion.getClosest(flags)));
+                        int storedBotWeight = rc.readSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1);
+                        if (!Comms.hasLocation(damLoc) || botWeight > storedBotWeight) {
+                            //Changing meeting point
+                            for (MapInfo i : infos) {
+                                if (i.isDam()) {
+                                    rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2, Comms.intifyLocation(i.getMapLocation()));
+                                    rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
+                                    if (flagIndex == 1) {
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
+                                        }
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
+                                        }
+                                    } else if (flagIndex == 2) {
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
+                                        }
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
+                                        }
+                                    } else {
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
+                                        }
+                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
+                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    double dx=0;
-                    double dy=0;
-                    for (Direction i : Direction.allDirections()) {
-                        dx += i.getDeltaX() * weights[i.getDirectionOrderNum()];
-                        dy += i.getDeltaY() * weights[i.getDirectionOrderNum()];
-                    }
-                    Direction dir = me.directionTo(new MapLocation((int)(me.x+dx), (int)(me.y+dy)));
-                    if (!rc.canMove(dir)) {
-                        dir = dir.rotateRight();
+                        if (me.distanceSquaredTo(Comms.parseLocation(damLoc)) <= 4) {
+                            //Update weight at this location
+                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
+                        }
+                        for (MapInfo i : infos) {
+                            if (i.isDam()) {
+                                weights[me.directionTo(i.getMapLocation()).getDirectionOrderNum()] += 20;
+                            }
+                        }
+                        double dx=0;
+                        double dy=0;
+                        for (Direction i : Direction.allDirections()) {
+                            dx += i.getDeltaX() * weights[i.getDirectionOrderNum()];
+                            dy += i.getDeltaY() * weights[i.getDirectionOrderNum()];
+                        }
+                        Direction dir = me.directionTo(new MapLocation((int)(me.x+dx), (int)(me.y+dy)));
                         if (!rc.canMove(dir)) {
-                            dir = dir.rotateLeft().rotateLeft();
+                            dir = dir.rotateRight();
+                            if (!rc.canMove(dir)) {
+                                dir = dir.rotateLeft().rotateLeft();
+                            }
                         }
+                        if (rc.canMove(dir) && rc.isMovementReady()) {
+                            rc.move(dir);
+                        }
+                        indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                     }
-                    if (rc.canMove(dir) && rc.isMovementReady()) {
-                        rc.move(dir);
-                    }
-                    indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                 }
             }
         }
