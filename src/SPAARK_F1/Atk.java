@@ -1,4 +1,4 @@
-package SPAARK_ATK;
+package SPAARK_F1;
 
 import battlecode.common.*;
 
@@ -80,30 +80,25 @@ public class Atk {
         return robot;
     }
     protected static RobotInfo getPrioritizedFriendlyRobot(RobotInfo[] friendlyRobots) throws GameActionException {
-        RobotInfo best = null;
-        for (RobotInfo robot : friendlyRobots) {
-            if (best == null) {
-                best = robot;
+        RobotInfo robot = null;
+        double score = 0;
+
+        for (RobotInfo r : friendlyRobots) {
+            if (r.getHealth() == 1000) {
+                continue;
             }
-            else if (best.hasFlag()) {
-                if (!robot.hasFlag()) {
-                    best = robot;
-                }
-                else if (best.getHealth() > robot.getHealth()) {
-                    best = robot;
-                }
-                else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
-                    best = robot;
-                }
+            double rScore = r.getAttackLevel() /*r.getHealLevel()*/ - r.getHealth() / 20.0 + (r.hasFlag() ? - 99999: 0);
+            // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
+            if (robot == null) {
+                robot = r;
+                score = rScore;
             }
-            else if (best.getHealth() > robot.getHealth()) {
-                best = robot;
-            }
-            else if (best.getHealth() == robot.getHealth() && best.getID() > robot.getID()) {
-                best = robot;
+            else if (rScore > score) {
+                robot = r;
+                score = rScore;
             }
         }
-        return best;
+        return robot;
     }
 
     protected static int attackXpSinceLastLevel() throws GameActionException {
