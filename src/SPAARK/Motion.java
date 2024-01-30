@@ -215,7 +215,10 @@ public class Motion {
                 } else {
                     // Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
                     Direction direction = me.directionTo(target);
-                    if (rc.canMove(direction)) {
+                    if (rc.canMove(direction) || (rc.canFill(me.add(direction)) && fillWater)) {
+                        if (rc.canFill(me.add(direction)) && fillWater) {
+                            rc.fill(me.add(direction));
+                        }
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
                         lastRandomDir = direction;
@@ -227,19 +230,28 @@ public class Motion {
             } else {
                 // Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
                 Direction direction = me.directionTo(target);
-                if (rc.canMove(direction)) {
+                if (rc.canMove(direction) || (rc.canFill(me.add(direction)) && fillWater)) {
+                    if (rc.canFill(me.add(direction)) && fillWater) {
+                        rc.fill(me.add(direction));
+                    }
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
                     updateInfo();
                 } else {
                     if (rng.nextInt(2) == 1) {
-                        if (rc.canMove(direction.rotateLeft())) {
+                        if (rc.canMove(direction.rotateLeft()) || (rc.canFill(me.add(direction.rotateLeft())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateLeft())) && fillWater) {
+                                rc.fill(me.add(direction.rotateLeft()));
+                            }
                             rc.move(direction.rotateLeft());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateLeft();
                             updateInfo();
-                        } else if (rc.canMove(direction.rotateRight())) {
+                        } else if (rc.canMove(direction.rotateRight()) || (rc.canFill(me.add(direction.rotateRight())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateRight())) && fillWater) {
+                                rc.fill(me.add(direction.rotateRight()));
+                            }
                             rc.move(direction.rotateRight());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateRight();
@@ -248,12 +260,18 @@ public class Motion {
                             moveRandomly();
                         }
                     } else {
-                        if (rc.canMove(direction.rotateRight())) {
+                        if (rc.canMove(direction.rotateRight()) || (rc.canFill(me.add(direction.rotateRight())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateRight())) && fillWater) {
+                                rc.fill(me.add(direction.rotateRight()));
+                            }
                             rc.move(direction.rotateRight());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateRight();
                             updateInfo();
-                        } else if (rc.canMove(direction.rotateLeft())) {
+                        } else if (rc.canMove(direction.rotateLeft()) || (rc.canFill(me.add(direction.rotateLeft())) && fillWater)) {
+                            if (rc.canFill(me.add(direction.rotateLeft())) && fillWater) {
+                                rc.fill(me.add(direction.rotateLeft()));
+                            }
                             rc.move(direction.rotateLeft());
                             lastRandomSpread = target;
                             lastRandomDir = direction.rotateLeft();
