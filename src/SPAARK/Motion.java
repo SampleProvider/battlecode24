@@ -644,6 +644,7 @@ public class Motion {
         double bestWeight = 0;
         Direction bestFillDir = null;
         double bestFillWeight = 0;
+        int mapSize = RobotPlayer.mapSizeFactor;
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -694,8 +695,9 @@ public class Motion {
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
-                    if (actions == 0 || rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
+                    if (actions == 0 || rc.getHealth() < 500 + adv * 40 + mapSize * 40 - 100) { //tested: adv * 30, adv * 50
                         weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
+                        weight += mapSize;
                         //tested: +0.1adv, +0.2adv, +0.33adv (small difference)
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
@@ -789,7 +791,7 @@ public class Motion {
                             //count number of directions it can move
                             int numFreeDirections = 0;
                             for (Direction _d : DIRECTIONS) {
-                                if (rc.senseMapInfo(robot.getLocation().add(_d)).isPassable() && rc.senseNearbyRobots(robot.getLocation().add(_d), 1, null).length == 0) {
+                                if (rc.senseMapInfo(robot.getLocation().add(_d)).isPassable() && rc.senseRobotAtLocation(robot.getLocation().add(_d)) == null) {
                                     numFreeDirections++;
                                 }
                             }
@@ -855,7 +857,9 @@ public class Motion {
                     MapInfo[] mapInfo = rc.senseNearbyMapInfos(loc, 2);
                     for (MapInfo m : mapInfo) {
                         if (m.getTrapType() != TrapType.NONE) {
-                            weight -= 5;
+                            if (rc.getCrumbs() < 20000) {
+                                weight -= (20000 - rc.getCrumbs()) / 2000;
+                            }
                         }
                     }
                     weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
@@ -869,10 +873,11 @@ public class Motion {
                     }
                 }
                 if (bestBuildWeight > 0) {
-                    if (rc.getCrumbs() > 10000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 3) {
+                    RobotInfo[] buildDirNearbyOpponents = rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent());
+                    if (rc.getCrumbs() > 10000 && buildDirNearbyOpponents.length > 3) {
                         rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
                     }
-                    else if (rc.getCrumbs() > 2000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 5) {
+                    else if (rc.getCrumbs() > 2000 && buildDirNearbyOpponents.length > 5) {
                         rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
                     }
                     else {

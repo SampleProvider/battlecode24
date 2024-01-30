@@ -85,6 +85,9 @@ public class Comms {
     protected static int intifyLocation(MapLocation loc) {
         return 0b1000000000000 | (loc.y << 6) | loc.x;
     }
+    protected static int intifyLocationNoMarker(MapLocation loc) {
+        return (loc.y << 6) | loc.x;
+    }
     protected static int updateLocation(int n, MapLocation loc) {
         return (n & 0b1110000000000000) | intifyLocation(loc);
     }
