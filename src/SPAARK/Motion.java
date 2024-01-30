@@ -775,14 +775,28 @@ public class Motion {
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
                         friendlyWeight += 1; //tested: 0.5, 1.5 (small difference)
                     }
-                    if (me.distanceSquaredTo(relativeLoc) <= 1) { //tested: 2 (large difference)
+                    if (me.distanceSquaredTo(relativeLoc) <= 2 && me.distanceSquaredTo(robot.getLocation()) > 2) { //tested: 2 (large difference)
                         //prevent clogging
-                        if (robot.getHealth() <= 800) {
-                            friendlyWeight -= 1; //tested: 0.7, 1.5, 2
-                        }
+                        // if (robot.getHealth() <= 800) {
+                        //     friendlyWeight -= 1; //tested: 0.7, 1.5, 2
+                        // }
                         // if (robot.hasFlag()) {
                         //     friendlyWeight -= 1;
                         // }
+                        
+                        // IF the robot can be targeted and has low hp
+                        if (robot.getHealth() <= 800 && rc.senseNearbyRobots(robot.getLocation(), 10, rc.getTeam().opponent()).length > 0) {
+                            //count number of directions it can move
+                            int numFreeDirections = 0;
+                            for (Direction _d : DIRECTIONS) {
+                                if (rc.senseMapInfo(robot.getLocation().add(_d)).isPassable() && rc.senseNearbyRobots(robot.getLocation().add(_d), 1, null).length == 0) {
+                                    numFreeDirections++;
+                                }
+                            }
+                            if (numFreeDirections <= 4) {
+                                friendlyWeight -= 2;
+                            }
+                        }
                     }
                 }
                 weight += Math.max(0, Math.min(friendlyWeight, 4)); //tested: 3, 6 (small difference)

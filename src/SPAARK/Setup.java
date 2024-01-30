@@ -284,8 +284,8 @@ public class Setup {
             guessSymmetry();
             if (rc.hasFlag()) {
                 moveFlag();
-            } else if (RobotPlayer.mode == RobotPlayer.SCOUT) {
-                Motion.spreadRandomly();
+            // } else if (RobotPlayer.mode == RobotPlayer.SCOUT) {
+            //     Motion.spreadRandomly();
             } else {
                 MapInfo[] infos = rc.senseNearbyMapInfos();
                 int damLoc = rc.readSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2);
