@@ -857,6 +857,7 @@ public class Motion {
             
             RobotInfo robot = null;
             double score = -99999;
+
             if (flag == null) {
                 for (RobotInfo r : opponentRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
@@ -874,9 +875,8 @@ public class Motion {
                     }
                 }
             }
-
             if (robot == null && flag == null) {
-                for (RobotInfo r : opponentRobots) {
+                for (RobotInfo r : friendlyRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
