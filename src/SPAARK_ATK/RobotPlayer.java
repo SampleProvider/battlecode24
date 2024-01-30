@@ -1,12 +1,10 @@
-package TEST_ATK_SPAARK;
+package SPAARK_ATK;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
 public strictfp class RobotPlayer {
-    protected static int turnCount = 0;
-
     protected static Random rng;
 
     protected static Direction[] DIRECTIONS= {
@@ -86,11 +84,13 @@ public strictfp class RobotPlayer {
             }
         }
 
+        if (Motion.mapCenter.x < 0) {
+            Motion.mapCenter = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+        }
+
         Clock.yield();
 
         while (true) {
-            turnCount += 1;
-
             try {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
@@ -113,17 +113,17 @@ public strictfp class RobotPlayer {
                         };
                         MapLocation favoredSpawn = new MapLocation(0, 0);
                         if (Comms.id % 10 < 4) {
-                            favoredSpawn = Motion.getClosest(spawns, Motion.getMapCenter());
+                            favoredSpawn = Motion.getClosest(spawns, Motion.mapCenter);
                         } else if (Comms.id % 10 < 7) {
                             //ends with 1, 5, 9
                             for (int i = 3; --i >= 0;) {
-                                if (!spawns[i].equals(Motion.getFarthest(spawns, Motion.getMapCenter())) && !spawns[i].equals(Motion.getClosest(spawns, Motion.getMapCenter()))) {
+                                if (!spawns[i].equals(Motion.getFarthest(spawns, Motion.mapCenter)) && !spawns[i].equals(Motion.getClosest(spawns, Motion.mapCenter))) {
                                     favoredSpawn = spawns[i];
                                     break;
                                 }
                             }
                         } else {
-                            favoredSpawn = Motion.getFarthest(spawns, Motion.getMapCenter());
+                            favoredSpawn = Motion.getFarthest(spawns, Motion.mapCenter);
                         }
                         for (Direction d : ALL_DIRECTIONS) {
                             if (rc.canSpawn(favoredSpawn.add(d))) {
@@ -177,15 +177,18 @@ public strictfp class RobotPlayer {
                 if (!rc.isSpawned()) {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.jailed();
-                    }
-                    else if (mode == DEFENSIVE) {
-                        Defense.jailed();
-                    }
-                    else if (mode == SCOUT) {
-                        Scout.jailed();
-                    }
-                    else {
-                        Offense.jailed();
+                    } else {
+                        switch (mode) {
+                            case DEFENSIVE:
+                                Defense.jailed();
+                                break;
+                            case SCOUT:
+                                Scout.jailed();
+                                break;
+                            default:
+                                Offense.jailed();
+                                break;
+                        }
                     }
                 }
                 else {
@@ -204,14 +207,18 @@ public strictfp class RobotPlayer {
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
                         Setup.run();
                     }
-                    else if (mode == DEFENSIVE) {
-                        Defense.run();
-                    }
-                    else if (mode == SCOUT) {
-                        Scout.run();
-                    }
                     else {
-                        Offense.run();
+                        switch (mode) {
+                            case DEFENSIVE:
+                                Defense.run();
+                                break;
+                            case SCOUT:
+                                Scout.run();
+                                break;
+                            default:
+                                Offense.run();
+                                break;
+                        }
                     }
                 }
                 rc.setIndicatorString(indicatorString.toString());

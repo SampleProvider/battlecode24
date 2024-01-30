@@ -335,6 +335,7 @@ public class Setup {
                 for (MapInfo i : infos) {
                     if (i.isDam()) {
                         nearDam = true;
+                        break;
                     }
                 }
                 if (!nearDam) {
@@ -412,7 +413,15 @@ public class Setup {
                             //Update weight at this location
                             rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
                         }
-                        Motion.moveRandomly();
+                        move: {
+                            for (Direction d : DIRECTIONS) {
+                                if (rc.senseMapInfo(me.add(d)).isDam()) {
+                                    break move;
+                                }
+                            }
+                            Motion.bugnavTowards(Comms.parseLocation(damLoc));
+                        }
+                        // Motion.moveRandomly();
                         // indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                     }
                 }

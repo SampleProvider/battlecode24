@@ -1,4 +1,4 @@
-package TEST_ATK_SPAARK;
+package SPAARK_ATK;
 
 import battlecode.common.*;
 
@@ -56,7 +56,8 @@ public class Defense {
         Comms.checkFlags(friendlyFlags, opponentFlags);
         Comms.updatePOI();
         if (Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id))) {
-            RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            // RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            RobotInfo[] opponentRobots = Motion.opponentRobots;
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
                 RobotInfo closestRobot = Motion.getClosestRobot(opponentRobots);

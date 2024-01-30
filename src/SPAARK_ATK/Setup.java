@@ -1,4 +1,4 @@
-package TEST_ATK_SPAARK;
+package SPAARK_ATK;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -153,7 +153,7 @@ public class Setup {
                         weight += (Math.sqrt(me.distanceSquaredTo(spawns[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(spawns[j])));
                     }
                     //farther from center
-                    weight += 8*(Math.sqrt(i.getMapLocation().distanceSquaredTo(Motion.getMapCenter())) - Math.sqrt(me.distanceSquaredTo(Motion.getMapCenter())));
+                    weight += 8*(Math.sqrt(i.getMapLocation().distanceSquaredTo(Motion.mapCenter)) - Math.sqrt(me.distanceSquaredTo(Motion.mapCenter)));
 
                     //passability
                     for (Direction d : DIRECTIONS) {
@@ -335,6 +335,7 @@ public class Setup {
                 for (MapInfo i : infos) {
                     if (i.isDam()) {
                         nearDam = true;
+                        break;
                     }
                 }
                 if (!nearDam) {
@@ -412,7 +413,15 @@ public class Setup {
                             //Update weight at this location
                             rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
                         }
-                        Motion.moveRandomly();
+                        move: {
+                            for (Direction d : DIRECTIONS) {
+                                if (rc.senseMapInfo(me.add(d)).isDam()) {
+                                    break move;
+                                }
+                            }
+                            Motion.bugnavTowards(Comms.parseLocation(damLoc));
+                        }
+                        // Motion.moveRandomly();
                         // indicatorString.append("DAMLINE,dx="+(int)dx+",dy="+(int)dy+");");
                     }
                 }

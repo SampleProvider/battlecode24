@@ -558,12 +558,16 @@ public class Motion {
             }
         }
 
+        boolean flip = false;
         for (int i = 8; --i >= 0;) {
             if (rotation == CLOCKWISE) {
                 direction = direction.rotateRight();
             }
             else {
                 direction = direction.rotateLeft();
+            }
+            if (!rc.onTheMap(me.add(direction))) {
+                flip = true;
             }
             // if (rc.onTheMap(me.add(direction)) && rc.senseMapInfo(me.add(direction)).isPassable() && lastDir != direction.opposite()) {
             //     if (rc.canMove(direction)) {
@@ -572,6 +576,9 @@ public class Motion {
             //     return Direction.CENTER;
             // }
             if (rc.canMove(direction) && lastDir != direction.opposite()) {
+                if (flip) {
+                    rotation *= -1;
+                }
                 if (rc.canMove(direction)) {
                     return direction;
                 }
@@ -588,10 +595,16 @@ public class Motion {
                     }
                 }
                 if (water >= 4) {
+                    if (flip) {
+                        rotation *= -1;
+                    }
                     rc.fill(me.add(direction));
                     return Direction.CENTER;
                 }
             }
+        }
+        if (flip) {
+            rotation *= -1;
         }
         if (rc.canMove(lastDir.opposite())) {
             return lastDir.opposite();
@@ -921,32 +934,32 @@ public class Motion {
                 flag = f;
                 break;
             }
+
+            int damage = rc.getAttackDamage();
             
             RobotInfo robot = null;
+            double score = 0;
             if (flag == null) {
                 for (RobotInfo r : opponentRobots) {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
+                    // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
+                    // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 50.0 + (r.hasFlag() ? - 999: 0);
+    
+                    // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
+                    double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.2;
+                    // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
+                    if (r.getHealth() <= damage) {
+                        rScore += 1000 + r.getAttackLevel() * 1000;
+                    }
                     if (robot == null) {
                         robot = r;
+                        score = rScore;
                     }
-                    else if (robot.hasFlag()) {
-                        if (!r.hasFlag()) {
-                            robot = r;
-                        }
-                        else if (robot.getHealth() > r.getHealth()) {
-                            robot = r;
-                        }
-                        else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                            robot = r;
-                        }
-                    }
-                    else if (robot.getHealth() > r.getHealth()) {
+                    else if (rScore > score) {
                         robot = r;
-                    }
-                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                        robot = r;
+                        score = rScore;
                     }
                 }
             }
@@ -955,6 +968,16 @@ public class Motion {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
+                    // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
+    
+                    // if (robot == null) {
+                    //     robot = r;
+                    //     score = rScore;
+                    // }
+                    // else if (rScore > score) {
+                    //     robot = r;
+                    //     score = rScore;
+                    // }
                     if (robot == null) {
                         robot = r;
                     }
@@ -1288,7 +1311,7 @@ public class Motion {
         // Direction optimalFillDirection = Direction.CENTER;
         int minDist = Integer.MAX_VALUE;
         boolean optimalFilling = false;
-        int optimalIndex = 0;
+        // int optimalIndex = 0;
         // int minFillDist = Integer.MAX_VALUE;
         for (int i = 9; --i >= 0;) {
             if (directions[i]) {
@@ -1298,7 +1321,7 @@ public class Motion {
                         if (me.add(dir).distanceSquaredTo(dest) < minDist) {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                 }
@@ -1308,7 +1331,7 @@ public class Motion {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
                             optimalFilling = false;
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                     else if (rc.canFill(me.add(dir))) {
@@ -1317,7 +1340,7 @@ public class Motion {
                             optimalDirection = dir;
                             minDist = me.add(dir).distanceSquaredTo(dest);
                             optimalFilling = true;
-                            optimalIndex = i;
+                            // optimalIndex = i;
                         }
                     }
                 }

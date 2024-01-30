@@ -1,4 +1,4 @@
-package TEST_ATK_SPAARK;
+package SPAARK_ATK;
 
 import battlecode.common.*;
 
@@ -209,7 +209,7 @@ public class Comms {
             }
         }
         else {
-            FlagInfo[] flags = rc.senseNearbyFlags(0, rc.getTeam());
+            // FlagInfo[] flags = rc.senseNearbyFlags(0, rc.getTeam());
             for (int i = 3; --i >= 0;) {
                 if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0 || rc.readSharedArray(OPPO_FLAG_ID + i) == flagId) {
                     if (rc.readSharedArray(OPPO_FLAG_ID + i) == 0) {
@@ -221,9 +221,9 @@ public class Comms {
                     } else {
                         rc.writeSharedArray(OPPO_FLAG_CUR_LOC + i, intifyLocation(loc));
                     }
-                    if (flags.length > 0 && flags[0].getID() == flagId) {
-                        rc.writeSharedArray(OPPO_FLAG_INFO + i, (rc.senseNearbyRobots(-1, rc.getTeam()).length << 6) | Motion.opponentRobots.length);
-                    }
+                    // if (flags.length > 0 && flags[0].getID() == flagId) {
+                    //     rc.writeSharedArray(OPPO_FLAG_INFO + i, (rc.senseNearbyRobots(-1, rc.getTeam()).length << 6) | Motion.opponentRobots.length);
+                    // }
                     break;
                 }
             }
@@ -314,8 +314,10 @@ public class Comms {
         }
     }
     protected static void updatePOI() throws GameActionException {
-        RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
-        RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        // RobotInfo[] friendlyRobots = rc.senseNearbyRobots(-1, rc.getTeam());
+        // RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        RobotInfo[] opponentRobots = Motion.opponentRobots;
+        RobotInfo[] friendlyRobots = Motion.friendlyRobots;
         if (opponentRobots.length > 0) {
             int x = 0;
             int y = 0;
