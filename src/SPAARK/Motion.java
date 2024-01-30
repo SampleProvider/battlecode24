@@ -1279,20 +1279,10 @@ public class Motion {
     }
     protected static void bfsnav(MapLocation dest, boolean fillWater) throws GameActionException {
         indicatorString.append(Clock.getBytecodesLeft() + " ");
-
-        if (!dest.equals(bfsDest)) {
-            bfsDest = dest;
-            for (int i = 1; i <= height; i++) {
-                bfsDist[i] = 0;
-                bfsCurr[i] = 0;
-            }
-            bfsDist[dest.y + 1] = long1 << (dest.x);
-            bfsCurr[dest.y + 1] = long1 << (dest.x);
-            step = 1;
-        }
+        updateBfsTarget(dest);
 
         if (!rc.getLocation().equals(dest) && rc.isMovementReady()) {
-            Direction d = getBfsDirection(dest, fillWater);
+            Direction d = getBfsDirection(dest, fillWater, false);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
@@ -1304,6 +1294,18 @@ public class Motion {
         }
         bfs();
         indicatorString.append(Clock.getBytecodesLeft() + " ");
+    }
+    protected static void updateBfsTarget(MapLocation dest) throws GameActionException {
+        if (!dest.equals(bfsDest)) {
+            bfsDest = dest;
+            for (int i = 1; i <= height; i++) {
+                bfsDist[i] = 0;
+                bfsCurr[i] = 0;
+            }
+            bfsDist[dest.y + 1] = long1 << (dest.x);
+            bfsCurr[dest.y + 1] = long1 << (dest.x);
+            step = 1;
+        }
     }
 
     protected static void move(Direction dir) throws GameActionException {
