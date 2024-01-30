@@ -14,7 +14,7 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'POI_1' #bot to test
+currentBot = 'ATK_SPAARK' #bot to test
 
 bots = ['SPAARK'] #other bots
 
@@ -50,7 +50,7 @@ maps.append("Soccer")
 maps.append("SteamboatMickey")
 maps.append("Yinyang")
 
-#Sprint 2
+# Sprint 2
 # maps.append("BedWars")
 # maps.append("Bunkers")
 # maps.append("Checkered")
