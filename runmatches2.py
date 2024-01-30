@@ -14,9 +14,9 @@ emojiMap = {
 }
 errors = []
 
-currentBot = 'SPAARK' #bot to test
+currentBot = 'POI_1' #bot to test
 
-bots = ['SPAARK_MICRO'] #other bots
+bots = ['SPAARK'] #other bots
 
 maps = []
 

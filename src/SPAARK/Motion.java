@@ -1149,7 +1149,7 @@ public class Motion {
         // }
         indicatorString.append("STEP=" + step);
     }
-    protected static Direction getBfsDirection(MapLocation dest, boolean fillWater) throws GameActionException {
+    protected static Direction getBfsDirection(MapLocation dest, boolean fillWater, boolean ignoreWater) throws GameActionException {
         MapLocation me = rc.getLocation();
 
         boolean[] directions = new boolean[9];
@@ -1184,7 +1184,7 @@ public class Motion {
                         directions[4] = true;
                     }
                 }
-                if (i + 3 < MAX_PATH_LENGTH) {
+                if (i + 3 < MAX_PATH_LENGTH && !ignoreWater) {
                     if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
                         waterDirections[7] = true;
                     }
@@ -1226,21 +1226,32 @@ public class Motion {
         for (int i = 9; --i >= 0;) {
             if (directions[i]) {
                 Direction dir = Direction.DIRECTION_ORDER[i];
-                if (rc.canMove(dir)) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minDist || (optimalFilling && waterDirections[i])) {
-                        optimalDirection = dir;
-                        minDist = me.add(dir).distanceSquaredTo(dest);
-                        optimalFilling = false;
-                        optimalIndex = i;
+                if (ignoreWater) {
+                    if (canMove(dir)) {
+                        if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                            optimalDirection = dir;
+                            minDist = me.add(dir).distanceSquaredTo(dest);
+                            optimalIndex = i;
+                        }
                     }
                 }
-                else if (rc.canFill(me.add(dir))) {
-                    // if (me.add(dir).distanceSquaredTo(dest) < minDist && (optimalFilling || !waterDirections[optimalIndex])) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
-                        optimalDirection = dir;
-                        minDist = me.add(dir).distanceSquaredTo(dest);
-                        optimalFilling = true;
-                        optimalIndex = i;
+                else {
+                    if (rc.canMove(dir)) {
+                        if (me.add(dir).distanceSquaredTo(dest) < minDist || (optimalFilling && waterDirections[i])) {
+                            optimalDirection = dir;
+                            minDist = me.add(dir).distanceSquaredTo(dest);
+                            optimalFilling = false;
+                            optimalIndex = i;
+                        }
+                    }
+                    else if (rc.canFill(me.add(dir))) {
+                        // if (me.add(dir).distanceSquaredTo(dest) < minDist && (optimalFilling || !waterDirections[optimalIndex])) {
+                        if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                            optimalDirection = dir;
+                            minDist = me.add(dir).distanceSquaredTo(dest);
+                            optimalFilling = true;
+                            optimalIndex = i;
+                        }
                     }
                 }
             }
@@ -1249,8 +1260,8 @@ public class Motion {
             return optimalDirection;
         }
         if (optimalDirection == Direction.CENTER) {
-            // optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
-            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, false);
+            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
+            // optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, false);
             indicatorString.append("BUGNAV");
 
             if (canMove(optimalDirection)) {
@@ -1268,20 +1279,10 @@ public class Motion {
     }
     protected static void bfsnav(MapLocation dest, boolean fillWater) throws GameActionException {
         indicatorString.append(Clock.getBytecodesLeft() + " ");
-
-        if (!dest.equals(bfsDest)) {
-            bfsDest = dest;
-            for (int i = 1; i <= height; i++) {
-                bfsDist[i] = 0;
-                bfsCurr[i] = 0;
-            }
-            bfsDist[dest.y + 1] = long1 << (dest.x);
-            bfsCurr[dest.y + 1] = long1 << (dest.x);
-            step = 1;
-        }
+        updateBfsTarget(dest);
 
         if (!rc.getLocation().equals(dest) && rc.isMovementReady()) {
-            Direction d = getBfsDirection(dest, fillWater);
+            Direction d = getBfsDirection(dest, fillWater, false);
             if (d == Direction.CENTER) {
                 d = rc.getLocation().directionTo(dest);
             }
@@ -1293,6 +1294,18 @@ public class Motion {
         }
         bfs();
         indicatorString.append(Clock.getBytecodesLeft() + " ");
+    }
+    protected static void updateBfsTarget(MapLocation dest) throws GameActionException {
+        if (!dest.equals(bfsDest)) {
+            bfsDest = dest;
+            for (int i = 1; i <= height; i++) {
+                bfsDist[i] = 0;
+                bfsCurr[i] = 0;
+            }
+            bfsDist[dest.y + 1] = long1 << (dest.x);
+            bfsCurr[dest.y + 1] = long1 << (dest.x);
+            step = 1;
+        }
     }
 
     protected static void move(Direction dir) throws GameActionException {
