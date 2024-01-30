@@ -1,4 +1,4 @@
-package SPAARK_ATK;
+package SPAARK_F1;
 import battlecode.common.*;
 
 import java.util.Random;

@@ -1,4 +1,4 @@
-package SPAARK_ATK;
+package SPAARK_F1;
 
 import battlecode.common.*;
 
@@ -815,7 +815,7 @@ public class Motion {
                                     numFreeDirections++;
                                 }
                             }
-                            if (numFreeDirections <= 4) {
+                            if (numFreeDirections <= 3) {
                                 friendlyWeight -= 2;
                             }
                         }
@@ -948,8 +948,7 @@ public class Motion {
                     // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 50.0 + (r.hasFlag() ? - 999: 0);
     
                     // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
-                    // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.2;
-                    double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.1;
+                    double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.2;
                     // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
                     if (r.getHealth() <= damage) {
                         rScore += 1000 + r.getAttackLevel() * 1000;
@@ -969,35 +968,18 @@ public class Motion {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
-                    // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
-    
-                    // if (robot == null) {
-                    //     robot = r;
-                    //     score = rScore;
-                    // }
-                    // else if (rScore > score) {
-                    //     robot = r;
-                    //     score = rScore;
-                    // }
+                    if (r.getHealth() == 1000) {
+                        continue;
+                    }
+                    double rScore = r.getAttackLevel() /*r.getHealLevel()*/ - r.getHealth() / 20.0 + (r.hasFlag() ? - 99999: 0);
+                    // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
                     if (robot == null) {
                         robot = r;
+                        score = rScore;
                     }
-                    else if (robot.hasFlag()) {
-                        if (!r.hasFlag()) {
-                            robot = r;
-                        }
-                        else if (robot.getHealth() > r.getHealth()) {
-                            robot = r;
-                        }
-                        else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                            robot = r;
-                        }
-                    }
-                    else if (robot.getHealth() > r.getHealth()) {
+                    else if (rScore > score) {
                         robot = r;
-                    }
-                    else if (robot.getHealth() == r.getHealth() && robot.getID() > r.getID()) {
-                        robot = r;
+                        score = rScore;
                     }
                 }
             }
