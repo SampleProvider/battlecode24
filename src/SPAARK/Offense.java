@@ -35,6 +35,18 @@ public class Offense {
                     }
                 }
             }
+            if (rc.getExperience(SkillType.BUILD) == 3 || rc.getExperience(SkillType.BUILD) == 8 || rc.getExperience(SkillType.BUILD) == 13 || rc.getExperience(SkillType.BUILD) == 18 || rc.getExperience(SkillType.BUILD) == 23 || rc.getExperience(SkillType.BUILD) == 28) {
+                for (Direction d : DIRECTIONS) {
+                    if (rc.canBuild(TrapType.STUN, rc.getLocation().add(d))) {
+                        rc.canBuild(TrapType.STUN, rc.getLocation().add(d));
+                    }
+                }
+                for (Direction d : DIRECTIONS) {
+                    if (rc.canBuild(TrapType.STUN, rc.getLocation().add(d))) {
+                        rc.canBuild(TrapType.STUN, rc.getLocation().add(d));
+                    }
+                }
+            }
         }
         // capturing opponent flags
         MapLocation me = rc.getLocation();

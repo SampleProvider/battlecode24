@@ -894,7 +894,7 @@ public class Motion {
                 }
                 if (bestBuildWeight > 0) {
                     RobotInfo[] buildDirNearbyOpponents = rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent());
-                    if (rc.getCrumbs() > 10000 && buildDirNearbyOpponents.length > 3) {
+                    if (rc.getCrumbs() > 5000 && buildDirNearbyOpponents.length > 3) {
                         rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
                     }
                     else if (rc.getCrumbs() > 2000 && buildDirNearbyOpponents.length > 5) {
