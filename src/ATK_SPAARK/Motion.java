@@ -901,7 +901,7 @@ public class Motion {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
-                    double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
+                    double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
     
                     if (robot == null) {
                         robot = r;
@@ -918,7 +918,7 @@ public class Motion {
                     if (me.distanceSquaredTo(r.getLocation()) > 4 && newMe.distanceSquaredTo(r.getLocation()) > 4) {
                         continue;
                     }
-                    double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
+                    double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 100.0 + (r.hasFlag() ? - 999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.5;
     
                     if (robot == null) {
                         robot = r;
