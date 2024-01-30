@@ -697,7 +697,7 @@ public class Motion {
                     minHP = Math.min(minHP, robot.getHealth());
                     if (actions == 0 || rc.getHealth() < 500 + adv * 40 + mapSize * 40 - 100) { //tested: adv * 30, adv * 50
                         weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
-                        weight += mapSize;
+                        // weight += mapSize;
                         //tested: +0.1adv, +0.2adv, +0.33adv (small difference)
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
