@@ -777,13 +777,15 @@ public class Motion {
                     }
                     if (me.distanceSquaredTo(relativeLoc) <= 1) { //tested: 2 (large difference)
                         //prevent clogging
-                        friendlyWeight -= 1; //tested: 0.7, 1.5, 2
+                        if (robot.getHealth() <= 800) {
+                            friendlyWeight -= 1; //tested: 0.7, 1.5, 2
+                        }
                         // if (robot.hasFlag()) {
                         //     friendlyWeight -= 1;
                         // }
                     }
                 }
-                weight += Math.min(friendlyWeight, 4); //tested: 3, 6 (small difference)
+                weight += Math.max(0, Math.min(friendlyWeight, 4)); //tested: 3, 6 (small difference)
             }
             // weight += friendlyWeight;
             // prefer not filling?
@@ -839,7 +841,7 @@ public class Motion {
                     MapInfo[] mapInfo = rc.senseNearbyMapInfos(loc, 2);
                     for (MapInfo m : mapInfo) {
                         if (m.getTrapType() != TrapType.NONE) {
-                            weight -= 10;
+                            weight -= 5;
                         }
                     }
                     weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
@@ -856,7 +858,7 @@ public class Motion {
                     if (rc.getCrumbs() > 10000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 3) {
                         rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
                     }
-                    else if (rc.getCrumbs() > 1000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 5) {
+                    else if (rc.getCrumbs() > 2000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 5) {
                         rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
                     }
                     else {

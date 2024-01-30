@@ -343,34 +343,34 @@ public class Setup {
                                 if (i.isDam()) {
                                     rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2, Comms.intifyLocation(i.getMapLocation()));
                                     rc.writeSharedArray(Comms.SETUP_GATHER_LOC+flagIndex*2+1, botWeight);
-                                    if (flagIndex == 1) {
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
-                                        }
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
-                                        }
-                                    } else if (flagIndex == 2) {
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
-                                        }
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
-                                        }
-                                    } else {
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
-                                        }
-                                        if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
-                                            rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
-                                        }
-                                    }
+                                    // if (flagIndex == 1) {
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
+                                    //     }
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
+                                    //     }
+                                    // } else if (flagIndex == 2) {
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+1, botWeight);
+                                    //     }
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 4) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
+                                    //     }
+                                    // } else {
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 5) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+4, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+5, botWeight);
+                                    //     }
+                                    //     if (((rc.readSharedArray(Comms.SPAWN_CONNECTED) >> 3) & 1) > 0) {
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+2, Comms.intifyLocation(i.getMapLocation()));
+                                    //         rc.writeSharedArray(Comms.SETUP_GATHER_LOC+3, botWeight);
+                                    //     }
+                                    // }
                                     break;
                                 }
                             }
