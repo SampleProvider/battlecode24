@@ -186,6 +186,9 @@ public class Motion {
         }
     }
     protected static void spreadRandomly() throws GameActionException {
+        spreadRandomly(true);
+    }
+    protected static void spreadRandomly(boolean fillWater) throws GameActionException {
         boolean stuck = true;
         for (Direction d : DIRECTIONS) {
             if (rc.canMove(d)) {
@@ -210,7 +213,8 @@ public class Motion {
                     lastRandomSpread = me.add(DIRECTIONS[rng.nextInt(DIRECTIONS.length)]);
                     moveRandomly();
                 } else {
-                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0);
+                    Direction direction = bug2Helper(me, lastRandomSpread, TOWARDS, 0, 0, fillWater);
+                    // Direction direction = me.directionTo(target);
                     if (rc.canMove(direction)) {
                         rc.move(direction);
                         lastRandomSpread = lastRandomSpread.add(direction);
@@ -221,14 +225,43 @@ public class Motion {
                     }
                 }
             } else {
-                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0);
+                Direction direction = bug2Helper(me, target, TOWARDS, 0, 0, fillWater);
+                // Direction direction = me.directionTo(target);
                 if (rc.canMove(direction)) {
                     rc.move(direction);
                     lastRandomSpread = target;
                     lastRandomDir = direction;
                     updateInfo();
                 } else {
-                    moveRandomly();
+                    if (rng.nextInt(2) == 1) {
+                        if (rc.canMove(direction.rotateLeft())) {
+                            rc.move(direction.rotateLeft());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateLeft();
+                            updateInfo();
+                        } else if (rc.canMove(direction.rotateRight())) {
+                            rc.move(direction.rotateRight());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateRight();
+                            updateInfo();
+                        } else {
+                            moveRandomly();
+                        }
+                    } else {
+                        if (rc.canMove(direction.rotateRight())) {
+                            rc.move(direction.rotateRight());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateRight();
+                            updateInfo();
+                        } else if (rc.canMove(direction.rotateLeft())) {
+                            rc.move(direction.rotateLeft());
+                            lastRandomSpread = target;
+                            lastRandomDir = direction.rotateLeft();
+                            updateInfo();
+                        } else {
+                            moveRandomly();
+                        }
+                    }
                 }
             }
         }
@@ -717,17 +750,7 @@ public class Motion {
             // prefer not filling?
 
             if (rc.canFill(me.add(d))) {
-                if (opponentRobots.length > 0) {
-                    if (bestFillDir == null) {
-                        bestFillDir = d;
-                        bestFillWeight = weight;
-                    }
-                    else if (bestFillWeight < weight) {
-                        bestFillDir = d;
-                        bestFillWeight = weight;
-                    }
-                }
-                else {
+                if (opponentRobots.length == 0 || rc.senseMapInfo(me.add(d)).getCrumbs() > 0) {
                     weight -= 0.1;
                     if (bestDir == null) {
                         bestDir = d;
@@ -736,6 +759,16 @@ public class Motion {
                     else if (bestWeight < weight) {
                         bestDir = d;
                         bestWeight = weight;
+                    }
+                }
+                else {
+                    if (bestFillDir == null) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
+                    }
+                    else if (bestFillWeight < weight) {
+                        bestFillDir = d;
+                        bestFillWeight = weight;
                     }
                 }
             }
@@ -752,18 +785,44 @@ public class Motion {
         }
         // trap micro
         if (bestDir != null) {
-            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 5) {
-                MapLocation buildLoc = rc.getLocation().add(bestDir);
-                build: if (rc.canBuild(TrapType.STUN, buildLoc)) {
-                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(buildLoc, 2);
+            if (rc.senseNearbyRobots(10, rc.getTeam().opponent()).length >= 3 && friendlyRobots.length >= 3) {
+                Direction bestBuildDir = null;
+                double bestBuildWeight = 0;
+                for (Direction d : ALL_DIRECTIONS) {
+                    MapLocation loc = me.add(d);
+                    if (!rc.onTheMap(loc)) {
+                        continue;
+                    }
+                    if (!rc.canBuild(TrapType.STUN, loc)) {
+                        continue;
+                    }
+                    double weight = 0;
+                    MapInfo[] mapInfo = rc.senseNearbyMapInfos(loc, 2);
                     for (MapInfo m : mapInfo) {
                         if (m.getTrapType() != TrapType.NONE) {
-                            break build;
+                            weight -= 10;
                         }
                     }
-                    // if ((rc.senseMapInfo(buildLoc).getTeamTerritory() != rc.getTeam() && rc.getCrumbs() >= 500) || rc.getCrumbs() >= 1000) {
-                        rc.build(TrapType.STUN, buildLoc);
-                    // }
+                    weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
+                    if (bestBuildDir == null) {
+                        bestBuildDir = d;
+                        bestBuildWeight = weight;
+                    }
+                    else if (bestBuildWeight < weight) {
+                        bestBuildDir = d;
+                        bestBuildWeight = weight;
+                    }
+                }
+                if (bestBuildWeight > 0) {
+                    if (rc.getCrumbs() > 10000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 3) {
+                        rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
+                    }
+                    else if (rc.getCrumbs() > 1000 && rc.senseNearbyRobots(me.add(bestBuildDir), 10, rc.getTeam().opponent()).length > 5) {
+                        rc.build(TrapType.EXPLOSIVE, me.add(bestBuildDir));
+                    }
+                    else {
+                        rc.build(TrapType.STUN, me.add(bestBuildDir));
+                    }
                 }
             }
             if (rc.canMove(bestDir)) {
@@ -1094,6 +1153,7 @@ public class Motion {
         MapLocation me = rc.getLocation();
 
         boolean[] directions = new boolean[9];
+        boolean[] waterDirections = new boolean[9];
         for (int i = 1; i < step; i++) {
             if (((bfsDist[i * (height + 2) + 1 + me.y] >> me.x) & 1) == 1) {
                 if (((bfsDist[(i - 1) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
@@ -1124,26 +1184,63 @@ public class Motion {
                         directions[4] = true;
                     }
                 }
+                if (i + 3 < MAX_PATH_LENGTH) {
+                    if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> me.x) & 1) == 1) {
+                        waterDirections[7] = true;
+                    }
+                    if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> me.x) & 1) == 1) {
+                        waterDirections[3] = true;
+                    }
+                    if (me.x > 0) {
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[1] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[8] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> (me.x - 1)) & 1) == 1) {
+                            waterDirections[2] = true;
+                        }
+                    }
+                    if (me.x < width - 1) {
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[5] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y - 1] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[6] = true;
+                        }
+                        if (((bfsDist[(i + 3) * (height + 2) + 1 + me.y + 1] >> (me.x + 1)) & 1) == 1) {
+                            waterDirections[4] = true;
+                        }
+                    }
+                }
                 break;
             }
         }
         Direction optimalDirection = Direction.CENTER;
-        Direction optimalFillDirection = Direction.CENTER;
+        // Direction optimalFillDirection = Direction.CENTER;
         int minDist = Integer.MAX_VALUE;
-        int minFillDist = Integer.MAX_VALUE;
+        boolean optimalFilling = false;
+        int optimalIndex = 0;
+        // int minFillDist = Integer.MAX_VALUE;
         for (int i = 9; --i >= 0;) {
             if (directions[i]) {
                 Direction dir = Direction.DIRECTION_ORDER[i];
                 if (rc.canMove(dir)) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                    if (me.add(dir).distanceSquaredTo(dest) < minDist || (optimalFilling && waterDirections[i])) {
                         optimalDirection = dir;
                         minDist = me.add(dir).distanceSquaredTo(dest);
+                        optimalFilling = false;
+                        optimalIndex = i;
                     }
                 }
                 else if (rc.canFill(me.add(dir))) {
-                    if (me.add(dir).distanceSquaredTo(dest) < minFillDist) {
-                        optimalFillDirection = dir;
-                        minFillDist = me.add(dir).distanceSquaredTo(dest);
+                    // if (me.add(dir).distanceSquaredTo(dest) < minDist && (optimalFilling || !waterDirections[optimalIndex])) {
+                    if (me.add(dir).distanceSquaredTo(dest) < minDist) {
+                        optimalDirection = dir;
+                        minDist = me.add(dir).distanceSquaredTo(dest);
+                        optimalFilling = true;
+                        optimalIndex = i;
                     }
                 }
             }
@@ -1151,16 +1248,17 @@ public class Motion {
         if (optimalDirection != Direction.CENTER) {
             return optimalDirection;
         }
-        if (optimalDirection == Direction.CENTER && optimalFillDirection == Direction.CENTER) {
-            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
+        if (optimalDirection == Direction.CENTER) {
+            // optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, fillWater);
+            optimalDirection = bug2Helper(me, dest, TOWARDS, 0, 0, false);
             indicatorString.append("BUGNAV");
 
             if (canMove(optimalDirection)) {
                 return optimalDirection;
             }
         }
-        if (canMove(optimalFillDirection)) {
-            return optimalFillDirection;
+        if (canMove(optimalDirection)) {
+            return optimalDirection;
         }
         return Direction.CENTER;
     }

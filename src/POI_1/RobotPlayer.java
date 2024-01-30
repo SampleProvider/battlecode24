@@ -9,7 +9,7 @@ public strictfp class RobotPlayer {
 
     protected static Random rng;
 
-    protected static Direction[] directions = {
+    protected static Direction[] DIRECTIONS= {
         Direction.NORTH,
         Direction.NORTHEAST,
         Direction.EAST,
@@ -18,6 +18,17 @@ public strictfp class RobotPlayer {
         Direction.SOUTHWEST,
         Direction.WEST,
         Direction.NORTHWEST,
+    };
+    protected static final Direction[] ALL_DIRECTIONS = {
+        Direction.SOUTHWEST,
+        Direction.SOUTH,
+        Direction.SOUTHEAST,
+        Direction.WEST,
+        Direction.EAST,
+        Direction.NORTHWEST,
+        Direction.NORTH,
+        Direction.NORTHEAST,
+        Direction.CENTER,
     };
 
     protected static int mode = -1;
@@ -84,44 +95,74 @@ public strictfp class RobotPlayer {
                 spawn: if (!rc.isSpawned()) {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
-                    if (mode == DEFENSIVE) {
-                        //basically spawn next to your assigned flag lol
-                        MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
-                        for (int i = 27; --i >= 0;) {
-                            if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
-                                rc.spawn(spawnLocs[i]);
-                                break spawn;
+                    if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
+                        if (mode == DEFENSIVE) {
+                            //basically spawn next to your assigned flag lol
+                            MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
+                            for (int i = 27; --i >= 0;) {
+                                if (rc.canSpawn(spawnLocs[i]) && spawnLocs[i].isAdjacentTo(target)) {
+                                    rc.spawn(spawnLocs[i]);
+                                    break spawn;
+                                }
                             }
                         }
-                    }
-                    if (hiddenFlags.length == 0 || rc.getRoundNum() <= 20) {
-                        int index = rng.nextInt(27 * 3);
-                        for (int i = 27; --i >= 0;) {
-                            MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
-                            if (rc.canSpawn(randomLoc)) {
-                                rc.spawn(randomLoc);
-                                break spawn;
+                        MapLocation[] spawns = {
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+1)),
+                            Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC+2)),
+                        };
+                        MapLocation favoredSpawn = new MapLocation(0, 0);
+                        if (Comms.id % 10 < 4) {
+                            favoredSpawn = Motion.getClosest(spawns, Motion.getMapCenter());
+                        } else if (Comms.id % 10 < 7) {
+                            //ends with 1, 5, 9
+                            for (int i = 3; --i >= 0;) {
+                                if (!spawns[i].equals(Motion.getFarthest(spawns, Motion.getMapCenter())) && !spawns[i].equals(Motion.getClosest(spawns, Motion.getMapCenter()))) {
+                                    favoredSpawn = spawns[i];
+                                    break;
+                                }
                             }
-                            else {
-                                index++;
+                        } else {
+                            favoredSpawn = Motion.getFarthest(spawns, Motion.getMapCenter());
+                        }
+                        for (Direction d : ALL_DIRECTIONS) {
+                            if (rc.canSpawn(favoredSpawn.add(d))) {
+                                rc.spawn(favoredSpawn.add(d));
+                                break;
                             }
                         }
-                    }
-                    else {
-                        for (int i = 27; --i >= 0;) {
-                            if (!rc.canSpawn(spawnLocs[i])) {
-                                spawnLocs[i] = new MapLocation(-1000, -1000);
+
+                    } else {
+                        //game started
+                        if (hiddenFlags.length == 0) {
+                            int index = rng.nextInt(27 * 3);
+                            for (int i = 27; --i >= 0;) {
+                                MapLocation randomLoc = spawnLocs[index % spawnLocs.length];
+                                if (rc.canSpawn(randomLoc)) {
+                                    rc.spawn(randomLoc);
+                                    break spawn;
+                                }
+                                else {
+                                    index++;
+                                }
                             }
                         }
-                        MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
-                        for (int i = 3; --i >= 0;) {
-                            if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
-                                bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
+                        else {
+                            for (int i = 27; --i >= 0;) {
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
+                                }
                             }
-                        }
-                        // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
-                        if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                            rc.spawn(bestSpawnLoc);
+                            MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
+                            for (int i = 3; --i >= 0;) {
+                                if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
+                                    bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
+                                }
+                            }
+                            // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
+                            if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
+                                rc.spawn(bestSpawnLoc);
+                            }
                         }
                     }
                 }
