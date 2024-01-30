@@ -269,11 +269,12 @@ public class Setup {
                 }
             } else {
                 if (!getCrumbs(infos) && !checkSpawnZoneConnected()) { // try to get crumbs
-                    if (rc.getRoundNum() < 20) {
-                        Motion.spreadRandomly(true);
-                    } else {
-                        Motion.spreadRandomly(false);
-                    }
+                    Motion.spreadRandomly(false);
+                    // if (rc.getRoundNum() < 20) {
+                    //     Motion.spreadRandomly(true);
+                    // } else {
+                    //     Motion.spreadRandomly(false);
+                    // }
                 }
             }
             guessSymmetry();
