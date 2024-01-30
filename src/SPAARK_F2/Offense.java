@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_F2;
 
 import battlecode.common.*;
 
@@ -20,17 +20,6 @@ public class Offense {
         Direction.NORTH,
         Direction.NORTHEAST,
     };
-    protected static final Direction[] ALL_DIRECTIONS = {
-        Direction.SOUTHWEST,
-        Direction.SOUTH,
-        Direction.SOUTHEAST,
-        Direction.WEST,
-        Direction.EAST,
-        Direction.NORTHWEST,
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.CENTER,
-    };
     protected static int flagIndex = -1;
 
     protected static int turnsFindingFlag = 0;
@@ -38,15 +27,6 @@ public class Offense {
     protected static MapLocation turnsFindingFlagTarget = new MapLocation(0, 0);
     
     protected static void run() throws GameActionException {
-        if (rc.getRoundNum() == GameConstants.GAME_MAX_NUMBER_OF_ROUNDS && Comms.getFlagAdv() == 0) {
-            if (rc.getExperience(SkillType.BUILD) == 4 || rc.getExperience(SkillType.BUILD) == 9 || rc.getExperience(SkillType.BUILD) == 14 || rc.getExperience(SkillType.BUILD) == 19 || rc.getExperience(SkillType.BUILD) == 24 || rc.getExperience(SkillType.BUILD) == 29) {
-                for (Direction d : DIRECTIONS) {
-                    if (rc.canDig(rc.getLocation().add(d))) {
-                        rc.dig(rc.getLocation().add(d));
-                    }
-                }
-            }
-        }
         // capturing opponent flags
         MapLocation me = rc.getLocation();
         tryPickupFlag();
@@ -181,59 +161,8 @@ public class Offense {
         FlagInfo[] opponentFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
         FlagInfo closestFlag = Motion.getClosestFlag(opponentFlags, false);
         if (closestFlag != null && rc.canPickupFlag(closestFlag.getLocation())) {
-            // MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-            MapLocation[] safeSpawnAreas = new MapLocation[] {
-                RobotPlayer.spawnLoc1,
-                RobotPlayer.spawnLoc2,
-                RobotPlayer.spawnLoc3,
-            };
-            for (int i = 0; i < 3; i++) {
-                if (rc.readSharedArray(Comms.SPAWN_SAFETY + i) > 10 && rc.getRoundNum() - rc.readSharedArray(Comms.SPAWN_SAFETY + i + 3) < 50) {
-                    safeSpawnAreas[i] = new MapLocation(-1000, -1000);
-                }
-            }
-            MapLocation[] safeSpawnLocs = new MapLocation[] {
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-                new MapLocation(-1000, -1000),
-            };
-            for (int i = 9; --i >= 0;) {
-                safeSpawnLocs[i] = safeSpawnAreas[0].add(ALL_DIRECTIONS[i]);
-            }
-            for (int i = 9; --i >= 0;) {
-                safeSpawnLocs[i + 9] = safeSpawnAreas[1].add(ALL_DIRECTIONS[i]);
-            }
-            for (int i = 9; --i >= 0;) {
-                safeSpawnLocs[i + 18] = safeSpawnAreas[2].add(ALL_DIRECTIONS[i]);
-            }
-            MapLocation bestLoc = Motion.getClosest(safeSpawnLocs);
-            if (bestLoc.x == -1000) {
-                bestLoc = Motion.getClosest(rc.getAllySpawnLocations());
-            }
+            MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+            MapLocation bestLoc = Motion.getClosest(spawnLocs);
             RobotInfo[] closeFriendlyRobots = rc.senseNearbyRobots(closestFlag.getLocation(), 2, rc.getTeam());
             RobotInfo closestRobot = Motion.getClosestRobot(closeFriendlyRobots, bestLoc);
             if (closestRobot == null || closestRobot.getLocation().distanceSquaredTo(bestLoc) >= rc.getLocation().distanceSquaredTo(bestLoc) || rc.getLocation().equals(closestFlag.getLocation())) {
@@ -256,59 +185,8 @@ public class Offense {
     protected static void moveWithFlag() throws GameActionException {
         // navigate back to spawn
         MapLocation me = rc.getLocation();
-        // MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-        MapLocation[] safeSpawnAreas = new MapLocation[] {
-            RobotPlayer.spawnLoc1,
-            RobotPlayer.spawnLoc2,
-            RobotPlayer.spawnLoc3,
-        };
-        for (int i = 0; i < 3; i++) {
-            if (rc.readSharedArray(Comms.SPAWN_SAFETY + i) > 10 && rc.getRoundNum() - rc.readSharedArray(Comms.SPAWN_SAFETY + i + 3) < 50) {
-                safeSpawnAreas[i] = new MapLocation(-1000, -1000);
-            }
-        }
-        MapLocation[] safeSpawnLocs = new MapLocation[] {
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-            new MapLocation(-1000, -1000),
-        };
-        for (int i = 9; --i >= 0;) {
-            safeSpawnLocs[i] = safeSpawnAreas[0].add(ALL_DIRECTIONS[i]);
-        }
-        for (int i = 9; --i >= 0;) {
-            safeSpawnLocs[i + 9] = safeSpawnAreas[1].add(ALL_DIRECTIONS[i]);
-        }
-        for (int i = 9; --i >= 0;) {
-            safeSpawnLocs[i + 18] = safeSpawnAreas[2].add(ALL_DIRECTIONS[i]);
-        }
-        MapLocation bestLoc = Motion.getClosest(safeSpawnLocs);
-        if (bestLoc.x == -1000) {
-            bestLoc = Motion.getClosest(rc.getAllySpawnLocations());
-        }
+        MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+        MapLocation bestLoc = Motion.getClosest(spawnLocs);
         rc.setIndicatorDot(me, 255, 0, 0);
         rc.setIndicatorLine(me, bestLoc, 255, 0, 0);
         Motion.bfsnav(bestLoc);

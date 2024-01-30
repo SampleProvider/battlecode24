@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_F2;
 
 import battlecode.common.*;
 
@@ -70,7 +70,6 @@ public class Comms {
     protected static final int SETUP_GATHER_LOC = 56;
     protected static final int SETUP_SYM_GUESS = 26;
     protected static final int POI = 26;
-    protected static final int SPAWN_SAFETY = 56;
     protected static final int SPAWN_CONNECTED = 62;
     protected static final int SYM = 62;
     protected static final int SETUP_FLAG_WEIGHT = 63;

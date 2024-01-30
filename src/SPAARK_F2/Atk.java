@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_F2;
 
 import battlecode.common.*;
 
@@ -33,7 +33,7 @@ public class Atk {
         while (rc.isActionReady()) {
             if (friendlyRobots.length > 0) {
                 RobotInfo robot = getPrioritizedFriendlyRobot(friendlyRobots);
-                if (robot != null && rc.canHeal(robot.getLocation())) {
+                if (rc.canHeal(robot.getLocation())) {
                     indicatorString.append("HEAL-" + robot.getLocation().toString() + "; ");
                     while (rc.canHeal(robot.getLocation())) {
                         rc.heal(robot.getLocation());

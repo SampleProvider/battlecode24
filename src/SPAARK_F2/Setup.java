@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_F2;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -415,7 +415,7 @@ public class Setup {
                         }
                         move: {
                             for (Direction d : DIRECTIONS) {
-                                if (rc.onTheMap(me.add(d)) && rc.senseMapInfo(me.add(d)).isDam()) {
+                                if (rc.senseMapInfo(me.add(d)).isDam()) {
                                     break move;
                                 }
                             }
@@ -433,9 +433,6 @@ public class Setup {
         if (Comms.id == 49 && rc.getRoundNum() == GameConstants.SETUP_ROUNDS - 1) {
             for (int i = 0; i < 9; i++) {
                 rc.writeSharedArray(Comms.SETUP_SYM_GUESS + i, 0);
-            }
-            for (int i = 0; i < 6; i++) {
-                rc.writeSharedArray(Comms.SETUP_GATHER_LOC + i, 0);
             }
         }
     }

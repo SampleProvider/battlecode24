@@ -1,8 +1,7 @@
-package SPAARK;
+package SPAARK_F2;
 
 import battlecode.common.*;
 
-import java.util.Map;
 import java.util.Random;
 
 public strictfp class RobotPlayer {
@@ -32,10 +31,6 @@ public strictfp class RobotPlayer {
 
     protected static int mode = -1;
     protected static MapLocation spawnLoc = new MapLocation(-1, -1);
-    
-    protected static MapLocation spawnLoc1 = new MapLocation(-1, -1);
-    protected static MapLocation spawnLoc2 = new MapLocation(-1, -1);
-    protected static MapLocation spawnLoc3 = new MapLocation(-1, -1);
 
     protected final static int DEFENSIVE = 0;
     protected final static int OFFENSIVE = 1;
@@ -101,38 +96,6 @@ public strictfp class RobotPlayer {
                     MapLocation[] spawnLocs = rc.getAllySpawnLocations();
                     MapLocation[] hiddenFlags = rc.senseBroadcastFlagLocations();
                     if (rc.getRoundNum() < GameConstants.SETUP_ROUNDS) {
-                        MapLocation loc1 = new MapLocation(-1, -1);
-                        MapLocation loc2 = new MapLocation(-1, -1);
-                        MapLocation loc3 = new MapLocation(-1, -1);
-                        for (int i = 27; --i >= 0;) {
-                            if (loc1.x == -1) {
-                                loc1 = spawnLocs[i];
-                            }
-                            else if (loc2.x == -1) {
-                                loc2 = spawnLocs[i];
-                            }
-                            else if (loc3.x == -1) {
-                                loc3 = spawnLocs[i];
-                            }
-                            else if (loc1.distanceSquaredTo(spawnLocs[i]) >= 4 && loc1.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc1.x + spawnLocs[i].x) / 2;
-                                int y = (loc1.y + spawnLocs[i].y) / 2;
-                                loc1 = new MapLocation(x, y);
-                            }
-                            else if (loc2.distanceSquaredTo(spawnLocs[i]) >= 4 && loc2.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc2.x + spawnLocs[i].x) / 2;
-                                int y = (loc2.y + spawnLocs[i].y) / 2;
-                                loc2 = new MapLocation(x, y);
-                            }
-                            else if (loc3.distanceSquaredTo(spawnLocs[i]) >= 4 && loc3.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc3.x + spawnLocs[i].x) / 2;
-                                int y = (loc3.y + spawnLocs[i].y) / 2;
-                                loc3 = new MapLocation(x, y);
-                            }
-                        }
-                        spawnLoc1 = loc1;
-                        spawnLoc2 = loc2;
-                        spawnLoc3 = loc3;
                         if (mode == DEFENSIVE) {
                             //basically spawn next to your assigned flag lol
                             MapLocation target = Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id % 3));
@@ -185,82 +148,20 @@ public strictfp class RobotPlayer {
                             }
                         }
                         else {
-                            MapLocation[] safeSpawnAreas = new MapLocation[] {
-                                spawnLoc1,
-                                spawnLoc2,
-                                spawnLoc3,
-                            };
-                            for (int i = 0; i < 3; i++) {
-                                if (rc.readSharedArray(Comms.SPAWN_SAFETY + i) > 10 && rc.getRoundNum() - rc.readSharedArray(Comms.SPAWN_SAFETY + i + 3) < 50) {
-                                    safeSpawnAreas[i] = new MapLocation(-1000, -1000);
-                                }
-                            }
-                            MapLocation[] safeSpawnLocs = new MapLocation[] {
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                                new MapLocation(-1000, -1000),
-                            };
-                            for (int i = 9; --i >= 0;) {
-                                safeSpawnLocs[i] = safeSpawnAreas[0].add(ALL_DIRECTIONS[i]);
-                            }
-                            for (int i = 9; --i >= 0;) {
-                                safeSpawnLocs[i + 9] = safeSpawnAreas[1].add(ALL_DIRECTIONS[i]);
-                            }
-                            for (int i = 9; --i >= 0;) {
-                                safeSpawnLocs[i + 18] = safeSpawnAreas[2].add(ALL_DIRECTIONS[i]);
-                            }
                             for (int i = 27; --i >= 0;) {
-                                if (!rc.canSpawn(safeSpawnLocs[i])) {
-                                    safeSpawnLocs[i] = new MapLocation(-1000, -1000);
+                                if (!rc.canSpawn(spawnLocs[i])) {
+                                    spawnLocs[i] = new MapLocation(-1000, -1000);
                                 }
                             }
-                            MapLocation bestSpawnLoc = Motion.getClosestPair(safeSpawnLocs, hiddenFlags);
+                            MapLocation bestSpawnLoc = Motion.getClosestPair(spawnLocs, hiddenFlags);
                             for (int i = 3; --i >= 0;) {
                                 if (Comms.isFlagInDanger(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i))) {
-                                    bestSpawnLoc = Motion.getClosest(safeSpawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
+                                    bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_CUR_LOC + i)));
                                 }
                             }
                             // MapLocation bestSpawnLoc = Motion.getClosest(spawnLocs, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
                             if (bestSpawnLoc != null && rc.canSpawn(bestSpawnLoc)) {
-                                int index = -1;
-                                for (int i = 3; --i >= 0;) {
-                                    if (safeSpawnAreas[i].distanceSquaredTo(bestSpawnLoc) <= 2) {
-                                        index = i;
-                                        break;
-                                    }
-                                }
                                 rc.spawn(bestSpawnLoc);
-                                if (index != -1) {
-                                    rc.writeSharedArray(Comms.SPAWN_SAFETY + index, Math.max(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length - rc.senseNearbyRobots(-1, rc.getTeam()).length, 0));
-                                    rc.writeSharedArray(Comms.SPAWN_SAFETY + index + 3, rc.getRoundNum());
-                                }
-                                else {
-                                    System.out.println("BORKEN");
-                                }
                             }
                         }
                     }
