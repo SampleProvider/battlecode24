@@ -16,7 +16,7 @@ errors = []
 currentBot = 'SPAARK' #bot to test
 #SPAARK IS THE BASELINE
 
-bots = ['flag']
+bots = ['a']
 # bots = ['A0', 'A1', 'B0', 'B1', 'C0', 'C1', 'D0', 'D1', 'E', 'F0', 'F1', 'G0', 'G1', 'H0', 'H1', 'I0', 'I1', 'J0', 'J1', 'K0', 'K1', 'L0', 'L1', 'M0', 'M1', 'N0', 'N1', 'AA', 'BB'] #Jan 28-29
 # bots = ['A0', 'A1', 'A2', 'A3', 'B0', 'B1', 'B2', 'B3', 'C0', 'C1', 'C2', 'C3', 'D0', 'D1', 'D2', 'D3', 'E0', 'E1', 'E2', 'E3', 'F0', 'F1', 'F2', 'F3', 'G0', 'G1', 'G2', 'G3', 'H0', 'H1', 'H2', 'H3'] #Jan 27-28
 # bots = ['trap']

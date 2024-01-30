@@ -54,7 +54,11 @@ public class Motion {
     protected static RobotInfo[] friendlyRobots;
     protected static FlagInfo[] flags;
 
+    protected static boolean[] passable = new boolean[4096];
+    protected static boolean[] occupied = new boolean[4096];
+
     protected static int symmetry = 0;
+    protected static MapLocation mapCenter = new MapLocation(-1, -1);
     protected static Direction lastDir = Direction.CENTER;
     protected static Direction optimalDir = Direction.CENTER;
     protected static int rotation = NONE;
@@ -155,10 +159,6 @@ public class Motion {
             }
         }
         return closest;
-    }
-
-    protected static MapLocation getMapCenter() throws GameActionException {
-        return new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
     }
 
     // basic random movement
@@ -645,6 +645,16 @@ public class Motion {
         Direction bestFillDir = null;
         double bestFillWeight = 0;
         int mapSize = RobotPlayer.mapSizeFactor;
+        int adv = Comms.getFlagAdv();
+        MapInfo[] mapInfos = rc.senseNearbyMapInfos();
+        for (MapInfo i : mapInfos) {
+            passable[Comms.intifyLocationNoMarker(i.getMapLocation())] = i.isPassable();
+            occupied[Comms.intifyLocationNoMarker(i.getMapLocation())] = false;
+        }
+        RobotInfo[] allBots = rc.senseNearbyRobots();
+        for (RobotInfo i : allBots) {
+            occupied[Comms.intifyLocationNoMarker(i.getLocation())] = true;
+        }
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -684,29 +694,26 @@ public class Motion {
             }
             int actions = rc.isActionReady() ? 1 : 0;
             int minHP = 1000;
-            int adv = Comms.getFlagAdv();
             for (RobotInfo robot : opponentRobots) {
                 MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                 rc.setIndicatorLine(rc.getLocation(), robot.getLocation(), 255, 255, 0);
-                if (robot.getLocation().distanceSquaredTo(dest) > me.add(d).distanceSquaredTo(dest)) {
+                // if (robot.getLocation().distanceSquaredTo(dest) > me.add(d).distanceSquaredTo(dest)) {
                     // weight -= 10 * (Math.sqrt(robot.getLocation().distanceSquaredTo(dest)) - Math.sqrt(me.add(d).distanceSquaredTo(dest)));
                     // weight -= squared * 100;
-                }
+                // }
                 if (me.distanceSquaredTo(relativeLoc) <= 4) {
                     // attack micro - retreat when too close and move closer to attack
                     minHP = Math.min(minHP, robot.getHealth());
                     if (actions == 0 || rc.getHealth() < 500 + adv * 40 + mapSize * 40 - 100) { //tested: adv * 30, adv * 50
                         weight -= 10; //tested: 8, 9, 11, 12 (med. difference)
-                        weight += mapSize;
                         //tested: +0.1adv, +0.2adv, +0.33adv (small difference)
                         // if (rc.getHealth() > 500 && friendlyRobots.length > 2) {
                         //     weight += 6;
                         // }
                     }
                     else {
-                        actions -= 1;
-                        weight += 5; //tested: 3, 3.5, 4, 4.5 (large difference)
-                        weight -= adv * 0.33; //tested: 0.5
+                        actions--;
+                        weight += 5 - adv * 0.33; //tested: 3, 3.5, 4, 4.5 (large difference) tested: adv * 0.5
                     }
                     //suicide if you accidentally got heal specialization
                     if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {
@@ -714,45 +721,42 @@ public class Motion {
                         weight += 20; //tested: 12, 16, 24, 28 (small difference)
                     }
                     if (rc.hasFlag()) {
-                        weight -= 23; //tested: 20, 25, 27, 30 (med. difference)
+                        weight -= 23 + adv * 12; //tested: 20, 25, 27, 30 (med. difference) tested: adv * 6, 8, 10, 15 (large difference)
                         if (opponentRobots.length > friendlyRobots.length) {
                             weight -= 10; //tested: 6, 8, 12, 14 (small difference)
                         }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
                     }
                     else if (robot.hasFlag()) {
-                        weight += 10; //tested: 6, 8, 12, 14 (large difference)
+                        weight += 10 - adv * 12; //tested: 6, 8, 12, 14 (large difference) tested: adv*6, 8, 10, 15 (large difference)
                         if (opponentRobots.length + 3 < friendlyRobots.length) { //tested: +adv (med. difference)
                             weight += 30; //tested: 20, 25, 35, 40 (small difference)
                         }
-                        weight -= adv * 12; //tested: 6, 8, 10, 15 (large difference)
                     }
-                    // stop moving into robots when you have the flag buh
+                    // stop moving into robots when you have the flag
+
+                    // REALLY DONT BE THAT CLOSE
+                    if (me.distanceSquaredTo(relativeLoc) <= 2) {
+                        // weight -= 16;
+                        weight -= adv * 2; //tested: 3, 4 (med. difference)
+                        if (robot.hasFlag()) {
+                            weight += 20; //tested: 15, 25 (small difference)
+                        }
+                    }
                 }
                 else if (me.distanceSquaredTo(relativeLoc) <= 10) {
                     if (rc.getHealth() < 500 + adv * 40) { //tested: adv * 30, adv * 50
                         // weight -= 3;
                         weight -= 8; //tested: 7, 9 (small difference)
                     }
-                }
-                if (me.distanceSquaredTo(relativeLoc) <= 10) {
+
                     if (rc.hasFlag()) {
-                        weight -= 20; //tested: 15, 25 (med. difference)
-                        weight -= adv * 3; //tested: 2, 5 (small difference)
+                        weight -= 20 + adv * 3; //tested: 15, 25 (med. difference) tested: 2, 5 (small difference)
                     }
                     else if (robot.hasFlag()) {
                         weight += 20; //tested: 10, 15 (large difference)
                         if (opponentRobots.length + 3 < friendlyRobots.length) {
                             weight += 10;
                         }
-                    }
-                }
-                // REALLY DONT BE THAT CLOSE
-                if (me.distanceSquaredTo(relativeLoc) <= 2) {
-                    // weight -= 16;
-                    weight -= adv * 2; //tested: 3, 4 (med. difference)
-                    if (robot.hasFlag()) {
-                        weight += 20; //tested: 15, 25 (small difference)
                     }
                 }
             }
@@ -767,12 +771,12 @@ public class Motion {
                     MapLocation relativeLoc = robot.getLocation().add(d.opposite());
                     if (rc.canSenseLocation(relativeLoc)) {
                         friendlyWeight += 1.5; //tested: 0.5, 1 (small difference)
-                    }
-                    if (me.distanceSquaredTo(relativeLoc) <= 10) { //tested: 8, 9 (med. difference)
-                        friendlyWeight += 1; //tested: 0.5, 1.5 (med. difference)
-                    }
-                    if (me.distanceSquaredTo(relativeLoc) <= 5) {
-                        friendlyWeight += 1;
+                        if (me.distanceSquaredTo(relativeLoc) <= 10) { //tested: 8, 9 (med. difference)
+                            friendlyWeight += 1; //tested: 0.5, 1.5 (med. difference)
+                            if (me.distanceSquaredTo(relativeLoc) <= 5) {
+                                friendlyWeight += 1;
+                            }
+                        }
                     }
                     if (me.distanceSquaredTo(relativeLoc) < me.distanceSquaredTo(robot.getLocation())) {
                         friendlyWeight += 1; //tested: 0.5, 1.5 (small difference)
@@ -791,7 +795,10 @@ public class Motion {
                             //count number of directions it can move
                             int numFreeDirections = 0;
                             for (Direction _d : DIRECTIONS) {
-                                if (rc.senseMapInfo(robot.getLocation().add(_d)).isPassable() && rc.senseRobotAtLocation(robot.getLocation().add(_d)) == null) {
+                                if (!rc.onTheMap(robot.getLocation().add(_d))) {
+                                    continue;
+                                }
+                                if (passable[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))] && !occupied[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))]) {
                                     numFreeDirections++;
                                 }
                             }

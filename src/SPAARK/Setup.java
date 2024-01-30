@@ -153,7 +153,7 @@ public class Setup {
                         weight += (Math.sqrt(me.distanceSquaredTo(spawns[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(spawns[j])));
                     }
                     //farther from center
-                    weight += 8*(Math.sqrt(i.getMapLocation().distanceSquaredTo(Motion.getMapCenter())) - Math.sqrt(me.distanceSquaredTo(Motion.getMapCenter())));
+                    weight += 8*(Math.sqrt(i.getMapLocation().distanceSquaredTo(Motion.mapCenter)) - Math.sqrt(me.distanceSquaredTo(Motion.mapCenter)));
 
                     //passability
                     for (Direction d : DIRECTIONS) {
