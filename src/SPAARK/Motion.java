@@ -815,7 +815,7 @@ public class Motion {
                                     numFreeDirections++;
                                 }
                             }
-                            if (numFreeDirections <= 4) {
+                            if (numFreeDirections <= 3) {
                                 friendlyWeight -= 2;
                             }
                         }
