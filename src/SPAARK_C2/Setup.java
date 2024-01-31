@@ -1,4 +1,4 @@
-package SPAARK;
+package SPAARK_C2;
 import battlecode.common.*;
 
 import java.util.Random;
@@ -127,7 +127,6 @@ public class Setup {
                 MapInfo[] mapInfos = rc.senseNearbyMapInfos();
                 t: for (MapInfo i : mapInfos) {
                     double weight = 0;
-                    if (!i.getTeamTerritory().equals(rc.getTeam())) continue;
                     if (i.isWall() || i.getTeamTerritory() != rc.getTeam()) {
                         continue;
                     }
@@ -147,8 +146,8 @@ public class Setup {
                         if (i.getMapLocation().distanceSquaredTo(allFlags[j]) <= 49) {
                             weight -= 3;
                         }
-                        //farther from other flags
-                        weight -= Math.pow(Math.sqrt(rc.getMapHeight() * rc.getMapWidth()) * (Math.sqrt(me.distanceSquaredTo(allFlags[j])) / Math.sqrt(i.getMapLocation().distanceSquaredTo(allFlags[j]))), 1.0 / 2.0);
+                        //closer to other flags
+                        weight += 2*(Math.sqrt(me.distanceSquaredTo(allFlags[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(allFlags[j])));
 
                         //closer to spawns
                         weight += (Math.sqrt(me.distanceSquaredTo(spawns[j])) - Math.sqrt(i.getMapLocation().distanceSquaredTo(spawns[j])));
