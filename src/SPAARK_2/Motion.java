@@ -727,7 +727,7 @@ public class Motion {
                     else {
                         actions--;
                         // weight += 5 - adv * 0.33; //tested: 3, 3.5, 4, 4.5 (large difference) tested: adv * 0.5
-                        weight += 7 - adv * 0.33; //tested: 3, 3.5, 4, 4.5 (large difference) tested: adv * 0.5
+                        weight += 6 - adv * 0.33; //tested: 3, 3.5, 4, 4.5 (large difference) tested: adv * 0.5
                     }
                     //suicide if you accidentally got heal specialization
                     if (rc.getExperience(SkillType.ATTACK) >= 70 && rc.getExperience(SkillType.ATTACK) < 75 && rc.getExperience(SkillType.HEAL) >= 100 && rc.getExperience(SkillType.HEAL) <= 105) {

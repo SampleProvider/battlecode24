@@ -108,25 +108,47 @@ public strictfp class RobotPlayer {
                             if (loc1.x == -1) {
                                 loc1 = spawnLocs[i];
                             }
+                            else if (loc1.distanceSquaredTo(spawnLocs[i]) >= 4 && loc1.distanceSquaredTo(spawnLocs[i]) <= 8) {
+                                int x = loc1.x;
+                                if (Math.abs(loc1.x - spawnLocs[i].x) == 2) {
+                                    x = (loc1.x + spawnLocs[i].x) / 2;
+                                }
+                                int y = loc1.y;
+                                if (Math.abs(loc1.y - spawnLocs[i].y) == 2) {
+                                    y = (loc1.y + spawnLocs[i].y) / 2;
+                                }
+                                loc1 = new MapLocation(x, y);
+                            }
+                            else if (loc1.distanceSquaredTo(spawnLocs[i]) < 4) {
+                            }
                             else if (loc2.x == -1) {
                                 loc2 = spawnLocs[i];
+                            }
+                            else if (loc2.distanceSquaredTo(spawnLocs[i]) >= 4 && loc2.distanceSquaredTo(spawnLocs[i]) <= 8) {
+                                int x = loc2.x;
+                                if (Math.abs(loc2.x - spawnLocs[i].x) == 2) {
+                                    x = (loc2.x + spawnLocs[i].x) / 2;
+                                }
+                                int y = loc2.y;
+                                if (Math.abs(loc2.y - spawnLocs[i].y) == 2) {
+                                    y = (loc2.y + spawnLocs[i].y) / 2;
+                                }
+                                loc2 = new MapLocation(x, y);
+                            }
+                            else if (loc2.distanceSquaredTo(spawnLocs[i]) < 4) {
                             }
                             else if (loc3.x == -1) {
                                 loc3 = spawnLocs[i];
                             }
-                            else if (loc1.distanceSquaredTo(spawnLocs[i]) >= 4 && loc1.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc1.x + spawnLocs[i].x) / 2;
-                                int y = (loc1.y + spawnLocs[i].y) / 2;
-                                loc1 = new MapLocation(x, y);
-                            }
-                            else if (loc2.distanceSquaredTo(spawnLocs[i]) >= 4 && loc2.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc2.x + spawnLocs[i].x) / 2;
-                                int y = (loc2.y + spawnLocs[i].y) / 2;
-                                loc2 = new MapLocation(x, y);
-                            }
                             else if (loc3.distanceSquaredTo(spawnLocs[i]) >= 4 && loc3.distanceSquaredTo(spawnLocs[i]) <= 8) {
-                                int x = (loc3.x + spawnLocs[i].x) / 2;
-                                int y = (loc3.y + spawnLocs[i].y) / 2;
+                                int x = loc3.x;
+                                if (Math.abs(loc3.x - spawnLocs[i].x) == 2) {
+                                    x = (loc3.x + spawnLocs[i].x) / 2;
+                                }
+                                int y = loc3.y;
+                                if (Math.abs(loc3.y - spawnLocs[i].y) == 2) {
+                                    y = (loc3.y + spawnLocs[i].y) / 2;
+                                }
                                 loc3 = new MapLocation(x, y);
                             }
                         }
