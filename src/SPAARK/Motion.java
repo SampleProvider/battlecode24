@@ -950,7 +950,8 @@ public class Motion {
                     // double rScore = r.getAttackLevel() + /*r.getHealLevel()*/ - r.getHealth() / 50.0 + (r.hasFlag() ? - 999: 0);
     
                     // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation())));
-                    double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.2;
+                    double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0) - (Math.sqrt(me.distanceSquaredTo(r.getLocation()))) * 0.15;
+                    //tested: 0.1,0.2,0.25,0.3
                     // double rScore = /*r.getHealLevel()*/ - r.getHealth() / 200.0 + (r.hasFlag() ? - 99999: 0);
                     if (r.getHealth() <= damage) {
                         rScore += 1000 + r.getAttackLevel() * 1000;
