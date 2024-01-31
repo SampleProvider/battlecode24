@@ -659,12 +659,12 @@ public class Motion {
         double bestFillWeight = 0;
         int mapSize = RobotPlayer.mapSizeFactor;
         int adv = Comms.getFlagAdv();
-        MapInfo[] mapInfos = rc.senseNearbyMapInfos();
+        MapInfo[] mapInfos = rc.senseNearbyMapInfos(8);
         for (MapInfo i : mapInfos) {
             passable[Comms.intifyLocationNoMarker(i.getMapLocation())] = i.isPassable();
             occupied[Comms.intifyLocationNoMarker(i.getMapLocation())] = false;
         }
-        RobotInfo[] allBots = rc.senseNearbyRobots();
+        RobotInfo[] allBots = rc.senseNearbyRobots(8);
         for (RobotInfo i : allBots) {
             occupied[Comms.intifyLocationNoMarker(i.getLocation())] = true;
         }
@@ -812,10 +812,11 @@ public class Motion {
                                     continue;
                                 }
                                 if (passable[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))] && !occupied[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))]) {
+                                // if (rc.sensePassability(robot.getLocation().add(_d)) && rc.senseRobotAtLocation(robot.getLocation().add(_d)) == null) {
                                     numFreeDirections++;
                                 }
                             }
-                            if (numFreeDirections <= 3) { //tested: 4, 2
+                            if (numFreeDirections <= 2) { //tested: 4, 2
                                 friendlyWeight -= 2;
                             }
                         }
@@ -882,7 +883,8 @@ public class Motion {
                             }
                         }
                     }
-                    weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
+                    // weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
+                    weight += rc.senseNearbyRobots(loc, 8, rc.getTeam().opponent()).length;
                     if (bestBuildDir == null) {
                         bestBuildDir = d;
                         bestBuildWeight = weight;

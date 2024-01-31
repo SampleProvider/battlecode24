@@ -659,15 +659,18 @@ public class Motion {
         double bestFillWeight = 0;
         int mapSize = RobotPlayer.mapSizeFactor;
         int adv = Comms.getFlagAdv();
-        MapInfo[] mapInfos = rc.senseNearbyMapInfos();
+        MapInfo[] mapInfos = rc.senseNearbyMapInfos(8);
+        int b = Clock.getBytecodeNum();
         for (MapInfo i : mapInfos) {
             passable[Comms.intifyLocationNoMarker(i.getMapLocation())] = i.isPassable();
             occupied[Comms.intifyLocationNoMarker(i.getMapLocation())] = false;
         }
-        RobotInfo[] allBots = rc.senseNearbyRobots();
+        RobotInfo[] allBots = rc.senseNearbyRobots(8);
         for (RobotInfo i : allBots) {
             occupied[Comms.intifyLocationNoMarker(i.getLocation())] = true;
         }
+        System.out.println(Clock.getBytecodeNum() - b);
+        rc.resign();
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -812,6 +815,7 @@ public class Motion {
                                     continue;
                                 }
                                 if (passable[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))] && !occupied[Comms.intifyLocationNoMarker(robot.getLocation().add(_d))]) {
+                                // if (rc.sensePassability(robot.getLocation().add(_d)) && rc.senseRobotAtLocation(robot.getLocation().add(_d)) == null) {
                                     numFreeDirections++;
                                 }
                             }
