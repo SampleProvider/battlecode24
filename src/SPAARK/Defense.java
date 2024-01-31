@@ -57,6 +57,9 @@ public class Defense {
         Comms.updatePOI();
         if (Comms.hasLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id))) {
             // RobotInfo[] opponentRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+            if (rc.canBuild(TrapType.WATER, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)))) {
+                rc.build(TrapType.WATER, Comms.parseLocation(rc.readSharedArray(Comms.ALLY_FLAG_DEF_LOC + Comms.id)));
+            }
             RobotInfo[] opponentRobots = Motion.opponentRobots;
             if (opponentRobots.length > 0) {
                 // spam traps between enemy and flag
