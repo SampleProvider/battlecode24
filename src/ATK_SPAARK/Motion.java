@@ -842,7 +842,7 @@ public class Motion {
                             weight -= 10;
                         }
                     }
-                    weight += rc.senseNearbyRobots(loc, 10, rc.getTeam().opponent()).length;
+                    weight += rc.senseNearbyRobots(loc, 8, rc.getTeam().opponent()).length;
                     if (bestBuildDir == null) {
                         bestBuildDir = d;
                         bestBuildWeight = weight;
