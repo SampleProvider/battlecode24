@@ -660,7 +660,6 @@ public class Motion {
         int mapSize = RobotPlayer.mapSizeFactor;
         int adv = Comms.getFlagAdv();
         MapInfo[] mapInfos = rc.senseNearbyMapInfos(8);
-        int b = Clock.getBytecodeNum();
         for (MapInfo i : mapInfos) {
             passable[Comms.intifyLocationNoMarker(i.getMapLocation())] = i.isPassable();
             occupied[Comms.intifyLocationNoMarker(i.getMapLocation())] = false;
@@ -669,8 +668,6 @@ public class Motion {
         for (RobotInfo i : allBots) {
             occupied[Comms.intifyLocationNoMarker(i.getLocation())] = true;
         }
-        System.out.println(Clock.getBytecodeNum() - b);
-        rc.resign();
         for (Direction d : ALL_DIRECTIONS) {
             if (!rc.canMove(d) && !rc.canFill(me.add(d))) {
                 continue;
@@ -819,8 +816,8 @@ public class Motion {
                                     numFreeDirections++;
                                 }
                             }
-                            if (numFreeDirections <= 2) { //tested: 4, 2
-                                friendlyWeight -= 2;
+                            if (numFreeDirections <= 1) { //tested: 4, 2
+                                friendlyWeight -= 4;
                             }
                         }
                     }
